@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
-import { Dialog, Checkbox, Pane, TextInputField, Text } from "evergreen-ui";
+import { Dialog, Checkbox, Pane, TextInput, TextInputField } from "evergreen-ui";
 import { DailyCall } from "@daily-co/daily-js";
 import useBreakoutRoom from "./useBreakoutRoom";
 
@@ -54,18 +54,21 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setConfig({ ...config, allow_user_exit: e.target.checked })}
           />
           <Checkbox
-            label="Automatically end breakout session after x minutes"
+            label={
+            <>
+              Automatically end breakout session after
+                <input
+                  type="number"
+                  min={0}
+                  value={config.expiryTime}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setConfig({ ...config, expiryTime: e.target.valueAsNumber })}
+                  style={{ margin: '0 5px', width: '40px' }}
+                />
+              minutes
+            </>}
             checked={config.exp}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setConfig({ ...config, exp: e.target.checked })}
           />
-          {config.exp && (
-            <TextInputField
-              type="number"
-              hint={<Text color="muted">Ends breakout session after <b>{config.expiryTime}</b> minutes.</Text>}
-              value={config.expiryTime}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setConfig({ ...config, expiryTime: e.target.valueAsNumber })}
-            />
-          )}
           <Checkbox
             label="Record breakout session (will start automatically)"
             checked={config.record_breakout_sessions}
