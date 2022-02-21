@@ -1,9 +1,7 @@
 import { DailyCall } from "@daily-co/daily-js";
 
-const getDateTimeAfter = (minutes: number) => {
-  const date = new Date(new Date().getTime() + minutes * 60000);
-  return Math.round(date.getTime() / 1000);
-};
+const getDateTimeAfter = (minutes: number) =>
+  Math.round(new Date(new Date().getTime() + minutes * 60000).getTime() / 1000);
 
 const useBreakoutRoom = (call: DailyCall) => {
   const createSession = async (config: any) => {
@@ -42,8 +40,22 @@ const useBreakoutRoom = (call: DailyCall) => {
     return status;
   };
 
+  const endSession = async () => {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        event: 'DAILY_BREAKOUT_CONCLUDED'
+      }),
+    };
+
+    const res = await fetch('/api/pusher', options);
+    const { status } = await res.json();
+    return status;
+  };
+
   return {
     createSession,
+    endSession,
   }
 };
 
