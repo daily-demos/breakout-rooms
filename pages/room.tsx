@@ -36,7 +36,7 @@ const Room = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
-  const { endSession } = useBreakoutRoom(callFrame as DailyCall);
+  const { endSession } = useBreakoutRoom();
 
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
