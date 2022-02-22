@@ -18,6 +18,7 @@ const useBreakoutRoom = () => {
         auto_join: config.auto_join,
         allow_user_exit: config.allow_user_exit,
         exp: config.exp ? getDateTimeAfter(config.expiryTime) : null,
+        record_breakout_sessions: config.record_breakout_sessions,
       },
     };
 

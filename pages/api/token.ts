@@ -10,11 +10,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const { isOwner } = req.body;
+  const { isOwner, roomName, username, recordBreakoutRooms } = req.body;
 
   if (req.method === 'POST') {
     console.log(
-      `Getting token for room '${process.env.DAILY_ROOM}' as owner: ${isOwner}`,
+      `Getting token for room '${roomName || process.env.DAILY_ROOM}' as owner: ${isOwner}`,
     );
 
     const options = {
@@ -25,9 +25,11 @@ export default async function handler(
       },
       body: JSON.stringify({
         properties: {
-          room_name: process.env.DAILY_ROOM,
+          room_name: roomName || process.env.DAILY_ROOM,
           is_owner: isOwner,
           enable_recording: 'cloud',
+          user_name: username,
+          start_cloud_recording: recordBreakoutRooms,
         },
       }),
     };
