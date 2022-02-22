@@ -79,7 +79,7 @@ const Room = () => {
 
       setCallFrame(newCallFrame as DailyCall);
       if (breakout)
-        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token});
+        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token });
       else {
         newCallFrame
           .join({ url: `https://harshith.daily.co/${name}`, token })
@@ -94,6 +94,10 @@ const Room = () => {
       const leave = async () => {
         callFrame?.destroy();
         setShow(false);
+        if (breakoutSession) {
+          if (breakoutSession.config.allow_user_exit) setCallFrame(null);
+          else await router.push('/');
+        }
       };
 
       newCallFrame.on('joined-meeting', () => setShow(true));
@@ -103,7 +107,7 @@ const Room = () => {
         newCallFrame.off('left-meeting', leave);
       };
     },
-    [callFrame],
+    [breakoutSession, callFrame, router],
   );
 
   const handleBreakoutSessionStarted = useCallback(
@@ -120,13 +124,13 @@ const Room = () => {
               roomName: room.room_url,
               isOwner,
               username: localUser.user_name,
-              recordBreakoutRooms: data.sessionObject.config.record_breakout_sessions,
+              recordBreakoutRooms:
+                data.sessionObject.config.record_breakout_sessions,
             }),
           };
 
           const res = await fetch('/api/token', options);
           const { token } = await res.json();
-          console.log(token);
           await callFrame.destroy();
           joinCall(room.room_url, token, true);
         }
