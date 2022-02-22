@@ -105,6 +105,23 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           };
         });
         break;
+      case 'participant-left':
+        const idx = event.participant.user_id;
+        setRooms((rooms: any) => {
+          const assigned = rooms.assigned;
+          assigned.map((room: any, index: number) => {
+            assigned[index] = {
+              ...rooms.assigned[index],
+              participants: [...room?.participants?.filter((p: any) => p.user_id !== idx)]
+            };
+          });
+          return {
+            ...rooms,
+            assigned,
+            unassigned: [...rooms.unassigned.filter((p: any) => p.user_id !== idx)]
+          };
+        });
+        break;
       default:
         break;
     }
@@ -113,7 +130,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
   useEffect(() => {
     if (!call) return;
 
-    const events = ['joined-meeting', 'participant-joined'];
+    const events = ['joined-meeting', 'participant-joined', 'participant-left'];
     handleNewParticipantsState();
     events.forEach((event: string) =>
       call.on(event as DailyEvent, handleNewParticipantsState),
