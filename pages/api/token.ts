@@ -14,7 +14,9 @@ export default async function handler(
 
   if (req.method === 'POST') {
     console.log(
-      `Getting token for room '${roomName || process.env.DAILY_ROOM}' as owner: ${isOwner}`,
+      `Getting token for room '${
+        roomName || process.env.DAILY_ROOM
+      }' as owner: ${isOwner}`,
     );
 
     const options = {
