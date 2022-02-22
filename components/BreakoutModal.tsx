@@ -1,5 +1,5 @@
-import React, {ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState} from 'react';
-import {Badge, Button, Checkbox, Dialog, Heading, Pane, Text, PlusIcon } from "evergreen-ui";
+import React, {ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useState} from 'react';
+import {Badge, Button, Checkbox, Dialog, Heading, Pane, PlusIcon, Text} from "evergreen-ui";
 import {DailyCall, DailyEvent, DailyParticipant} from "@daily-co/daily-js";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import useBreakoutRoom from "./useBreakoutRoom";
@@ -60,7 +60,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           setRooms((rooms: any) => {
             return {
               ...rooms,
-              unassigned: [...rooms.unassigned, getParticipant(event.participants.local)]
+              unassigned: Array.from(new Set(rooms.unassigned).add(getParticipant(event.participants.local)))
             }
           });
           break;
@@ -68,7 +68,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           setRooms((rooms: any) => {
             return {
               ...rooms,
-              unassigned: [...rooms.unassigned, getParticipant(event.participant)]
+              unassigned: Array.from(new Set(rooms.unassigned).add(getParticipant(event.participant)))
             }
           });
           break;
@@ -105,15 +105,19 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
     if (result.destination.droppableId !== 'unassigned') {
       r.assigned[Number(result.destination.droppableId)].participants.push(sourceValue(result.source));
     } else r.unassigned.push(sourceValue(result.source));
-    setRooms({ assigned: r.assigned, unassigned: r.unassigned });
+    setRooms({ ...r });
   }, [sourceValue, rooms]);
 
   const handleAddRoom = () => {
+    const assigned = rooms.assigned;
+    assigned.push({
+      name: `Breakout Room ${assigned.length + 1}`,
+      room_url: `forj-breakout-${assigned.length + 1}`,
+      created: new Date(), participants: []
+    });
     setRooms((rooms: any) => {
-      const assigned = rooms.assigned;
-      assigned.push({ name: `Breakout Room ${assigned.length + 1}`, room_url: `forj-breakout-${assigned.length + 1}`, created: new Date(), participants: [] });
       return { ...rooms, assigned };
-    })
+    });
   };
 
   const handleAssignEvenly = () => {
