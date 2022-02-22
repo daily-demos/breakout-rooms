@@ -80,9 +80,10 @@ const Room = () => {
       });
 
       setCallFrame(newCallFrame as DailyCall);
-      if (breakout)
-        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token });
-      else {
+      if (breakout) {
+        newCallFrame.join({url: `https://harshith.daily.co/${name}`, token});
+        setWarn(true);
+      } else {
         newCallFrame
           .join({ url: `https://harshith.daily.co/${name}`, token })
           .then(() => {
@@ -99,6 +100,7 @@ const Room = () => {
         if (breakoutSession) {
           if (breakoutSession.config.allow_user_exit) setCallFrame(null);
           else await router.push('/');
+          setBreakoutSession(null);
         }
       };
 
@@ -133,10 +135,8 @@ const Room = () => {
 
           const res = await fetch('/api/token', options);
           const { token } = await res.json();
-          console.log(token);
           await callFrame.destroy();
           joinCall(room.room_url, token, true);
-          setWarn(true);
         }
       });
     },
