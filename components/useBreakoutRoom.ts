@@ -5,7 +5,7 @@ const useBreakoutRoom = () => {
   const createSession = async (rooms: any, config: any) => {
     const r: Array<any> = [];
     rooms.map((room: any) => {
-      if (room.participants.length > 0)
+      if (room?.participants?.length > 0)
         r.push({
           ...room,
           participants: room.participants.map((p: any) => p.user_id),

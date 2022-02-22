@@ -200,7 +200,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
               </Pane>
               <Pane>
                 <Text>
-                  ({rooms.assigned[index].participants.length} people)
+                  ({rooms.assigned[index]?.participants?.length || 0} people)
                 </Text>
               </Pane>
             </Pane>
@@ -211,7 +211,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
                   {...provided.droppableProps}
                   style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  {room.participants.map(
+                  {room?.participants?.map(
                     (participant: DailyParticipant, index: number) => (
                       <Draggable
                         key={participant.user_id}

@@ -16,12 +16,13 @@ const Timer = ({ expiry, callFrame, setCallFrame }: TimerType) => {
     if (!expiry) {
       return false;
     }
-    const i = setInterval(() => {
+    const i = setInterval(async () => {
       const timeNow = Math.round(new Date().getTime() / 1000);
       let timeLeft = expiry - timeNow;
       if (timeLeft < 0) {
         if (callFrame && setCallFrame) {
-          callFrame.destroy();
+          await callFrame.leave();
+          await callFrame.destroy();
           setCallFrame(null);
         }
         return setSecs(null);
