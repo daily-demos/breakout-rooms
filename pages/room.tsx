@@ -56,10 +56,10 @@ const Room = () => {
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
   const joinCall = useCallback(
-    (name = 'forj-breakout', token, userName = null) => {
+    (name = 'forj-breakout', token, breakout = false) => {
       const newCallFrame: DailyCall = DailyIframe.createFrame(
         callRef?.current as HTMLElement,
-        userName ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
+        breakout ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
       );
 
       newCallFrame.setTheme({
@@ -78,12 +78,8 @@ const Room = () => {
       });
 
       setCallFrame(newCallFrame as DailyCall);
-      if (userName)
-        newCallFrame.join({
-          url: `https://harshith.daily.co/${name}`,
-          token,
-          userName,
-        });
+      if (breakout)
+        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token});
       else {
         newCallFrame
           .join({ url: `https://harshith.daily.co/${name}`, token })
@@ -118,12 +114,25 @@ const Room = () => {
       setBreakoutSession(data.sessionObject);
       data.sessionObject.rooms?.map(async (room: any) => {
         if (room.participants.includes(localUser.user_id)) {
+          const options = {
+            method: 'POST',
+            body: JSON.stringify({
+              roomName: room.room_url,
+              isOwner,
+              username: localUser.user_name,
+              recordBreakoutRooms: data.sessionObject.config.record_breakout_sessions,
+            }),
+          };
+
+          const res = await fetch('/api/token', options);
+          const { token } = await res.json();
+          console.log(token);
           await callFrame.destroy();
-          joinCall(room.room_url, router.query.t || '', localUser.user_name);
+          joinCall(room.room_url, token, true);
         }
       });
     },
-    [callFrame, joinCall, router.query.t],
+    [callFrame, isOwner, joinCall],
   );
 
   useEffect(() => {
