@@ -178,6 +178,13 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
     setRooms({ assigned: r.assigned, unassigned: [] });
   };
 
+  const handleRemoveAll = (index: number) => {
+    const r = rooms;
+    r.unassigned.push(...r.assigned[index].participants);
+    r.assigned[index].participants = [];
+    setRooms({ ...r });
+  };
+
   const handleSubmit = async () => {
     const status = await createSession(rooms.assigned, config);
     if (status === 'success') setShow(false);
@@ -199,9 +206,17 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
                 <Heading is="h3">{room.name}</Heading>
               </Pane>
               <Pane>
-                <Text>
-                  ({rooms.assigned[index]?.participants?.length || 0} people)
-                </Text>
+                {room?.participants?.length > 0 && (
+                  <Button
+                    appearance="minimal"
+                    intent="danger"
+                    size="small"
+                    onClick={() => handleRemoveAll(index)}
+                  >
+                    Remove all
+                  </Button>
+                )}
+                <Text>({room.participants?.length || 0} people)</Text>
               </Pane>
             </Pane>
             <Droppable droppableId={index.toString()} direction="horizontal">
