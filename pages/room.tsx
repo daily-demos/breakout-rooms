@@ -116,7 +116,7 @@ const Room = () => {
     async (data: any) => {
       if (!callFrame) return;
 
-      const localUser = callFrame.participants().local;
+      const localUser = await callFrame.participants().local;
       setBreakoutSession(data.sessionObject);
       data.sessionObject.rooms?.map(async (room: any) => {
         if (room.participants.includes(localUser.user_id)) {
@@ -133,6 +133,7 @@ const Room = () => {
 
           const res = await fetch('/api/token', options);
           const { token } = await res.json();
+          console.log(token);
           await callFrame.destroy();
           joinCall(room.room_url, token, true);
           setWarn(true);
