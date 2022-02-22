@@ -1,20 +1,21 @@
-
 /*
  * This is an example server-side function that generates a meeting token
  * server-side. You could replace this on your own back-end to include
  * custom user authentication, etc.
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { isOwner } = req.body;
 
   if (req.method === 'POST') {
-    console.log(`Getting token for room '${process.env.DAILY_ROOM}' as owner: ${isOwner}`);
+    console.log(
+      `Getting token for room '${process.env.DAILY_ROOM}' as owner: ${isOwner}`,
+    );
 
     const options = {
       method: 'POST',
@@ -33,7 +34,7 @@ export default async function handler(
 
     const dailyRes = await fetch(
       'https://api.daily.co/v1/meeting-tokens',
-      options
+      options,
     );
 
     const { token, error } = await dailyRes.json();

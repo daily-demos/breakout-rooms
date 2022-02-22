@@ -1,8 +1,8 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-import { Button } from 'evergreen-ui'
-import {useRouter} from "next/router";
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import { Button } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -16,7 +16,7 @@ const Home: NextPage = () => {
 
       const res = await fetch('/api/token', options);
       const { token } = await res.json();
-      await router.push(`/room?t=${token}`)
+      await router.push(`/room?t=${token}`);
     } else await router.push('/room');
   };
 
@@ -32,9 +32,7 @@ const Home: NextPage = () => {
           Welcome to <span>Breakout Rooms!</span>
         </h1>
 
-        <p className={styles.description}>
-          Get started by joining a room!
-        </p>
+        <p className={styles.description}>Get started by joining a room!</p>
 
         <div className={styles.join}>
           <Button
@@ -48,7 +46,7 @@ const Home: NextPage = () => {
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

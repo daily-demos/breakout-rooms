@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import Pusher from "pusher";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import Pusher from 'pusher';
 
 export const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID as string,
@@ -11,7 +11,7 @@ export const pusher = new Pusher({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { sessionObject, event } = JSON.parse(req.body);
 
