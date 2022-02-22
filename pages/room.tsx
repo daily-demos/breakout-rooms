@@ -16,6 +16,7 @@ import {
   Popover,
   Position,
   Menu,
+  CornerDialog,
 } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
@@ -48,6 +49,7 @@ const Room = () => {
   const callRef = useRef<HTMLDivElement>(null);
 
   const [show, setShow] = useState(false);
+  const [warn, setWarn] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
@@ -133,6 +135,7 @@ const Room = () => {
           const { token } = await res.json();
           await callFrame.destroy();
           joinCall(room.room_url, token, true);
+          setWarn(true);
         }
       });
     },
@@ -161,6 +164,7 @@ const Room = () => {
     );
     channel.bind('DAILY_BREAKOUT_CONCLUDED', () => {
       setBreakoutSession(null);
+      setWarn(false);
       callFrame?.destroy();
       setCallFrame(null);
     });
@@ -257,6 +261,17 @@ const Room = () => {
         setShow={setBreakoutModal}
         call={callFrame as DailyCall}
       />
+      <CornerDialog
+        title="Muted video & audio"
+        isShown={warn}
+        onCloseComplete={() => setWarn(false)}
+        confirmLabel="Okay"
+        onConfirm={() => setWarn(false)}
+        hasCancel={false}
+      >
+        Video and audio are muted by default on joining the breakout rooms for
+        the sake of privacy, you can always turn them on!
+      </CornerDialog>
       <style jsx>{`
         .banner {
           text-align: center;

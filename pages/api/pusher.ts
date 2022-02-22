@@ -34,7 +34,6 @@ export default async function handler(
               enable_prejoin_ui: false,
               enable_recording: 'cloud',
               exp: sessionObject.config.exp,
-              eject_at_room_exp: true,
             },
           }),
         };
