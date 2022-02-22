@@ -10,7 +10,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const { isOwner, roomName, username, recordBreakoutRooms } = req.body;
+  const { isOwner, roomName, username, recordBreakoutRooms } = JSON.parse(req.body);
 
   if (req.method === 'POST') {
     console.log(
