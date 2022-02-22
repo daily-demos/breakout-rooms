@@ -1,5 +1,5 @@
-import React, {useState, useEffect, Dispatch, SetStateAction} from 'react';
-import { DailyCall } from "@daily-co/daily-js";
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { DailyCall } from '@daily-co/daily-js';
 
 type TimerType = {
   expiry: number;
@@ -26,7 +26,9 @@ const Timer = ({ expiry, callFrame, setCallFrame }: TimerType) => {
         }
         return setSecs(null);
       }
-      setSecs(`${Math.floor(timeLeft / 60)}m:${`0${timeLeft % 60}`.slice(-2)}s`);
+      setSecs(
+        `${Math.floor(timeLeft / 60)}m:${`0${timeLeft % 60}`.slice(-2)}s`,
+      );
     }, 1000);
 
     return () => clearInterval(i);

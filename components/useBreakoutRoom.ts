@@ -4,22 +4,28 @@ const getDateTimeAfter = (minutes: number) =>
 const useBreakoutRoom = () => {
   const createSession = async (rooms: any, config: any) => {
     const r: Array<any> = [];
-    rooms.map((room: any) => r.push({ ...room, participants: room.participants.map((p: any) => p.user_id)}));
+    rooms.map((room: any) => {
+      if (room.participants.length > 0)
+        r.push({
+          ...room,
+          participants: room.participants.map((p: any) => p.user_id),
+        });
+    });
 
     const sessionObject = {
       rooms: r,
       config: {
         auto_join: config.auto_join,
         allow_user_exit: config.allow_user_exit,
-        exp: config.exp ? getDateTimeAfter(config.expiryTime): null
-      }
-    }
+        exp: config.exp ? getDateTimeAfter(config.expiryTime) : null,
+      },
+    };
 
     const options = {
       method: 'POST',
       body: JSON.stringify({
         sessionObject,
-        event: 'DAILY_BREAKOUT_STARTED'
+        event: 'DAILY_BREAKOUT_STARTED',
       }),
     };
 
@@ -32,7 +38,7 @@ const useBreakoutRoom = () => {
     const options = {
       method: 'POST',
       body: JSON.stringify({
-        event: 'DAILY_BREAKOUT_CONCLUDED'
+        event: 'DAILY_BREAKOUT_CONCLUDED',
       }),
     };
 
@@ -44,7 +50,7 @@ const useBreakoutRoom = () => {
   return {
     createSession,
     endSession,
-  }
+  };
 };
 
 export default useBreakoutRoom;
