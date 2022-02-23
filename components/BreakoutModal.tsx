@@ -52,13 +52,13 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
     assigned: [
       {
         name: 'Breakout Room 1',
-        room_url: `forj-breakout-1`,
+        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
         created: new Date(),
         participants: [],
       },
       {
         name: 'Breakout Room 2',
-        room_url: `forj-breakout-2`,
+        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
         created: new Date(),
         participants: [],
       },
@@ -178,7 +178,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
     const assigned = rooms.assigned;
     assigned.push({
       name: `Breakout Room ${assigned.length + 1}`,
-      room_url: `forj-breakout-${assigned.length + 1}`,
+      room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-${assigned.length + 1}`,
       created: new Date(),
       participants: [],
     });
