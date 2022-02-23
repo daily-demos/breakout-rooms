@@ -98,7 +98,6 @@ const Room = () => {
       }
 
       const leave = async () => {
-        console.log('hello');
         callFrame?.destroy();
         setShow(false);
         if (breakoutSession) {
@@ -237,7 +236,15 @@ const Room = () => {
                       </Menu.Item>
                     )}
                     {breakoutSession.config.allow_user_exit && (
-                      <Menu.Item icon={LogOutIcon}>Return to lobby</Menu.Item>
+                      <Menu.Item
+                        icon={LogOutIcon}
+                        onClick={() => {
+                          callFrame?.destroy();
+                          setCallFrame(null);
+                        }}
+                      >
+                        Return to lobby
+                      </Menu.Item>
                     )}
                   </Menu.Group>
                   {isOwner && (
