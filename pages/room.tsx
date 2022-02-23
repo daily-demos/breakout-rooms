@@ -100,10 +100,7 @@ const Room = () => {
       const leave = async () => {
         callFrame?.destroy();
         setShow(false);
-        if (breakoutSession) {
-          if (breakoutSession.config.allow_user_exit) setCallFrame(null);
-          else router.push('/');
-        }
+        setCallFrame(null);
       };
 
       newCallFrame.on('joined-meeting', () => setShow(true));
@@ -113,7 +110,7 @@ const Room = () => {
         newCallFrame.off('left-meeting', leave);
       };
     },
-    [breakoutSession, callFrame, router],
+    [callFrame],
   );
 
   const handleBreakoutSessionStarted = useCallback(
@@ -196,11 +193,7 @@ const Room = () => {
           <b>{myBreakoutRoom.name}</b>
           {breakoutSession.config.exp && (
             <span className="text-right">
-              <Timer
-                expiry={breakoutSession.config.exp}
-                callFrame={callFrame}
-                setCallFrame={setCallFrame}
-              />
+              <Timer expiry={breakoutSession.config.exp} />
             </span>
           )}
         </div>
@@ -230,7 +223,7 @@ const Room = () => {
                     {isOwner && (
                       <Menu.Item
                         icon={SettingsIcon}
-                        onClick={() => setManage(!manage)}
+                        onSelect={() => setManage(!manage)}
                       >
                         Manage rooms
                       </Menu.Item>
@@ -238,7 +231,7 @@ const Room = () => {
                     {breakoutSession.config.allow_user_exit && (
                       <Menu.Item
                         icon={LogOutIcon}
-                        onClick={() => {
+                        onSelect={() => {
                           callFrame?.destroy();
                           setCallFrame(null);
                         }}

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { DailyCall } from '@daily-co/daily-js';
+import useBreakoutRoom from './useBreakoutRoom';
 
 type TimerType = {
   expiry: number;
-  callFrame?: DailyCall | null;
-  setCallFrame?: Dispatch<SetStateAction<DailyCall | null>>;
 };
 
-const Timer = ({ expiry, callFrame, setCallFrame }: TimerType) => {
+const Timer = ({ expiry }: TimerType) => {
   const [secs, setSecs] = useState<any>('--:--');
+  const { endSession } = useBreakoutRoom();
 
   // If room has an expiry time, we'll calculate how many seconds until expiry
   // @ts-ignore
@@ -20,11 +20,7 @@ const Timer = ({ expiry, callFrame, setCallFrame }: TimerType) => {
       const timeNow = Math.round(new Date().getTime() / 1000);
       let timeLeft = expiry - timeNow;
       if (timeLeft < 0) {
-        if (callFrame && setCallFrame) {
-          await callFrame.leave();
-          await callFrame.destroy();
-          setCallFrame(null);
-        }
+        await endSession();
         return setSecs(null);
       }
       setSecs(
@@ -33,7 +29,7 @@ const Timer = ({ expiry, callFrame, setCallFrame }: TimerType) => {
     }, 1000);
 
     return () => clearInterval(i);
-  }, [callFrame, expiry, setCallFrame]);
+  }, [endSession, expiry]);
 
   if (!secs) {
     return null;
