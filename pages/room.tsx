@@ -23,6 +23,7 @@ import BreakoutModal from '../components/BreakoutModal';
 import Pusher from 'pusher-js';
 import Timer from '../components/Timer';
 import useBreakoutRoom from '../components/useBreakoutRoom';
+import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
 
 const CALL_OPTIONS = {
   showLeaveButton: true,
@@ -50,9 +51,11 @@ const Room = () => {
 
   const [show, setShow] = useState(false);
   const [warn, setWarn] = useState(false);
+  const [manage, setManage] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
+
   const { endSession } = useBreakoutRoom();
 
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
@@ -81,7 +84,7 @@ const Room = () => {
 
       setCallFrame(newCallFrame as DailyCall);
       if (breakout) {
-        newCallFrame.join({url: `https://harshith.daily.co/${name}`, token});
+        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token });
         setWarn(true);
       } else {
         newCallFrame
@@ -95,12 +98,12 @@ const Room = () => {
       }
 
       const leave = async () => {
+        console.log('hello');
         callFrame?.destroy();
         setShow(false);
         if (breakoutSession) {
           if (breakoutSession.config.allow_user_exit) setCallFrame(null);
-          else await router.push('/');
-          setBreakoutSession(null);
+          else router.push('/');
         }
       };
 
@@ -225,7 +228,12 @@ const Room = () => {
                       </Menu.Item>
                     )}
                     {isOwner && (
-                      <Menu.Item icon={SettingsIcon}>Manage rooms</Menu.Item>
+                      <Menu.Item
+                        icon={SettingsIcon}
+                        onClick={() => setManage(!manage)}
+                      >
+                        Manage rooms
+                      </Menu.Item>
                     )}
                     {breakoutSession.config.allow_user_exit && (
                       <Menu.Item icon={LogOutIcon}>Return to lobby</Menu.Item>
@@ -273,6 +281,14 @@ const Room = () => {
         Video and audio are muted by default on joining the breakout rooms for
         the sake of privacy, you can always turn them on!
       </CornerDialog>
+      {manage && (
+        <ManageBreakoutRooms
+          isShown={manage}
+          setShown={setManage}
+          breakoutSession={breakoutSession}
+          call={callFrame as DailyCall}
+        />
+      )}
       <style jsx>{`
         .banner {
           text-align: center;

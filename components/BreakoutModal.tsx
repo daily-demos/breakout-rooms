@@ -48,14 +48,6 @@ const sample = (arr: [], len: number) => {
 const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
   const { createSession } = useBreakoutRoom();
 
-  const [config, setConfig] = useState({
-    auto_join: false,
-    allow_user_exit: false,
-    record_breakout_sessions: true,
-    exp: false,
-    expiryTime: 15,
-  });
-
   const [rooms, setRooms] = useState<any>({
     assigned: [
       {
@@ -72,6 +64,14 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
       },
     ],
     unassigned: [],
+  });
+
+  const [config, setConfig] = useState({
+    auto_join: false,
+    allow_user_exit: false,
+    record_breakout_sessions: true,
+    exp: false,
+    expiryTime: 15,
   });
 
   const getParticipant = (participant: DailyParticipant) => {
@@ -112,13 +112,17 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           assigned.map((room: any, index: number) => {
             assigned[index] = {
               ...rooms.assigned[index],
-              participants: [...room?.participants?.filter((p: any) => p.user_id !== idx)]
+              participants: [
+                ...room?.participants?.filter((p: any) => p.user_id !== idx),
+              ],
             };
           });
           return {
             ...rooms,
             assigned,
-            unassigned: [...rooms.unassigned.filter((p: any) => p.user_id !== idx)]
+            unassigned: [
+              ...rooms.unassigned.filter((p: any) => p.user_id !== idx),
+            ],
           };
         });
         break;
@@ -368,7 +372,11 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           <Button iconAfter={PlusIcon} marginRight={16} onClick={handleAddRoom}>
             Add Room
           </Button>
-          <Button appearance="primary" onClick={handleSubmit}>
+          <Button
+            appearance="primary"
+            disabled={rooms.unassigned.length > 0}
+            onClick={handleSubmit}
+          >
             Open Rooms
           </Button>
         </Pane>
