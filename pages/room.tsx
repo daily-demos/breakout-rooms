@@ -18,9 +18,9 @@ import {
   Menu,
   CornerDialog,
 } from 'evergreen-ui';
+import { io } from 'socket.io-client';
 import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
-import Pusher from 'pusher-js';
 import Timer from '../components/Timer';
 import useBreakoutRoom from '../components/useBreakoutRoom';
 import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
@@ -156,23 +156,24 @@ const Room = () => {
     }
   }, [callFrame, joinCall, router.isReady, router.query]);
 
-  useEffect(() => {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
+  useEffect((): any => {
+    const socket = io({ path: '/api/socketio' });
+
+    socket.on('connect', () => {
+      console.log('SOCKET CONNECTED!', socket.id);
     });
 
-    const channel = pusher.subscribe('breakout-rooms');
-    channel.bind('DAILY_BREAKOUT_STARTED', handleBreakoutSessionStarted);
-    channel.bind('DAILY_BREAKOUT_UPDATED', (data: any) =>
+    socket.on('DAILY_BREAKOUT_STARTED', handleBreakoutSessionStarted);
+    socket.on('DAILY_BREAKOUT_UPDATED', (data: any) =>
       setBreakoutSession(data),
     );
-    channel.bind('DAILY_BREAKOUT_CONCLUDED', () => {
+    socket.on('DAILY_BREAKOUT_CONCLUDED', () => {
       setBreakoutSession(null);
       setWarn(false);
       callFrame?.destroy();
       setCallFrame(null);
     });
-    return () => pusher.unsubscribe('breakout-rooms');
+    if (socket) return () => socket.disconnect();
   }, [callFrame, handleBreakoutSessionStarted]);
 
   const myBreakoutRoom = useMemo(() => {
