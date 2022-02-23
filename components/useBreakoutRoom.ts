@@ -33,7 +33,7 @@ const useBreakoutRoom = () => {
       }),
     };
 
-    const res = await fetch('/api/pusher', options);
+    const res = await fetch('/api/socket', options);
     const { status } = await res.json();
     return status;
   };
@@ -46,7 +46,7 @@ const useBreakoutRoom = () => {
       }),
     };
 
-    const res = await fetch('/api/pusher', options);
+    const res = await fetch('/api/socket', options);
     const { status } = await res.json();
     return status;
   };

@@ -1,17 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import Pusher from 'pusher';
-
-export const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID as string,
-  key: process.env.NEXT_PUBLIC_PUSHER_KEY as string,
-  secret: process.env.PUSHER_SECRET as string,
-  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
-  useTLS: true,
-});
+import type { NextApiRequest } from 'next';
+import { NextApiResponseServerIO } from '../../types/next';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponseServerIO,
 ) {
   const { sessionObject, event } = JSON.parse(req.body);
 
@@ -42,7 +34,7 @@ export default async function handler(
       });
     }
 
-    await pusher.trigger('breakout-rooms', event, { sessionObject });
+    res?.socket?.server?.io?.emit(event, { sessionObject });
     return res.status(200).json({ status: 'success' });
   }
   return res.status(500);
