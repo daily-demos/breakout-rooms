@@ -36,6 +36,18 @@ const useCall = ({
   setShow,
   setWarn,
 }: useCallType) => {
+  const handleJoinedMeeting = useCallback(async () => {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        event: 'DAILY_BREAKOUT_REQUEST',
+      }),
+    };
+
+    setShow(true);
+    await fetch('/api/socket', options);
+  }, [setShow]);
+
   const joinCall = useCallback(
     (
       name = process.env.NEXT_PUBLIC_DAILY_ROOM,
@@ -83,14 +95,14 @@ const useCall = ({
         setCallFrame(null);
       };
 
-      newCallFrame.on('joined-meeting', () => setShow(true));
+      newCallFrame.on('joined-meeting', handleJoinedMeeting);
       newCallFrame.on('left-meeting', leave);
       return () => {
-        newCallFrame.off('joined-meeting', () => setShow(true));
+        newCallFrame.off('joined-meeting', handleJoinedMeeting);
         newCallFrame.off('left-meeting', leave);
       };
     },
-    [callFrame, callRef, setCallFrame, setShow, setWarn],
+    [callFrame, callRef, handleJoinedMeeting, setCallFrame, setShow, setWarn],
   );
 
   return { joinCall };
