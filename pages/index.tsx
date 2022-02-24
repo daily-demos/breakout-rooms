@@ -5,117 +5,33 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import {
-  GridViewIcon,
-  SmallCrossIcon,
-  LogOutIcon,
-  SettingsIcon,
-  TimeIcon,
-  Popover,
-  Position,
-  Menu,
-  CornerDialog,
-  Button,
-} from 'evergreen-ui';
+import { DailyCall } from '@daily-co/daily-js';
+import { GridViewIcon, CornerDialog } from 'evergreen-ui';
 import { io } from 'socket.io-client';
 import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
 import Timer from '../components/Timer';
-import useBreakoutRoom from '../components/useBreakoutRoom';
-import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
-import styles from '../styles/Home.module.css';
-
-const CALL_OPTIONS = {
-  showLeaveButton: true,
-  iframeStyle: {
-    height: '100vh',
-    width: '100vw',
-    aspectRatio: '16 / 9',
-    border: '0',
-  },
-};
-
-const BREAKOUT_CALL_OPTIONS = {
-  showLeaveButton: true,
-  iframeStyle: {
-    height: '96vh',
-    width: '100vw',
-    aspectRatio: '16 / 9',
-    border: '0',
-  },
-};
+import Hero from '../components/Hero';
+import useCall from '../components/useCall';
+import BreakoutMenu from '../components/BreakoutMenu';
 
 const Room = () => {
   const callRef = useRef<HTMLDivElement>(null);
 
-  const [show, setShow] = useState(false);
-  const [warn, setWarn] = useState(false);
-  const [manage, setManage] = useState(false);
+  const [show, setShow] = useState<boolean>(false);
+  const [warn, setWarn] = useState<boolean>(false);
   const [isOwner, setIsOwner] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
 
-  const { endSession } = useBreakoutRoom();
-
+  const { joinCall } = useCall({
+    callRef,
+    callFrame,
+    setCallFrame,
+    setShow,
+    setWarn,
+  });
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
-
-  const joinCall = useCallback(
-    (
-      name = process.env.NEXT_PUBLIC_DAILY_ROOM,
-      token = '',
-      breakout = false,
-    ) => {
-      const newCallFrame: DailyCall = DailyIframe.createFrame(
-        callRef?.current as HTMLElement,
-        breakout ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
-      );
-
-      newCallFrame.setTheme({
-        colors: {
-          accent: '#286DA8',
-          accentText: '#FFFFFF',
-          background: '#FFFFFF',
-          backgroundAccent: '#FBFCFD',
-          baseText: '#000000',
-          border: '#EBEFF4',
-          mainAreaBg: '#000000',
-          mainAreaBgAccent: '#071D3A',
-          mainAreaText: '#FFFFFF',
-          supportiveText: '#808080',
-        },
-      });
-
-      setCallFrame(newCallFrame as DailyCall);
-      if (breakout) {
-        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token });
-        setWarn(true);
-      } else {
-        newCallFrame
-          .join({ url: `https://harshith.daily.co/${name}`, token })
-          .then(() => {
-            localStorage.setItem(
-              'main-breakout-user-id',
-              newCallFrame.participants().local.user_id,
-            );
-          });
-      }
-
-      const leave = async () => {
-        callFrame?.destroy();
-        setShow(false);
-        setCallFrame(null);
-      };
-
-      newCallFrame.on('joined-meeting', () => setShow(true));
-      newCallFrame.on('left-meeting', leave);
-      return () => {
-        newCallFrame.off('joined-meeting', () => setShow(true));
-        newCallFrame.off('left-meeting', leave);
-      };
-    },
-    [callFrame],
-  );
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: any) => {
@@ -209,33 +125,7 @@ const Room = () => {
           )}
         </div>
       )}
-      {!callFrame && (
-        <div className={styles.container}>
-          <Head>
-            <title>Breakout Rooms</title>
-            <meta name="description" content="Breakout Rooms" />
-          </Head>
-
-          <main className={styles.main}>
-            <h1 className={styles.title}>
-              Welcome to <span>Breakout Rooms!</span>
-            </h1>
-
-            <p className={styles.description}>Get started by joining a room!</p>
-
-            <div className={styles.join}>
-              <Button
-                appearance="primary"
-                marginRight={16}
-                onClick={() => joinAs(true)}
-              >
-                Join as owner
-              </Button>
-              <Button onClick={() => joinAs()}>Join as participant</Button>
-            </div>
-          </main>
-        </div>
-      )}
+      {!callFrame && <Hero joinAs={joinAs} />}
       <div ref={callRef} className="room" />
       {show && (
         <>
@@ -249,60 +139,14 @@ const Room = () => {
               Breakout
             </button>
           ) : (
-            <Popover
-              content={
-                <Menu>
-                  <Menu.Group>
-                    {breakoutSession.config.exp && (
-                      <Menu.Item disabled icon={TimeIcon}>
-                        Time left: <Timer expiry={breakoutSession.config.exp} />
-                      </Menu.Item>
-                    )}
-                    {isOwner && (
-                      <Menu.Item
-                        icon={SettingsIcon}
-                        onSelect={() => setManage(!manage)}
-                      >
-                        Manage rooms
-                      </Menu.Item>
-                    )}
-                    {breakoutSession.config.allow_user_exit && (
-                      <Menu.Item
-                        icon={LogOutIcon}
-                        onSelect={() => {
-                          callFrame?.destroy();
-                          setCallFrame(null);
-                          setBreakoutSession(null);
-                          joinAs(isOwner);
-                        }}
-                      >
-                        Return to lobby
-                      </Menu.Item>
-                    )}
-                  </Menu.Group>
-                  {isOwner && (
-                    <>
-                      <Menu.Divider />
-                      <Menu.Group>
-                        <Menu.Item
-                          icon={SmallCrossIcon}
-                          intent="danger"
-                          onSelect={endSession}
-                        >
-                          End breakout session
-                        </Menu.Item>
-                      </Menu.Group>
-                    </>
-                  )}
-                </Menu>
-              }
-              position={Position.TOP_RIGHT}
-            >
-              <button type="button" className="breakout-button">
-                <GridViewIcon marginBottom={5} />
-                Breakout
-              </button>
-            </Popover>
+            <BreakoutMenu
+              breakoutSession={breakoutSession}
+              setBreakoutSession={setBreakoutSession}
+              joinAs={joinAs}
+              isOwner={isOwner}
+              callFrame={callFrame}
+              setCallFrame={setCallFrame}
+            />
           )}
         </>
       )}
@@ -322,14 +166,6 @@ const Room = () => {
         Video and audio are muted by default on joining the breakout rooms for
         the sake of privacy, you can always turn them on!
       </CornerDialog>
-      {manage && (
-        <ManageBreakoutRooms
-          isShown={manage}
-          setShown={setManage}
-          breakoutSession={breakoutSession}
-          call={callFrame as DailyCall}
-        />
-      )}
       <style jsx>{`
         .banner {
           text-align: center;
@@ -337,7 +173,7 @@ const Room = () => {
           padding: 0.5rem;
           background: #eee;
         }
-        .breakout-button {
+        :global(.breakout-button) {
           z-index: 10;
           position: fixed;
           bottom: 0.5em;
