@@ -74,13 +74,6 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
     expiryTime: 15,
   });
 
-  const getParticipant = (participant: DailyParticipant) => {
-    return {
-      user_id: participant.user_id,
-      user_name: participant.user_name,
-    };
-  };
-
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
       case 'joined-meeting':
@@ -88,9 +81,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           return {
             ...rooms,
             unassigned: Array.from(
-              new Set(rooms.unassigned).add(
-                getParticipant(event.participants.local),
-              ),
+              new Set(rooms.unassigned).add(event.participants.local),
             ),
           };
         });
@@ -100,7 +91,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
           return {
             ...rooms,
             unassigned: Array.from(
-              new Set(rooms.unassigned).add(getParticipant(event.participant)),
+              new Set(rooms.unassigned).add(event.participant),
             ),
           };
         });

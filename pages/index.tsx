@@ -61,7 +61,11 @@ const Room = () => {
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
   const joinCall = useCallback(
-    (name = process.env.NEXT_PUBLIC_DAILY_ROOM, token = '', breakout = false) => {
+    (
+      name = process.env.NEXT_PUBLIC_DAILY_ROOM,
+      token = '',
+      breakout = false,
+    ) => {
       const newCallFrame: DailyCall = DailyIframe.createFrame(
         callRef?.current as HTMLElement,
         breakout ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
@@ -120,7 +124,7 @@ const Room = () => {
       const localUser = await callFrame.participants().local;
       setBreakoutSession(data.sessionObject);
       data.sessionObject.rooms?.map(async (room: any) => {
-        if (room.participants.includes(localUser.user_id)) {
+        if (room.participantIds.includes(localUser.user_id)) {
           const options = {
             method: 'POST',
             body: JSON.stringify({
@@ -142,19 +146,22 @@ const Room = () => {
     [callFrame, isOwner, joinCall],
   );
 
-  const joinAs = useCallback(async (owner: boolean = false) => {
-    if (owner) {
-      const options = {
-        method: 'POST',
-        body: JSON.stringify({ is_owner: owner }),
-      };
+  const joinAs = useCallback(
+    async (owner: boolean = false) => {
+      if (owner) {
+        const options = {
+          method: 'POST',
+          body: JSON.stringify({ is_owner: owner }),
+        };
 
-      const res = await fetch('/api/token', options);
-      const { token } = await res.json();
-      setIsOwner(true);
-      joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM, token);
-    } else joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM);
-  }, [joinCall]);
+        const res = await fetch('/api/token', options);
+        const { token } = await res.json();
+        setIsOwner(true);
+        joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM, token);
+      } else joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM);
+    },
+    [joinCall],
+  );
 
   useEffect((): any => {
     const socket = io({ path: '/api/socketio' });
@@ -171,8 +178,7 @@ const Room = () => {
       setBreakoutSession(null);
       setWarn(false);
       callFrame?.destroy();
-      setCallFrame(null);
-      joinAs(isOwner)
+      joinAs(isOwner);
     });
     if (socket) return () => socket.disconnect();
   }, [callFrame, handleBreakoutSessionStarted, isOwner, joinAs]);
@@ -182,7 +188,7 @@ const Room = () => {
       const localUserId = localStorage.getItem('main-breakout-user-id');
       // @ts-ignore
       return breakoutSession.rooms.filter((room: any) =>
-        room.participants.includes(localUserId),
+        room.participantIds.includes(localUserId),
       )[0];
     }
   }, [breakoutSession]);
@@ -195,7 +201,7 @@ const Room = () => {
       </Head>
       {callFrame && breakoutSession && (
         <div className="banner">
-          <b>{myBreakoutRoom.name}</b>
+          <b>{myBreakoutRoom?.name}</b>
           {breakoutSession.config.exp && (
             <span className="text-right">
               <Timer expiry={breakoutSession.config.exp} />

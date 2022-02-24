@@ -12,7 +12,7 @@ import {
   Position,
   Menu,
 } from 'evergreen-ui';
-import { DailyCall, DailyParticipantsObject } from '@daily-co/daily-js';
+import { DailyCall } from '@daily-co/daily-js';
 import IconCameraOn from './icons/camera-on-sm.svg';
 import IconCameraOff from './icons/camera-off-sm.svg';
 import IconMicOn from './icons/mic-on-sm.svg';
@@ -26,22 +26,15 @@ type ManageBreakoutRoomsType = {
 };
 
 type ParticipantRowType = {
-  participants: DailyParticipantsObject;
-  participant: string;
+  participant: any;
 };
 
-const ParticipantRow = ({ participants, participant }: ParticipantRowType) => {
-  const p = useMemo(() => {
-    if (participants.hasOwnProperty(participant))
-      return participants[participant];
-    else return participants.local;
-  }, [participants, participant]);
-
+const ParticipantRow = ({ participant }: ParticipantRowType) => {
   return (
-    <Pane display="flex" padding={5} key={p.user_id}>
+    <Pane display="flex" padding={5} key={participant.user_id}>
       <Pane flex={1} alignItems="center" display="flex">
         <Strong>
-          {p.user_name} {p.local && '(you)'}
+          {participant.user_name} {participant.local && '(you)'}
         </Strong>
       </Pane>
       <Pane>
@@ -63,14 +56,19 @@ const ParticipantRow = ({ participants, participant }: ParticipantRowType) => {
         </Popover>
         <IconButton
           appearance="minimal"
-          icon={<Image src={p.audio ? IconMicOn : IconMicOff} alt="Mic" />}
+          icon={
+            <Image src={participant.audio ? IconMicOn : IconMicOff} alt="Mic" />
+          }
           disabled
           marginX={2}
         />
         <IconButton
           appearance="minimal"
           icon={
-            <Image src={p.video ? IconCameraOn : IconCameraOff} alt="camera" />
+            <Image
+              src={participant.video ? IconCameraOn : IconCameraOff}
+              alt="camera"
+            />
           }
           disabled
           marginX={2}
@@ -114,7 +112,6 @@ const ManageBreakoutRooms = ({
                   {room?.participants?.map((participant: any) => (
                     <ParticipantRow
                       participant={participant}
-                      participants={participants}
                       key={participant}
                     />
                   ))}
