@@ -19,7 +19,7 @@ export default async function handler(
           },
           body: JSON.stringify({
             name: room.room_url,
-            privacy: 'public',
+            privacy: 'private',
             properties: {
               start_audio_off: true,
               start_video_off: true,
