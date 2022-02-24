@@ -64,17 +64,15 @@ const Room = () => {
 
   const joinAs = useCallback(
     async (owner: boolean = false) => {
-      if (owner) {
-        const options = {
-          method: 'POST',
-          body: JSON.stringify({ is_owner: owner }),
-        };
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({ is_owner: owner }),
+      };
 
-        const res = await fetch('/api/token', options);
-        const { token } = await res.json();
-        setIsOwner(true);
-        joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM, token);
-      } else joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM);
+      const res = await fetch('/api/token', options);
+      const { token } = await res.json();
+      setIsOwner(owner);
+      joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM, token);
     },
     [joinCall],
   );
