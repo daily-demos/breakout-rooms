@@ -8,7 +8,7 @@ const useBreakoutRoom = () => {
       if (room?.participants?.length > 0)
         r.push({
           ...room,
-          participants: room.participants.map((p: any) => p.user_id),
+          participantIds: room.participants.map((p: any) => p.user_id),
         });
     });
 
