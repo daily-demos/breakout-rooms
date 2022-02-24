@@ -309,7 +309,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
         <Pane marginTop={10}>
           <Heading is="h3">Configurations</Heading>
           <Checkbox
-            label="Let participant join / change rooms freely"
+            label="Let participant join after breakout room started"
             checked={config.auto_join}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setConfig({ ...config, auto_join: e.target.checked })

@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 const getDateTimeAfter = (minutes: number) =>
   Math.round(new Date(new Date().getTime() + minutes * 60000).getTime() / 1000);
 
@@ -35,6 +37,32 @@ const useBreakoutRoom = () => {
     return status;
   };
 
+  const assignRoomToNewParticipant = useCallback(
+    async (breakoutSession, participant) => {
+      const r = breakoutSession.rooms;
+      r[r.length - 1].participants.push(participant);
+      r[r.length - 1].participantIds.push(
+        participant.user_id,
+      );
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({
+          sessionObject: {
+            ...breakoutSession,
+            rooms: r,
+          },
+          newParticipantId: participant.user_id,
+          event: 'DAILY_BREAKOUT_UPDATED',
+        }),
+      };
+
+      const res = await fetch('/api/socket', options);
+      const { status } = await res.json();
+      return status;
+    },
+    [],
+  );
+
   const endSession = async () => {
     const options = {
       method: 'POST',
@@ -50,6 +78,7 @@ const useBreakoutRoom = () => {
 
   return {
     createSession,
+    assignRoomToNewParticipant,
     endSession,
   };
 };
