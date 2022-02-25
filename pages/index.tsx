@@ -79,8 +79,10 @@ const Room = () => {
       setBreakout(true);
       setBreakoutSession(data.sessionObject);
       if (
-        data.newParticipantId &&
-        data.newParticipantId === localStorage.getItem('main-breakout-user-id')
+        data.newParticipantIds &&
+        data.newParticipantIds.includes(
+          localStorage.getItem('main-breakout-user-id'),
+        )
       ) {
         await joinBreakoutRoom(data.sessionObject);
       }
@@ -171,7 +173,7 @@ const Room = () => {
       return breakoutSession.rooms.filter((room: any) =>
         room.participantIds.includes(localUserId),
       )[0];
-    }
+    } else return null;
   }, [breakoutSession]);
 
   return (

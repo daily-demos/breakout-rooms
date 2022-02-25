@@ -37,13 +37,29 @@ const useBreakoutRoom = () => {
     return status;
   };
 
+  const updateSession = async (
+    breakoutSession: any,
+    newParticipantIds: String[],
+  ) => {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        sessionObject: breakoutSession,
+        newParticipantIds,
+        event: 'DAILY_BREAKOUT_UPDATED',
+      }),
+    };
+
+    const res = await fetch('/api/socket', options);
+    const { status } = await res.json();
+    return status;
+  };
+
   const assignRoomToNewParticipant = useCallback(
     async (breakoutSession, participant) => {
       const r = breakoutSession.rooms;
       r[r.length - 1].participants.push(participant);
-      r[r.length - 1].participantIds.push(
-        participant.user_id,
-      );
+      r[r.length - 1].participantIds.push(participant.user_id);
       const options = {
         method: 'POST',
         body: JSON.stringify({
@@ -51,7 +67,7 @@ const useBreakoutRoom = () => {
             ...breakoutSession,
             rooms: r,
           },
-          newParticipantId: participant.user_id,
+          newParticipantIds: [participant.user_id],
           event: 'DAILY_BREAKOUT_UPDATED',
         }),
       };
@@ -78,6 +94,7 @@ const useBreakoutRoom = () => {
 
   return {
     createSession,
+    updateSession,
     assignRoomToNewParticipant,
     endSession,
   };

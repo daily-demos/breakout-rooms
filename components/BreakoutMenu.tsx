@@ -95,7 +95,6 @@ const BreakoutMenu = ({
           isShown={manage}
           setShown={setManage}
           breakoutSession={breakoutSession}
-          call={callFrame as DailyCall}
         />
       )}
     </>
