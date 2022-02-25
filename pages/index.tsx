@@ -16,6 +16,7 @@ import useCall from '../components/useCall';
 import BreakoutMenu from '../components/BreakoutMenu';
 import equal from 'fast-deep-equal';
 import useBreakoutRoom from '../components/useBreakoutRoom';
+import JoinBreakoutModal from '../components/JoinBreakoutModal';
 
 const Room = () => {
   const callRef = useRef<HTMLDivElement>(null);
@@ -25,6 +26,7 @@ const Room = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [breakout, setBreakout] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
+  const [join, setJoin] = useState(false);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
@@ -91,15 +93,17 @@ const Room = () => {
   );
 
   const handleBreakoutSessionRequest = useCallback(async () => {
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        sessionObject: breakoutSession,
-        event: 'DAILY_BREAKOUT_SYNC',
-      }),
-    };
+    if (breakoutSession) {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({
+          sessionObject: breakoutSession,
+          event: 'DAILY_BREAKOUT_SYNC',
+        }),
+      };
 
-    await fetch('/api/socket', options);
+      await fetch('/api/socket', options);
+    }
   }, [breakoutSession]);
 
   const handleBreakoutSessionSync = useCallback(
@@ -158,8 +162,10 @@ const Room = () => {
     if (!callFrame) return;
 
     const assignParticipant = async () => {
-      const participant = await callFrame.participants().local;
-      await assignRoomToNewParticipant(breakoutSession, participant);
+      if (breakoutSession.config.auto_join) {
+        const participant = await callFrame.participants().local;
+        await assignRoomToNewParticipant(breakoutSession, participant);
+      } else setJoin(true);
     };
 
     if (!breakoutSession) return;
@@ -222,6 +228,14 @@ const Room = () => {
         setShow={setBreakoutModal}
         call={callFrame as DailyCall}
       />
+      {breakoutSession && (
+        <JoinBreakoutModal
+          show={join}
+          setShow={setJoin}
+          breakoutSession={breakoutSession}
+          call={callFrame as DailyCall}
+        />
+      )}
       <CornerDialog
         title="Muted video & audio"
         isShown={warn}

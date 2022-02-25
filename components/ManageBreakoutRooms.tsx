@@ -14,7 +14,6 @@ import {
   Paragraph,
   Button,
   Checkbox,
-  PlusIcon,
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
