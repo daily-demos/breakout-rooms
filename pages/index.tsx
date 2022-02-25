@@ -130,7 +130,7 @@ const Room = () => {
   );
 
   useEffect((): any => {
-    const socket = io({ path: '/api/socketio' });
+    const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, { path: '/api/socketio' });
 
     socket.on('connect', () => {
       console.log('SOCKET CONNECTED!', socket.id);
