@@ -20,7 +20,7 @@ const Hero = ({ joinAs }: HeroType) => {
           Welcome to <span>Breakout Rooms!</span>
         </h1>
 
-        <p className={styles.description}>Get started by joining a room!</p>
+        <p className={styles.description}>Get started by joining a room</p>
 
         <div className={styles.join}>
           <Button
