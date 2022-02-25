@@ -1,90 +1,77 @@
-import React, { Dispatch, SetStateAction, useMemo } from 'react';
-import Image from 'next/image';
+import React, {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useState,
+} from 'react';
 import {
   SideSheet,
   Pane,
   Heading,
-  Strong,
   Card,
-  IconButton,
-  MoreIcon,
-  Popover,
-  Position,
-  Menu,
+  Badge,
+  Paragraph,
+  Button,
+  Checkbox,
+  PlusIcon,
 } from 'evergreen-ui';
-import { DailyCall } from '@daily-co/daily-js';
-import IconCameraOn from './icons/camera-on-sm.svg';
-import IconCameraOff from './icons/camera-off-sm.svg';
-import IconMicOn from './icons/mic-on-sm.svg';
-import IconMicOff from './icons/mic-off-sm.svg';
+import { DailyParticipant } from '@daily-co/daily-js';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import useBreakoutRoom from './useBreakoutRoom';
 
 type ManageBreakoutRoomsType = {
   isShown: boolean;
   setShown: Dispatch<SetStateAction<boolean>>;
   breakoutSession: any;
-  call: DailyCall;
 };
 
-type ParticipantRowType = {
-  participant: any;
-};
-
-const ParticipantRow = ({ participant }: ParticipantRowType) => {
-  return (
-    <Pane display="flex" padding={5} key={participant.user_id}>
-      <Pane flex={1} alignItems="center" display="flex">
-        <Strong>
-          {participant.user_name} {participant.local && '(you)'}
-        </Strong>
-      </Pane>
-      <Pane>
-        <Popover
-          position={Position.BOTTOM_RIGHT}
-          content={
-            <Menu>
-              <Menu.Group>
-                <Menu.Item>Move participant</Menu.Item>
-              </Menu.Group>
-              <Menu.Divider />
-              <Menu.Group>
-                <Menu.Item intent="danger">Remove</Menu.Item>
-              </Menu.Group>
-            </Menu>
-          }
-        >
-          <IconButton appearance="minimal" icon={MoreIcon} marginX={2} />
-        </Popover>
-        <IconButton
-          appearance="minimal"
-          icon={
-            <Image src={participant.audio ? IconMicOn : IconMicOff} alt="Mic" />
-          }
-          disabled
-          marginX={2}
-        />
-        <IconButton
-          appearance="minimal"
-          icon={
-            <Image
-              src={participant.video ? IconCameraOn : IconCameraOff}
-              alt="camera"
-            />
-          }
-          disabled
-          marginX={2}
-        />
-      </Pane>
-    </Pane>
-  );
-};
+const getListStyle = (isDraggingOver: any) => ({
+  background: isDraggingOver ? 'lightblue' : '#F9FAFC',
+  margin: '8px 0',
+  display: 'flex',
+  padding: 8,
+  overflow: 'auto',
+  height: '50px',
+});
 
 const ManageBreakoutRooms = ({
   isShown,
   setShown,
   breakoutSession,
-  call,
 }: ManageBreakoutRoomsType) => {
-  const participants = call?.participants();
+  const { updateSession } = useBreakoutRoom();
+  const [newParticipantIds, setNewParticipantIds] = useState<String[]>([]);
+  const [newBreakoutSession, setNewBreakoutSession] = useState(breakoutSession);
+  const [config, setConfig] = useState(breakoutSession.config);
+
+  const handleOnDragEnd = useCallback(
+    async (result: any) => {
+      const { destination, source } = result;
+      const r = newBreakoutSession.rooms;
+      r[Number(destination.droppableId)].participants.push(
+        r[Number(source.droppableId)].participants[source.index],
+      );
+      setNewParticipantIds(newParticipantIds => [
+        ...newParticipantIds,
+        r[Number(source.droppableId)].participants[source.index].user_id,
+      ]);
+      r[Number(source.droppableId)].participants.splice(source.index, 1);
+      setNewBreakoutSession((newBreakoutSession: any) => {
+        return {
+          ...newBreakoutSession,
+          rooms: r,
+        };
+      });
+    },
+    [newBreakoutSession.rooms],
+  );
+
+  const handleSave = async () => {
+    const b = newBreakoutSession;
+    b.config = config;
+    await updateSession(b, newParticipantIds);
+  };
 
   return (
     <SideSheet
@@ -97,29 +84,123 @@ const ManageBreakoutRooms = ({
         flexDirection: 'column',
       }}
     >
-      <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white">
-        <Pane padding={16} borderBottom="muted">
-          <Heading size={600}>Breakout Rooms</Heading>
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white">
+          <Pane padding={16} borderBottom="muted">
+            <Heading size={600}>Breakout Rooms</Heading>
+            <Paragraph size={400} color="muted">
+              Manage the breakout session configurations.
+            </Paragraph>
+          </Pane>
         </Pane>
-      </Pane>
-      <Pane flex="1" overflowY="scroll" background="tint1" padding={16}>
-        <Card backgroundColor="white" elevation={0} padding={20}>
-          {breakoutSession.rooms.map((room: any, index: number) => {
-            if (room?.participants?.length > 0)
-              return (
-                <Pane key={index} marginBottom={10}>
-                  <Heading>{room.name}</Heading>
-                  {room?.participants?.map((participant: any) => (
-                    <ParticipantRow
-                      participant={participant}
-                      key={participant}
+        <Pane flex="1" overflowY="scroll" background="tint1" padding={16}>
+          {breakoutSession.rooms.map((room: any, index: number) => (
+            <Pane key={index} marginBottom={20}>
+              <Card backgroundColor="white" elevation={0} padding={20}>
+                <Heading>{room.name}</Heading>
+                <Droppable
+                  droppableId={index.toString()}
+                  direction="horizontal"
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                      {room?.participants?.map(
+                        (participant: DailyParticipant, index: number) => (
+                          <Draggable
+                            key={participant.user_id}
+                            draggableId={participant.user_id}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <Badge
+                                margin={2}
+                                color="neutral"
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                {participant.user_name}
+                              </Badge>
+                            )}
+                          </Draggable>
+                        ),
+                      )}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </Card>
+            </Pane>
+          ))}
+          <Pane marginTop={10}>
+            <Card backgroundColor="white" elevation={0} padding={20}>
+              <Heading is="h3">Configurations</Heading>
+              <Checkbox
+                label="Let participant join after breakout room started"
+                checked={config.auto_join}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setConfig({ ...config, auto_join: e.target.checked })
+                }
+              />
+              <Checkbox
+                label="Allow participants to return to main lobby at any time"
+                checked={config.allow_user_exit}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setConfig({ ...config, allow_user_exit: e.target.checked })
+                }
+              />
+              <Checkbox
+                label={
+                  <>
+                    Automatically end breakout session after
+                    <input
+                      type="number"
+                      min={0}
+                      value={config.expiryTime}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setConfig({
+                          ...config,
+                          expiryTime: e.target.valueAsNumber,
+                        })
+                      }
+                      style={{ margin: '0 5px', width: '40px' }}
                     />
-                  ))}
-                </Pane>
-              );
-          })}
-        </Card>
-      </Pane>
+                    minutes
+                  </>
+                }
+                disabled
+                checked={config.exp}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setConfig({ ...config, exp: e.target.checked })
+                }
+              />
+              <Checkbox
+                label="Record breakout session (will start automatically)"
+                disabled
+                checked={config.record_breakout_sessions}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setConfig({
+                    ...config,
+                    record_breakout_sessions: e.target.checked,
+                  })
+                }
+              />
+            </Card>
+          </Pane>
+        </Pane>
+        <Button
+          size="large"
+          margin={20}
+          appearance="primary"
+          onClick={handleSave}
+        >
+          Save
+        </Button>
+      </DragDropContext>
     </SideSheet>
   );
 };

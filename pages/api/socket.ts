@@ -5,7 +5,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponseServerIO,
 ) {
-  const { sessionObject, event, newParticipantId } = JSON.parse(req.body);
+  const { sessionObject, event, newParticipantIds } = JSON.parse(req.body);
 
   if (req.method === 'POST') {
     if (event === 'DAILY_BREAKOUT_STARTED') {
@@ -33,7 +33,7 @@ export default async function handler(
         await fetch('https://api.daily.co/v1/rooms', options);
       });
     }
-    res?.socket?.server?.io?.emit(event, { sessionObject, newParticipantId });
+    res?.socket?.server?.io?.emit(event, { sessionObject, newParticipantIds });
     return res.status(200).json({ status: 'success' });
   }
   return res.status(500);
