@@ -56,10 +56,14 @@ const useBreakoutRoom = () => {
   };
 
   const assignRoomToNewParticipant = useCallback(
-    async (breakoutSession, participant) => {
+    async (
+      breakoutSession,
+      participant,
+      roomIndex = breakoutSession.rooms.length - 1,
+    ) => {
       const r = breakoutSession.rooms;
-      r[r.length - 1].participants.push(participant);
-      r[r.length - 1].participantIds.push(participant.user_id);
+      r[roomIndex].participants.push(participant);
+      r[roomIndex].participantIds.push(participant.user_id);
       const options = {
         method: 'POST',
         body: JSON.stringify({
