@@ -180,11 +180,17 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
 
   const handleAssignEvenly = () => {
     const r = rooms;
+    r.assigned.map((room: any, index: number) => {
+      if (room?.participants?.length > 0) {
+        r.unassigned.push(...room.participants);
+        r.assigned[index].participants = [];
+      }
+    });
     const chunk = sample(
       r.unassigned,
-      Math.ceil(rooms.unassigned.length / rooms.assigned.length),
+      Math.ceil(r.unassigned.length / r.assigned.length),
     );
-    Array.from({ length: rooms.assigned.length }, (_, i) => {
+    Array.from({ length: r.assigned.length }, (_, i) => {
       r.assigned[i].participants = chunk[i];
     });
     setRooms({ assigned: r.assigned, unassigned: [] });

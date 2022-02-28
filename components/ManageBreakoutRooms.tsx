@@ -51,11 +51,15 @@ const ManageBreakoutRooms = ({
       r[Number(destination.droppableId)].participants.push(
         r[Number(source.droppableId)].participants[source.index],
       );
+      r[Number(destination.droppableId)].participantIds.push(
+        r[Number(source.droppableId)].participants[source.index].user_id,
+      );
       setNewParticipantIds(newParticipantIds => [
         ...newParticipantIds,
         r[Number(source.droppableId)].participants[source.index].user_id,
       ]);
       r[Number(source.droppableId)].participants.splice(source.index, 1);
+      r[Number(source.droppableId)].participantIds.splice(source.index, 1);
       setNewBreakoutSession((newBreakoutSession: any) => {
         return {
           ...newBreakoutSession,
