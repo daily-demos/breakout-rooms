@@ -45,7 +45,11 @@ const Room = () => {
 
       const localUser = await callFrame.participants().local;
       sessionObject.rooms?.map(async (room: any) => {
-        if (room.participantIds.includes(localUser.user_id)) {
+        if (
+          room.participantIds.includes(
+            localStorage.getItem('main-breakout-user-id'),
+          )
+        ) {
           const options = {
             method: 'POST',
             body: JSON.stringify({
@@ -130,7 +134,9 @@ const Room = () => {
   );
 
   useEffect((): any => {
-    const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, { path: '/api/socketio' });
+    const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, {
+      path: '/api/socketio',
+    });
 
     socket.on('connect', () => {
       console.log('SOCKET CONNECTED!', socket.id);
@@ -188,7 +194,7 @@ const Room = () => {
         <title>Breakout Rooms</title>
         <meta name="description" content="Breakout Rooms" />
       </Head>
-      {callFrame && breakoutSession && (
+      {callFrame && breakoutSession && myBreakoutRoom?.name && (
         <div className="banner">
           <b>{myBreakoutRoom?.name}</b>
           {breakoutSession.config.exp && (
