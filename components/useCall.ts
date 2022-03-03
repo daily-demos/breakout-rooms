@@ -73,14 +73,16 @@ const useCall = ({
           supportiveText: '#808080',
         },
       });
+    
+      const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
 
       setCallFrame(newCallFrame as DailyCall);
       if (breakout) {
-        newCallFrame.join({ url: `https://harshith.daily.co/${name}`, token });
+        newCallFrame.join({ url: `https://${domain}.daily.co/${name}`, token });
         setWarn(true);
       } else {
         newCallFrame
-          .join({ url: `https://harshith.daily.co/${name}`, token })
+          .join({ url: `https://${domain}.daily.co/${name}`, token })
           .then(() => {
             localStorage.setItem(
               'main-breakout-user-id',
