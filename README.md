@@ -10,7 +10,7 @@ This demo requires a `private` Daily [room](https://docs.daily.co/reference/rest
 npm install
 # or
 yarn
-``` 
+```
 
 2. Setting up environment variables
 
