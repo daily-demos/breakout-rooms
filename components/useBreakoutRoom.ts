@@ -59,11 +59,18 @@ const useBreakoutRoom = () => {
     async (
       breakoutSession,
       participant,
-      roomIndex = breakoutSession.rooms.length - 1,
+      roomIndex = null,
     ) => {
       const r = breakoutSession.rooms;
-      r[roomIndex].participants.push(participant);
-      r[roomIndex].participantIds.push(participant.user_id);
+      if (roomIndex) {
+        r[roomIndex].participants.push(participant);
+        r[roomIndex].participantIds.push(participant.user_id);
+      } else {
+        const participantsInRooms = r.map((r: any) => r.participants.length);
+        const minParticipantRoomIndex = participantsInRooms.indexOf(Math.min(...participantsInRooms));
+        r[minParticipantRoomIndex].participants.push(participant);
+        r[minParticipantRoomIndex].participantIds.push(participant.user_id);
+      }
       const options = {
         method: 'POST',
         body: JSON.stringify({
