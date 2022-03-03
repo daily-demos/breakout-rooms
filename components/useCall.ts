@@ -73,7 +73,7 @@ const useCall = ({
           supportiveText: '#808080',
         },
       });
-    
+
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
 
       setCallFrame(newCallFrame as DailyCall);
