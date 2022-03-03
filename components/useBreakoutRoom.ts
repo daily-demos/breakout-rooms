@@ -56,18 +56,16 @@ const useBreakoutRoom = () => {
   };
 
   const assignRoomToNewParticipant = useCallback(
-    async (
-      breakoutSession,
-      participant,
-      roomIndex = null,
-    ) => {
+    async (breakoutSession, participant, roomIndex = null) => {
       const r = breakoutSession.rooms;
       if (roomIndex) {
         r[roomIndex].participants.push(participant);
         r[roomIndex].participantIds.push(participant.user_id);
       } else {
         const participantsInRooms = r.map((r: any) => r.participants.length);
-        const minParticipantRoomIndex = participantsInRooms.indexOf(Math.min(...participantsInRooms));
+        const minParticipantRoomIndex = participantsInRooms.indexOf(
+          Math.min(...participantsInRooms),
+        );
         r[minParticipantRoomIndex].participants.push(participant);
         r[minParticipantRoomIndex].participantIds.push(participant.user_id);
       }
