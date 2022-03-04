@@ -47,26 +47,24 @@ const sample = (arr: [], len: number) => {
 };
 
 const roomsInitialValue = (date: Date) => {
-  return (
-    {
-      assigned: [
-        {
-          name: 'Breakout Room 1',
-          room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
-          created: date,
-          participants: [],
-        },
-        {
-          name: 'Breakout Room 2',
-          room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
-          created: date,
-          participants: [],
-        },
-      ],
-      unassigned: [],
-    }
-  );
-}
+  return {
+    assigned: [
+      {
+        name: 'Breakout Room 1',
+        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
+        created: date,
+        participants: [],
+      },
+      {
+        name: 'Breakout Room 2',
+        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
+        created: date,
+        participants: [],
+      },
+    ],
+    unassigned: [],
+  };
+};
 
 const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
   const { createSession } = useBreakoutRoom();
@@ -284,7 +282,9 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
         <Pane display="flex">
           <Pane flex={1} alignItems="center" display="flex">
             <Heading is="h3">Unassigned</Heading>
-            <Paragraph color="muted" marginLeft={5}>(Drag to assign)</Paragraph>
+            <Paragraph color="muted" marginLeft={5}>
+              (Drag to assign)
+            </Paragraph>
           </Pane>
           <Pane>
             <Text>({rooms.unassigned.length} people)</Text>
