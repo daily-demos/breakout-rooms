@@ -37,7 +37,7 @@ const Room = () => {
     setShow,
     setWarn,
   });
-  const { assignRoomToNewParticipant } = useBreakoutRoom();
+  const { updateSession, assignRoomToNewParticipant } = useBreakoutRoom();
 
   const joinBreakoutRoom = useCallback(
     async (sessionObject: any) => {
@@ -165,6 +165,25 @@ const Room = () => {
     isOwner,
     joinAs,
   ]);
+
+  useEffect(() => {
+    if (!callFrame) return;
+
+    callFrame.on('left-meeting', (event) => {
+      if (breakoutSession) {
+        const b = breakoutSession;
+        const localId = localStorage.getItem('main-breakout-user-id');
+        b.rooms.map((room: any, index: number) => {
+          if (room.participantIds.includes(localId)) {
+            const participantIndex = room.participantIds.indexOf(localId);
+            b.rooms[index].participants.splice(participantIndex, 1);
+            b.rooms[index].participantIds.splice(participantIndex, 1);
+          }
+        });
+        updateSession(b, []);
+      }
+    });
+  }, [breakoutSession, callFrame, updateSession]);
 
   useEffect(() => {
     if (!callFrame) return;

@@ -95,6 +95,7 @@ const useCall = ({
         callFrame?.destroy();
         setShow(false);
         setCallFrame(null);
+        localStorage.removeItem('main-breakout-user-id');
       };
 
       newCallFrame.on('joined-meeting', handleJoinedMeeting);
