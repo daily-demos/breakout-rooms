@@ -41,8 +41,10 @@ export default async function handler(
 // creation with them fails.
 function createRoom(
   roomURL: string,
-  roomProperties: any,
-  additionalProperties: any = null,
+  roomProperties: { [key: string]: string | boolean | number },
+  additionalProperties: {
+    [key: string]: string | boolean | number;
+  } | null = null,
 ): Promise<number> {
   const options = {
     method: 'POST',
