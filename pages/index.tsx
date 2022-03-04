@@ -73,6 +73,7 @@ const Room = () => {
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: any) => {
+      setShow(false);
       setBreakout(true);
       setBreakoutSession(data.sessionObject);
       await joinBreakoutRoom(data.sessionObject);
@@ -145,6 +146,7 @@ const Room = () => {
     socket.on('DAILY_BREAKOUT_STARTED', handleBreakoutSessionStarted);
     socket.on('DAILY_BREAKOUT_UPDATED', handleBreakoutSessionUpdated);
     socket.on('DAILY_BREAKOUT_CONCLUDED', () => {
+      setShow(false);
       setBreakout(false);
       setBreakoutSession(null);
       setWarn(false);

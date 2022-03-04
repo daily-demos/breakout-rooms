@@ -15,6 +15,7 @@ import {
   Pane,
   PlusIcon,
   Text,
+  Paragraph,
 } from 'evergreen-ui';
 import { DailyCall, DailyEvent, DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -45,26 +46,32 @@ const sample = (arr: [], len: number) => {
   return chunks;
 };
 
+const roomsInitialValue = (date: Date) => {
+  return (
+    {
+      assigned: [
+        {
+          name: 'Breakout Room 1',
+          room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
+          created: date,
+          participants: [],
+        },
+        {
+          name: 'Breakout Room 2',
+          room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
+          created: date,
+          participants: [],
+        },
+      ],
+      unassigned: [],
+    }
+  );
+}
+
 const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
   const { createSession } = useBreakoutRoom();
 
-  const [rooms, setRooms] = useState<any>({
-    assigned: [
-      {
-        name: 'Breakout Room 1',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
-        created: new Date(),
-        participants: [],
-      },
-      {
-        name: 'Breakout Room 2',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
-        created: new Date(),
-        participants: [],
-      },
-    ],
-    unassigned: [],
-  });
+  const [rooms, setRooms] = useState<any>(roomsInitialValue(new Date()));
 
   const [config, setConfig] = useState({
     auto_join: false,
@@ -205,7 +212,10 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
 
   const handleSubmit = async () => {
     const status = await createSession(rooms.assigned, config);
-    if (status === 'success') setShow(false);
+    if (status === 'success') {
+      setShow(false);
+      setRooms(roomsInitialValue(new Date()));
+    }
   };
 
   return (
@@ -274,6 +284,7 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
         <Pane display="flex">
           <Pane flex={1} alignItems="center" display="flex">
             <Heading is="h3">Unassigned</Heading>
+            <Paragraph color="muted" marginLeft={5}>(Drag to assign)</Paragraph>
           </Pane>
           <Pane>
             <Text>({rooms.unassigned.length} people)</Text>
