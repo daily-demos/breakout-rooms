@@ -169,7 +169,7 @@ const Room = () => {
   useEffect(() => {
     if (!callFrame) return;
 
-    callFrame.on('left-meeting', (event) => {
+    callFrame.on('left-meeting', event => {
       if (breakoutSession) {
         const b = breakoutSession;
         const localId = localStorage.getItem('main-breakout-user-id');
