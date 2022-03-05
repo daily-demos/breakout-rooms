@@ -63,26 +63,21 @@ function createRoom(
     }),
   };
 
-  let dailyStatusCode = -1;
-  return fetch('https://api.daily.co/v1/rooms', options)
-    .then(response => {
-      // Register the status code we get from Daily
-      dailyStatusCode = response.status;
+  return fetch('https://api.daily.co/v1/rooms', options).then(
+    async response => {
       // If everything is OK, just return 200
-      if (dailyStatusCode === 200) return 200;
+      if (response.status === 200) return 200;
       // If something went wrong, get response body
-      return response.json();
-    })
-    .then(data => {
+      const data = await response.json();
       if (data === 200) return 200;
 
       // Check if one of the additional properties is actually the problematic one,
       // and retry without it if so
       const errorMsg = data?.info;
       console.log(
-        `Failed to create breakout room. Status code: ${dailyStatusCode}, error: ${errorMsg}`,
+        `Failed to create breakout room. Status code: ${response.status}, error: ${errorMsg}`,
       );
-      if (dailyStatusCode === 400 && additionalProperties && errorMsg) {
+      if (response.status === 400 && additionalProperties && errorMsg) {
         for (const property in additionalProperties) {
           if (errorMsg.includes(`'${property}'`)) {
             delete additionalProperties[property];
@@ -91,5 +86,6 @@ function createRoom(
         }
       }
       return 500;
-    });
+    },
+  );
 }
