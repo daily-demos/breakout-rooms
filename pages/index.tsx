@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { DailyCall } from '@daily-co/daily-js';
 import { GridViewIcon, CornerDialog } from 'evergreen-ui';
 import { io } from 'socket.io-client';
 import Head from 'next/head';
@@ -9,8 +8,9 @@ import Hero from '../components/Hero';
 import { useCall } from '../components/CallProvider';
 import BreakoutMenu from '../components/BreakoutMenu';
 import equal from 'fast-deep-equal';
-import useBreakoutRoom from '../components/useBreakoutRoom';
+import { useBreakoutRoom } from '../components/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/JoinBreakoutModal';
+import {DailyParticipant} from "@daily-co/daily-js";
 
 const Room = () => {
   const [show, setShow] = useState<boolean>(false);
@@ -21,7 +21,7 @@ const Room = () => {
   const [join, setJoin] = useState(false);
   const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
-  const { callRef, callFrame, setCallFrame, joinCall } = useCall();
+  const { callRef, callFrame, joinCall } = useCall();
   const { updateSession, assignRoomToNewParticipant } = useBreakoutRoom();
 
   const joinBreakoutRoom = useCallback(
@@ -189,7 +189,7 @@ const Room = () => {
     const assignParticipant = async () => {
       if (breakoutSession.config.auto_join) {
         const localUser = await callFrame.participants().local;
-        await assignRoomToNewParticipant(breakoutSession, localUser);
+        await assignRoomToNewParticipant(breakoutSession, localUser as DailyParticipant);
       } else setJoin(true);
     };
 
