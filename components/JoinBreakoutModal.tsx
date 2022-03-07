@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
 import useBreakoutRoom from './useBreakoutRoom';
 import { useCall } from './CallProvider';
@@ -15,6 +15,7 @@ const JoinBreakoutModal = ({
   breakoutSession,
 }: JoinBreakoutModalType) => {
   const { callFrame } = useCall();
+  const [presence, setPresence] = useState<any>({});
   const { assignRoomToNewParticipant } = useBreakoutRoom();
 
   const handleClick = async (index: number) => {
@@ -22,6 +23,15 @@ const JoinBreakoutModal = ({
     await assignRoomToNewParticipant(breakoutSession, participant, index);
     setShow(false);
   };
+
+  useEffect(() => {
+    const fetchPresenceData = async () => {
+      const res = await fetch('/api/presence');
+      const resData = await res.json();
+      setPresence(resData);
+    };
+    fetchPresenceData();
+  }, []);
 
   return (
     <Dialog
@@ -42,7 +52,7 @@ const JoinBreakoutModal = ({
           >
             <Pane flex={1}>
               <Heading size={600}>{room.name}</Heading>
-              <Text>{room.participants.length} people</Text>
+              <Text>{presence[room.room_url]?.length} people</Text>
             </Pane>
             <Pane>
               <Button appearance="primary" onClick={() => handleClick(index)}>
