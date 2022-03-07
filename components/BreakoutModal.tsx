@@ -17,14 +17,14 @@ import {
   Text,
   Paragraph,
 } from 'evergreen-ui';
-import { DailyCall, DailyEvent, DailyParticipant } from '@daily-co/daily-js';
+import { DailyEvent, DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import useBreakoutRoom from './useBreakoutRoom';
+import { useCall } from './CallProvider';
 
 type BreakoutModalType = {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
-  call: DailyCall;
 };
 
 const getListStyle = (isDraggingOver: any) => ({
@@ -66,7 +66,8 @@ const roomsInitialValue = (date: Date) => {
   };
 };
 
-const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
+const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
+  const { callFrame } = useCall();
   const { createSession } = useBreakoutRoom();
 
   const [rooms, setRooms] = useState<any>(roomsInitialValue(new Date()));
@@ -128,14 +129,14 @@ const BreakoutModal = ({ show, setShow, call }: BreakoutModalType) => {
   }, []);
 
   useEffect(() => {
-    if (!call) return;
+    if (!callFrame) return;
 
     const events = ['joined-meeting', 'participant-joined', 'participant-left'];
     handleNewParticipantsState();
     events.forEach((event: string) =>
-      call.on(event as DailyEvent, handleNewParticipantsState),
+      callFrame.on(event as DailyEvent, handleNewParticipantsState),
     );
-  }, [call, handleNewParticipantsState]);
+  }, [callFrame, handleNewParticipantsState]);
 
   const sourceValue = useCallback(
     (source: any) => {

@@ -1,4 +1,12 @@
-import { Dispatch, useCallback, SetStateAction } from 'react';
+import React, {
+  Dispatch,
+  useCallback,
+  SetStateAction,
+  useState,
+  useRef,
+  createContext,
+  useContext,
+} from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 
 const CALL_OPTIONS = {
@@ -21,21 +29,25 @@ const BREAKOUT_CALL_OPTIONS = {
   },
 };
 
-type useCallType = {
+type CallProviderType = {
+  children: React.ReactNode;
+};
+
+interface ContextValue {
   callRef: any;
   callFrame: DailyCall | null;
   setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
-  setShow: Dispatch<SetStateAction<boolean>>;
-  setWarn: Dispatch<SetStateAction<boolean>>;
-};
+  joinCall: (name: string, token?: string, breakout?: boolean) => void;
+}
 
-const useCall = ({
-  callRef,
-  callFrame,
-  setCallFrame,
-  setShow,
-  setWarn,
-}: useCallType) => {
+// @ts-ignore
+export const CallContext = createContext<ContextValue>(null);
+
+export const CallProvider = ({ children }: CallProviderType) => {
+  const callRef = useRef<HTMLDivElement>();
+
+  const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
+
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
       method: 'POST',
@@ -44,9 +56,8 @@ const useCall = ({
       }),
     };
 
-    setShow(true);
     await fetch('/api/socket', options);
-  }, [setShow]);
+  }, []);
 
   const joinCall = useCallback(
     (
@@ -54,8 +65,10 @@ const useCall = ({
       token = '',
       breakout = false,
     ) => {
+      const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
+
       const newCallFrame: DailyCall = DailyIframe.createFrame(
-        callRef?.current as HTMLElement,
+        callRef?.current as unknown as HTMLElement,
         breakout ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
       );
 
@@ -74,26 +87,21 @@ const useCall = ({
         },
       });
 
-      const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
-
       setCallFrame(newCallFrame as DailyCall);
-      if (breakout) {
-        newCallFrame.join({ url: `https://${domain}.daily.co/${name}`, token });
-        setWarn(true);
-      } else {
-        newCallFrame
-          .join({ url: `https://${domain}.daily.co/${name}`, token })
-          .then(() => {
+
+      newCallFrame
+        .join({ url: `https://${domain}.daily.co/${name}`, token })
+        .then(() => {
+          if (!breakout) {
             localStorage.setItem(
               'main-breakout-user-id',
               newCallFrame.participants().local.user_id,
             );
-          });
-      }
+          }
+        });
 
       const leave = async () => {
         callFrame?.destroy();
-        setShow(false);
         setCallFrame(null);
         localStorage.removeItem('main-breakout-user-id');
       };
@@ -105,10 +113,21 @@ const useCall = ({
         newCallFrame.off('left-meeting', leave);
       };
     },
-    [callFrame, callRef, handleJoinedMeeting, setCallFrame, setShow, setWarn],
+    [callFrame, handleJoinedMeeting],
   );
 
-  return { joinCall };
+  return (
+    <CallContext.Provider
+      value={{
+        callRef,
+        callFrame,
+        setCallFrame,
+        joinCall,
+      }}
+    >
+      {children}
+    </CallContext.Provider>
+  );
 };
 
-export default useCall;
+export const useCall = () => useContext(CallContext);
