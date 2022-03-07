@@ -69,7 +69,6 @@ function createRoom(
       if (response.status === 200) return 200;
       // If something went wrong, get response body
       const data = await response.json();
-      if (data === 200) return 200;
 
       // Check if one of the additional properties is actually the problematic one,
       // and retry without it if so
