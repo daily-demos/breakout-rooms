@@ -17,7 +17,7 @@ import {
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import useBreakoutRoom from './useBreakoutRoom';
+import { useBreakoutRoom } from './BreakoutRoomProvider';
 
 type ManageBreakoutRoomsType = {
   isShown: boolean;

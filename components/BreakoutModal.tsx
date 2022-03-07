@@ -3,8 +3,6 @@ import React, {
   Dispatch,
   SetStateAction,
   useCallback,
-  useEffect,
-  useState,
 } from 'react';
 import {
   Badge,
@@ -17,10 +15,9 @@ import {
   Text,
   Paragraph,
 } from 'evergreen-ui';
-import { DailyEvent, DailyParticipant } from '@daily-co/daily-js';
+import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import useBreakoutRoom from './useBreakoutRoom';
-import { useCall } from './CallProvider';
+import { useBreakoutRoom, roomsInitialValue } from './BreakoutRoomProvider';
 
 type BreakoutModalType = {
   show: boolean;
@@ -46,97 +43,9 @@ const sample = (arr: [], len: number) => {
   return chunks;
 };
 
-const roomsInitialValue = (date: Date) => {
-  return {
-    assigned: [
-      {
-        name: 'Breakout Room 1',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
-        created: date,
-        participants: [],
-      },
-      {
-        name: 'Breakout Room 2',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
-        created: date,
-        participants: [],
-      },
-    ],
-    unassigned: [],
-  };
-};
-
 const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
-  const { callFrame } = useCall();
-  const { createSession } = useBreakoutRoom();
-
-  const [rooms, setRooms] = useState<any>(roomsInitialValue(new Date()));
-
-  const [config, setConfig] = useState({
-    auto_join: false,
-    allow_user_exit: false,
-    record_breakout_sessions: true,
-    exp: false,
-    expiryTime: 15,
-  });
-
-  const handleNewParticipantsState = useCallback((event = null) => {
-    switch (event?.action) {
-      case 'joined-meeting':
-        setRooms((rooms: any) => {
-          return {
-            ...rooms,
-            unassigned: Array.from(
-              new Set(rooms.unassigned).add(event.participants.local),
-            ),
-          };
-        });
-        break;
-      case 'participant-joined':
-        setRooms((rooms: any) => {
-          return {
-            ...rooms,
-            unassigned: Array.from(
-              new Set(rooms.unassigned).add(event.participant),
-            ),
-          };
-        });
-        break;
-      case 'participant-left':
-        const idx = event.participant.user_id;
-        setRooms((rooms: any) => {
-          const assigned = rooms.assigned;
-          assigned.map((room: any, index: number) => {
-            assigned[index] = {
-              ...rooms.assigned[index],
-              participants: [
-                ...room?.participants?.filter((p: any) => p.user_id !== idx),
-              ],
-            };
-          });
-          return {
-            ...rooms,
-            assigned,
-            unassigned: [
-              ...rooms.unassigned.filter((p: any) => p.user_id !== idx),
-            ],
-          };
-        });
-        break;
-      default:
-        break;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!callFrame) return;
-
-    const events = ['joined-meeting', 'participant-joined', 'participant-left'];
-    handleNewParticipantsState();
-    events.forEach((event: string) =>
-      callFrame.on(event as DailyEvent, handleNewParticipantsState),
-    );
-  }, [callFrame, handleNewParticipantsState]);
+  const { rooms, setRooms, config, setConfig, createSession } =
+    useBreakoutRoom();
 
   const sourceValue = useCallback(
     (source: any) => {
@@ -155,7 +64,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       setRooms(duplicateRooms);
       return r;
     },
-    [rooms],
+    [rooms, setRooms],
   );
 
   const handleOnDragEnd = useCallback(
@@ -168,7 +77,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       } else r.unassigned.push(sourceValue(result.source));
       setRooms({ ...r });
     },
-    [sourceValue, rooms],
+    [rooms, sourceValue, setRooms],
   );
 
   const handleAddRoom = () => {
@@ -211,6 +120,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
 
   const handleSubmit = async () => {
     const status = await createSession(rooms.assigned, config);
+    // @ts-ignore
     if (status === 'success') {
       setShow(false);
       setRooms(roomsInitialValue(new Date()));

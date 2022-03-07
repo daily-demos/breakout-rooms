@@ -1,7 +1,8 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
-import useBreakoutRoom from './useBreakoutRoom';
+import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
+import { DailyParticipant } from '@daily-co/daily-js';
 
 type JoinBreakoutModalType = {
   show: boolean;
@@ -20,7 +21,11 @@ const JoinBreakoutModal = ({
 
   const handleClick = async (index: number) => {
     const participant = await callFrame?.participants().local;
-    await assignRoomToNewParticipant(breakoutSession, participant, index);
+    await assignRoomToNewParticipant(
+      breakoutSession,
+      participant as DailyParticipant,
+      index,
+    );
     setShow(false);
   };
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { DailyCall } from '@daily-co/daily-js';
-import useBreakoutRoom from './useBreakoutRoom';
+import React, { useState, useEffect } from 'react';
+import { useBreakoutRoom } from './BreakoutRoomProvider';
 
 type TimerType = {
   expiry: number;

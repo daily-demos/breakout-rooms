@@ -11,7 +11,7 @@ import {
   LogInIcon,
 } from 'evergreen-ui';
 import Timer from './Timer';
-import useBreakoutRoom from './useBreakoutRoom';
+import { useBreakoutRoom } from './BreakoutRoomProvider';
 import ManageBreakoutRooms from './ManageBreakoutRooms';
 import { useCall } from './CallProvider';
 
