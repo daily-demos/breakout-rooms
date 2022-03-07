@@ -1,25 +1,24 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
 import useBreakoutRoom from './useBreakoutRoom';
-import { DailyCall } from '@daily-co/daily-js';
+import { useCall } from './CallProvider';
 
 type JoinBreakoutModalType = {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
   breakoutSession: any;
-  call: DailyCall;
 };
 
 const JoinBreakoutModal = ({
   show,
   setShow,
   breakoutSession,
-  call,
 }: JoinBreakoutModalType) => {
+  const { callFrame } = useCall();
   const { assignRoomToNewParticipant } = useBreakoutRoom();
 
   const handleClick = async (index: number) => {
-    const participant = await call.participants().local;
+    const participant = await callFrame?.participants().local;
     await assignRoomToNewParticipant(breakoutSession, participant, index);
     setShow(false);
   };

@@ -8,29 +8,31 @@ import {
   SettingsIcon,
   SmallCrossIcon,
   TimeIcon,
+  LogInIcon,
 } from 'evergreen-ui';
 import Timer from './Timer';
 import useBreakoutRoom from './useBreakoutRoom';
-import { DailyCall } from '@daily-co/daily-js';
 import ManageBreakoutRooms from './ManageBreakoutRooms';
+import { useCall } from './CallProvider';
 
 type BreakoutMenuType = {
+  showJoinBreakoutRoomModal: boolean;
+  setShow: Dispatch<SetStateAction<boolean>>;
   breakoutSession: any;
   setBreakoutSession: Dispatch<SetStateAction<any>>;
   joinAs: (owner?: boolean) => void;
   isOwner: boolean;
-  callFrame: DailyCall | null;
-  setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
 };
 
 const BreakoutMenu = ({
+  showJoinBreakoutRoomModal,
+  setShow,
   breakoutSession,
   setBreakoutSession,
   joinAs,
   isOwner,
-  callFrame,
-  setCallFrame,
 }: BreakoutMenuType) => {
+  const { callFrame, setCallFrame } = useCall();
   const [manage, setManage] = useState<boolean>(false);
   const { endSession } = useBreakoutRoom();
 
@@ -43,6 +45,11 @@ const BreakoutMenu = ({
               {breakoutSession.config.exp && (
                 <Menu.Item disabled icon={TimeIcon}>
                   Time left: <Timer expiry={breakoutSession.config.exp} />
+                </Menu.Item>
+              )}
+              {showJoinBreakoutRoomModal && (
+                <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
+                  Join breakout room
                 </Menu.Item>
               )}
               {isOwner && (
