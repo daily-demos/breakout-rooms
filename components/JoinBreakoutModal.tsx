@@ -16,7 +16,7 @@ const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
 
   const handleClick = async (index: number) => {
     const participant = await callFrame?.participants().local;
-    await assignRoomToNewParticipant(participant as DailyParticipant, index);
+    assignRoomToNewParticipant(participant as DailyParticipant, index);
     setShow(false);
   };
 

@@ -18,7 +18,13 @@ const Room = () => {
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [join, setJoin] = useState(false);
 
-  const { callRef, callFrame, joinCall, showBreakoutButton } = useCall();
+  const {
+    callRef,
+    callFrame,
+    joinCall,
+    showBreakoutButton,
+    setShowBreakoutButton,
+  } = useCall();
   const {
     isBreakoutRoom,
     setIsBreakoutRoom,
@@ -101,12 +107,20 @@ const Room = () => {
   );
 
   const handleBreakoutSessionEnded = useCallback(() => {
+    setShowBreakoutButton(false);
     setIsBreakoutRoom(false);
     setBreakoutSession(null);
     setWarn(false);
     callFrame?.destroy();
     joinAs(isOwner);
-  }, [callFrame, isOwner, joinAs, setBreakoutSession, setIsBreakoutRoom]);
+  }, [
+    callFrame,
+    isOwner,
+    joinAs,
+    setBreakoutSession,
+    setIsBreakoutRoom,
+    setShowBreakoutButton,
+  ]);
 
   const handleBreakoutSessionRequest = useCallback(async () => {
     if (breakoutSession) {
