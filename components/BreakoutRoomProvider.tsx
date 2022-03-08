@@ -9,19 +9,31 @@ import React, {
 } from 'react';
 import { DailyEvent, DailyParticipant } from '@daily-co/daily-js';
 import { useCall } from './CallProvider';
+import {
+  DailyBreakoutConfig,
+  DailyBreakoutProviderRooms,
+  DailyBreakoutRoom,
+  DailyBreakoutSession,
+} from '../types/next';
 
 const getDateTimeAfter = (minutes: number) =>
   Math.round(new Date(new Date().getTime() + minutes * 60000).getTime() / 1000);
 
 interface ContextValue {
-  rooms: any;
-  setRooms: Dispatch<SetStateAction<any>>;
-  config: any;
-  setConfig: Dispatch<SetStateAction<any>>;
-  breakoutSession: any;
-  setBreakoutSession: Dispatch<SetStateAction<any>>;
-  createSession: (rooms: any, config: any) => {};
-  updateSession: (breakoutSession: any, newParticipantIds: String[]) => {};
+  rooms: DailyBreakoutProviderRooms;
+  setRooms: Dispatch<SetStateAction<DailyBreakoutProviderRooms>>;
+  config: DailyBreakoutConfig;
+  setConfig: Dispatch<SetStateAction<DailyBreakoutConfig>>;
+  breakoutSession: DailyBreakoutSession | null;
+  setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession | null>>;
+  createSession: (
+    rooms: DailyBreakoutRoom[],
+    config: DailyBreakoutConfig,
+  ) => {};
+  updateSession: (
+    breakoutSession: DailyBreakoutSession,
+    newParticipantIds: String[],
+  ) => {};
   endSession: () => {};
   assignRoomToNewParticipant: (
     participant: DailyParticipant,
@@ -38,7 +50,7 @@ type BreakoutRoomProviderType = {
   children: React.ReactNode;
 };
 
-export const roomsInitialValue = (date: Date) => {
+export const roomsInitialValue = (date: Date): DailyBreakoutProviderRooms => {
   return {
     assigned: [
       {
@@ -63,10 +75,13 @@ export const BreakoutRoomProvider = ({
 }: BreakoutRoomProviderType) => {
   const { callFrame } = useCall();
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
-  const [breakoutSession, setBreakoutSession] = useState<any>(null);
-  const [rooms, setRooms] = useState<any>(roomsInitialValue(new Date()));
+  const [breakoutSession, setBreakoutSession] =
+    useState<DailyBreakoutSession | null>(null);
+  const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>(
+    roomsInitialValue(new Date()),
+  );
 
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<DailyBreakoutConfig>({
     auto_join: false,
     allow_user_exit: false,
     record_breakout_sessions: true,
@@ -77,7 +92,7 @@ export const BreakoutRoomProvider = ({
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
       case 'joined-meeting':
-        setRooms((rooms: any) => {
+        setRooms((rooms: DailyBreakoutProviderRooms) => {
           return {
             ...rooms,
             unassigned: Array.from(
@@ -87,7 +102,7 @@ export const BreakoutRoomProvider = ({
         });
         break;
       case 'participant-joined':
-        setRooms((rooms: any) => {
+        setRooms((rooms: DailyBreakoutProviderRooms) => {
           return {
             ...rooms,
             unassigned: Array.from(
@@ -98,7 +113,7 @@ export const BreakoutRoomProvider = ({
         break;
       case 'participant-updated':
         const participant = event.participant;
-        setRooms((rooms: any) => {
+        setRooms((rooms: DailyBreakoutProviderRooms) => {
           const r = rooms;
           const idx = r.unassigned?.findIndex(
             (p: DailyParticipant) => p.user_id === participant.user_id,
@@ -106,7 +121,7 @@ export const BreakoutRoomProvider = ({
           if (idx >= 0) {
             r.unassigned[idx] = participant;
           } else {
-            r.assigned.map((room: any, index: number) => {
+            r.assigned.map((room: DailyBreakoutRoom, index: number) => {
               const idx = room.participants?.findIndex(
                 (p: DailyParticipant) => p.user_id === participant.user_id,
               );
@@ -122,13 +137,15 @@ export const BreakoutRoomProvider = ({
         break;
       case 'participant-left':
         const idx = event.participant.user_id;
-        setRooms((rooms: any) => {
+        setRooms((rooms: DailyBreakoutProviderRooms) => {
           const assigned = rooms.assigned;
-          assigned.map((room: any, index: number) => {
+          assigned.map((room: DailyBreakoutRoom, index: number) => {
             assigned[index] = {
               ...rooms.assigned[index],
               participants: [
-                ...room?.participants?.filter((p: any) => p.user_id !== idx),
+                ...room?.participants?.filter(
+                  (p: DailyParticipant) => p.user_id !== idx,
+                ),
               ],
             };
           });
@@ -136,7 +153,9 @@ export const BreakoutRoomProvider = ({
             ...rooms,
             assigned,
             unassigned: [
-              ...rooms.unassigned.filter((p: any) => p.user_id !== idx),
+              ...rooms.unassigned.filter(
+                (p: DailyParticipant) => p.user_id !== idx,
+              ),
             ],
           };
         });
@@ -161,13 +180,18 @@ export const BreakoutRoomProvider = ({
     );
   }, [callFrame, handleNewParticipantsState]);
 
-  const createSession = async (rooms: any, config: any) => {
-    const r: Array<any> = [];
-    rooms.map((room: any) => {
+  const createSession = async (
+    rooms: DailyBreakoutRoom[],
+    config: DailyBreakoutConfig,
+  ) => {
+    const r: DailyBreakoutRoom[] = [];
+    rooms.map((room: DailyBreakoutRoom) => {
       if (room?.participants?.length > 0)
         r.push({
           ...room,
-          participantIds: room.participants.map((p: any) => p.user_id),
+          participantIds: room.participants.map(
+            (p: DailyParticipant) => p.user_id,
+          ),
         });
     });
 
@@ -176,7 +200,7 @@ export const BreakoutRoomProvider = ({
       config: {
         auto_join: config.auto_join,
         allow_user_exit: config.allow_user_exit,
-        exp: config.exp ? getDateTimeAfter(config.expiryTime) : null,
+        exp: config.exp ? getDateTimeAfter(config?.expiryTime as number) : null,
         record_breakout_sessions: config.record_breakout_sessions,
       },
     };
@@ -195,7 +219,7 @@ export const BreakoutRoomProvider = ({
   };
 
   const updateSession = async (
-    breakoutSession: any,
+    breakoutSession: DailyBreakoutSession,
     newParticipantIds: String[],
   ) => {
     const options = {
@@ -214,17 +238,24 @@ export const BreakoutRoomProvider = ({
 
   const assignRoomToNewParticipant = useCallback(
     async (participant, roomIndex = null) => {
-      const r = breakoutSession.rooms;
+      const r: DailyBreakoutRoom[] | undefined = breakoutSession?.rooms;
       if (roomIndex) {
-        r[roomIndex].participants.push(participant);
-        r[roomIndex].participantIds.push(participant.user_id);
+        if (r) {
+          r[roomIndex].participants.push(participant);
+          r[roomIndex].participantIds?.push(participant.user_id);
+        }
       } else {
-        const participantsInRooms = r.map((r: any) => r.participants.length);
+        // @ts-ignore
+        const participantsInRooms = r.map(
+          (room: DailyBreakoutRoom) => room.participants.length,
+        );
         const minParticipantRoomIndex = participantsInRooms.indexOf(
           Math.min(...participantsInRooms),
         );
-        r[minParticipantRoomIndex].participants.push(participant);
-        r[minParticipantRoomIndex].participantIds.push(participant.user_id);
+        if (r) {
+          r[minParticipantRoomIndex].participants.push(participant);
+          r[minParticipantRoomIndex].participantIds?.push(participant.user_id);
+        }
       }
       const options = {
         method: 'POST',

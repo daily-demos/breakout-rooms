@@ -18,6 +18,7 @@ import {
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom, roomsInitialValue } from './BreakoutRoomProvider';
+import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
 
 type BreakoutModalType = {
   show: boolean;
@@ -88,20 +89,21 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       created: new Date(),
       participants: [],
     });
-    setRooms((rooms: any) => {
+    setRooms((rooms: DailyBreakoutProviderRooms) => {
       return { ...rooms, assigned };
     });
   };
 
   const handleAssignEvenly = () => {
-    const r = rooms;
-    r.assigned.map((room: any, index: number) => {
+    const r: DailyBreakoutProviderRooms = rooms;
+    r.assigned.map((room: DailyBreakoutRoom, index: number) => {
       if (room?.participants?.length > 0) {
         r.unassigned.push(...room.participants);
         r.assigned[index].participants = [];
       }
     });
     const chunk = sample(
+      // @ts-ignore
       r.unassigned,
       Math.ceil(r.unassigned.length / r.assigned.length),
     );
@@ -119,7 +121,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
   };
 
   const handleSubmit = async () => {
-    const status = createSession(rooms.assigned, config);
+    const status = createSession(rooms.assigned as DailyBreakoutRoom[], config);
     // @ts-ignore
     if (status === 'success') {
       setShow(false);
@@ -136,7 +138,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       hasFooter={false}
     >
       <DragDropContext onDragEnd={handleOnDragEnd}>
-        {rooms.assigned.map((room: any, index: number) => (
+        {rooms.assigned.map((room: DailyBreakoutRoom, index: number) => (
           <div key={index}>
             <Pane display="flex">
               <Pane flex={1} alignItems="center" display="flex">
@@ -257,7 +259,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
                 <input
                   type="number"
                   min={0}
-                  value={config.expiryTime}
+                  value={config.expiryTime ?? ''}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setConfig({ ...config, expiryTime: e.target.valueAsNumber })
                   }

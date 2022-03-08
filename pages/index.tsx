@@ -11,12 +11,13 @@ import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from '../components/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/JoinBreakoutModal';
 import { DailyParticipant } from '@daily-co/daily-js';
+import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 
 const Room = () => {
   const [warn, setWarn] = useState<boolean>(false);
-  const [isOwner, setIsOwner] = useState(false);
-  const [breakoutModal, setBreakoutModal] = useState(false);
-  const [join, setJoin] = useState(false);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [breakoutModal, setBreakoutModal] = useState<boolean>(false);
+  const [join, setJoin] = useState<boolean>(false);
 
   const {
     callRef,
@@ -34,14 +35,14 @@ const Room = () => {
   } = useBreakoutRoom();
 
   const joinBreakoutRoom = useCallback(
-    async (sessionObject: any) => {
+    async (sessionObject: DailyBreakoutSession) => {
       if (!callFrame) return;
 
       const localUser = await callFrame.participants().local;
-      sessionObject.rooms?.map(async (room: any) => {
+      sessionObject.rooms?.map(async (room: DailyBreakoutRoom) => {
         if (
-          room.participantIds.includes(
-            localStorage.getItem('main-breakout-user-id'),
+          room.participantIds?.includes(
+            localStorage.getItem('main-breakout-user-id') as string,
           )
         ) {
           const options = {
@@ -82,7 +83,7 @@ const Room = () => {
   );
 
   const handleBreakoutSessionStarted = useCallback(
-    async (data: any) => {
+    async (data: { sessionObject: DailyBreakoutSession }) => {
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
       await joinBreakoutRoom(data.sessionObject);
@@ -137,7 +138,7 @@ const Room = () => {
   }, [breakoutSession]);
 
   const handleBreakoutSessionSync = useCallback(
-    (data: any) => {
+    (data: { sessionObject: DailyBreakoutSession }) => {
       if (equal(data.sessionObject, breakoutSession)) return;
       setBreakoutSession(data.sessionObject);
     },
@@ -179,7 +180,7 @@ const Room = () => {
     if (!callFrame) return;
 
     const assignParticipant = async () => {
-      if (breakoutSession.config.auto_join) {
+      if (breakoutSession?.config.auto_join) {
         const localUser = await callFrame.participants().local;
         assignRoomToNewParticipant(localUser as DailyParticipant);
       } else setJoin(true);
@@ -193,8 +194,8 @@ const Room = () => {
     if (breakoutSession) {
       const localUserId = localStorage.getItem('main-breakout-user-id');
       // @ts-ignore
-      return breakoutSession.rooms.filter((room: any) =>
-        room.participantIds.includes(localUserId),
+      return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
+        room.participantIds?.includes(localUserId as string),
       )[0];
     } else return null;
   }, [breakoutSession]);
@@ -210,7 +211,9 @@ const Room = () => {
           <b>{myBreakoutRoom?.name}</b>
           {breakoutSession.config.exp && (
             <span className="text-right">
-              <Timer expiry={breakoutSession.config.exp} />
+              <Timer
+                expiry={breakoutSession?.config.exp as unknown as number}
+              />
             </span>
           )}
         </div>

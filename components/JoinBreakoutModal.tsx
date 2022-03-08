@@ -3,6 +3,7 @@ import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
+import { DailyBreakoutRoom } from '../types/next';
 
 type JoinBreakoutModalType = {
   show: boolean;
@@ -37,26 +38,28 @@ const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
       hasFooter={false}
     >
       <Pane marginBottom={10}>
-        {breakoutSession.rooms.map((room: any, index: number) => (
-          <Pane
-            display="flex"
-            padding={16}
-            background="tint2"
-            borderRadius={3}
-            key={index}
-            marginY={10}
-          >
-            <Pane flex={1}>
-              <Heading size={600}>{room.name}</Heading>
-              <Text>{presence[room.room_url]?.length} people</Text>
+        {breakoutSession?.rooms.map(
+          (room: DailyBreakoutRoom, index: number) => (
+            <Pane
+              display="flex"
+              padding={16}
+              background="tint2"
+              borderRadius={3}
+              key={index}
+              marginY={10}
+            >
+              <Pane flex={1}>
+                <Heading size={600}>{room.name}</Heading>
+                <Text>{presence[room.room_url]?.length} people</Text>
+              </Pane>
+              <Pane>
+                <Button appearance="primary" onClick={() => handleClick(index)}>
+                  Join
+                </Button>
+              </Pane>
             </Pane>
-            <Pane>
-              <Button appearance="primary" onClick={() => handleClick(index)}>
-                Join
-              </Button>
-            </Pane>
-          </Pane>
-        ))}
+          ),
+        )}
       </Pane>
     </Dialog>
   );
