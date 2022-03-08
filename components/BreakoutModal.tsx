@@ -119,7 +119,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
   };
 
   const handleSubmit = async () => {
-    const status = await createSession(rooms.assigned, config);
+    const status = createSession(rooms.assigned, config);
     // @ts-ignore
     if (status === 'success') {
       setShow(false);

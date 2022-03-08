@@ -7,25 +7,16 @@ import { DailyParticipant } from '@daily-co/daily-js';
 type JoinBreakoutModalType = {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
-  breakoutSession: any;
 };
 
-const JoinBreakoutModal = ({
-  show,
-  setShow,
-  breakoutSession,
-}: JoinBreakoutModalType) => {
+const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
   const { callFrame } = useCall();
   const [presence, setPresence] = useState<any>({});
-  const { assignRoomToNewParticipant } = useBreakoutRoom();
+  const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
 
   const handleClick = async (index: number) => {
     const participant = await callFrame?.participants().local;
-    await assignRoomToNewParticipant(
-      breakoutSession,
-      participant as DailyParticipant,
-      index,
-    );
+    await assignRoomToNewParticipant(participant as DailyParticipant, index);
     setShow(false);
   };
 

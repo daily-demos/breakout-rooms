@@ -10,19 +10,22 @@ import BreakoutMenu from '../components/BreakoutMenu';
 import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from '../components/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/JoinBreakoutModal';
-import {DailyParticipant} from "@daily-co/daily-js";
+import { DailyParticipant } from '@daily-co/daily-js';
 
 const Room = () => {
-  const [show, setShow] = useState<boolean>(false);
   const [warn, setWarn] = useState<boolean>(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [breakout, setBreakout] = useState(false);
   const [breakoutModal, setBreakoutModal] = useState(false);
   const [join, setJoin] = useState(false);
-  const [breakoutSession, setBreakoutSession] = useState<any>(null);
 
-  const { callRef, callFrame, joinCall } = useCall();
-  const { updateSession, assignRoomToNewParticipant } = useBreakoutRoom();
+  const { callRef, callFrame, joinCall, showBreakoutButton } = useCall();
+  const {
+    isBreakoutRoom,
+    setIsBreakoutRoom,
+    breakoutSession,
+    setBreakoutSession,
+    assignRoomToNewParticipant,
+  } = useBreakoutRoom();
 
   const joinBreakoutRoom = useCallback(
     async (sessionObject: any) => {
@@ -57,19 +60,33 @@ const Room = () => {
     [callFrame, isOwner, joinCall],
   );
 
+  const joinAs = useCallback(
+    async (owner: boolean = false) => {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({ is_owner: owner }),
+      };
+
+      const res = await fetch('/api/token', options);
+      const { token } = await res.json();
+      setIsOwner(owner);
+      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM as string, token);
+    },
+    [joinCall],
+  );
+
   const handleBreakoutSessionStarted = useCallback(
     async (data: any) => {
-      setShow(false);
-      setBreakout(true);
+      setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
       await joinBreakoutRoom(data.sessionObject);
     },
-    [joinBreakoutRoom],
+    [joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
   );
 
   const handleBreakoutSessionUpdated = useCallback(
     async (data: any) => {
-      setBreakout(true);
+      setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
       if (
         data.newParticipantIds &&
@@ -80,8 +97,16 @@ const Room = () => {
         await joinBreakoutRoom(data.sessionObject);
       }
     },
-    [joinBreakoutRoom],
+    [joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
   );
+
+  const handleBreakoutSessionEnded = useCallback(() => {
+    setIsBreakoutRoom(false);
+    setBreakoutSession(null);
+    setWarn(false);
+    callFrame?.destroy();
+    joinAs(isOwner);
+  }, [callFrame, isOwner, joinAs, setBreakoutSession, setIsBreakoutRoom]);
 
   const handleBreakoutSessionRequest = useCallback(async () => {
     if (breakoutSession) {
@@ -102,22 +127,7 @@ const Room = () => {
       if (equal(data.sessionObject, breakoutSession)) return;
       setBreakoutSession(data.sessionObject);
     },
-    [breakoutSession],
-  );
-
-  const joinAs = useCallback(
-    async (owner: boolean = false) => {
-      const options = {
-        method: 'POST',
-        body: JSON.stringify({ is_owner: owner }),
-      };
-
-      const res = await fetch('/api/token', options);
-      const { token } = await res.json();
-      setIsOwner(owner);
-      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM as string, token);
-    },
-    [joinCall],
+    [breakoutSession, setBreakoutSession],
   );
 
   useEffect((): any => {
@@ -131,57 +141,25 @@ const Room = () => {
 
     socket.on('DAILY_BREAKOUT_STARTED', handleBreakoutSessionStarted);
     socket.on('DAILY_BREAKOUT_UPDATED', handleBreakoutSessionUpdated);
-    socket.on('DAILY_BREAKOUT_CONCLUDED', () => {
-      setShow(false);
-      setBreakout(false);
-      setBreakoutSession(null);
-      setWarn(false);
-      callFrame?.destroy();
-      joinAs(isOwner);
-    });
+    socket.on('DAILY_BREAKOUT_CONCLUDED', handleBreakoutSessionEnded);
     socket.on('DAILY_BREAKOUT_REQUEST', handleBreakoutSessionRequest);
     socket.on('DAILY_BREAKOUT_SYNC', handleBreakoutSessionSync);
     if (socket) return () => socket.disconnect();
   }, [
     callFrame,
+    handleBreakoutSessionEnded,
     handleBreakoutSessionRequest,
     handleBreakoutSessionStarted,
     handleBreakoutSessionSync,
     handleBreakoutSessionUpdated,
-    isOwner,
-    joinAs,
   ]);
-
-  const handleLeftMeeting = useCallback(() => {
-    setShow(false);
-    if (breakoutSession) {
-      const b = breakoutSession;
-      const localId = localStorage.getItem('main-breakout-user-id');
-      b.rooms.map((room: any, index: number) => {
-        if (room.participantIds.includes(localId)) {
-          const participantIndex = room.participantIds.indexOf(localId);
-          b.rooms[index].participants.splice(participantIndex, 1);
-          b.rooms[index].participantIds.splice(participantIndex, 1);
-        }
-      });
-      updateSession(b, []);
-    }
-    localStorage.removeItem('main-breakout-user-id');
-  }, [breakoutSession, updateSession]);
-
-  useEffect(() => {
-    if (!callFrame) return;
-
-    callFrame.on('joined-meeting', () => setShow(true));
-    callFrame.on('left-meeting', handleLeftMeeting);
-  }, [callFrame, handleLeftMeeting]);
 
   const showJoinBreakoutRoomModal = useMemo(() => {
     if (!callFrame) return false;
 
     if (!breakoutSession) return false;
-    if (!breakout) return !breakoutSession.config.auto_join;
-  }, [callFrame, breakoutSession, breakout]);
+    if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
+  }, [callFrame, breakoutSession, isBreakoutRoom]);
 
   useEffect(() => {
     if (!callFrame) return;
@@ -189,13 +167,13 @@ const Room = () => {
     const assignParticipant = async () => {
       if (breakoutSession.config.auto_join) {
         const localUser = await callFrame.participants().local;
-        await assignRoomToNewParticipant(breakoutSession, localUser as DailyParticipant);
+        assignRoomToNewParticipant(localUser as DailyParticipant);
       } else setJoin(true);
     };
 
     if (!breakoutSession) return;
-    if (!breakout) assignParticipant();
-  }, [assignRoomToNewParticipant, breakout, breakoutSession, callFrame]);
+    if (!isBreakoutRoom) assignParticipant();
+  }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
 
   const myBreakoutRoom = useMemo(() => {
     if (breakoutSession) {
@@ -225,7 +203,7 @@ const Room = () => {
       )}
       {!callFrame && <Hero joinAs={joinAs} />}
       <div ref={callRef} className="room" />
-      {show && (
+      {showBreakoutButton && (
         <>
           {!breakoutSession ? (
             <button
@@ -240,8 +218,6 @@ const Room = () => {
             <BreakoutMenu
               showJoinBreakoutRoomModal={showJoinBreakoutRoomModal as boolean}
               setShow={setJoin}
-              breakoutSession={breakoutSession}
-              setBreakoutSession={setBreakoutSession}
               joinAs={joinAs}
               isOwner={isOwner}
             />
@@ -251,13 +227,7 @@ const Room = () => {
       {!breakoutSession && (
         <BreakoutModal show={breakoutModal} setShow={setBreakoutModal} />
       )}
-      {breakoutSession && (
-        <JoinBreakoutModal
-          show={join}
-          setShow={setJoin}
-          breakoutSession={breakoutSession}
-        />
-      )}
+      {breakoutSession && <JoinBreakoutModal show={join} setShow={setJoin} />}
       <CornerDialog
         title="Muted video & audio"
         isShown={warn}
