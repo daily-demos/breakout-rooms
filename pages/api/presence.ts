@@ -17,10 +17,7 @@ export default async function handler(
       },
     };
 
-    const dailyRes = await fetch(
-      `${process.env.DAILY_REST_DOMAIN || 'https://api.daily.co/v1'}/presence`,
-      options,
-    );
+    const dailyRes = await fetch('https://api.daily.co/v1/presence', options);
 
     const response = await dailyRes.json();
     return res.status(200).json(response);

@@ -39,6 +39,7 @@ interface ContextValue {
   setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
   joinCall: (name: string, token?: string, breakout?: boolean) => void;
   showBreakoutButton: boolean;
+  setShowBreakoutButton: Dispatch<SetStateAction<boolean>>;
 }
 
 // @ts-ignore
@@ -127,6 +128,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         setCallFrame,
         joinCall,
         showBreakoutButton,
+        setShowBreakoutButton,
       }}
     >
       {children}
