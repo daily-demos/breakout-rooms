@@ -18,8 +18,6 @@ import { useCall } from './CallProvider';
 type BreakoutMenuType = {
   showJoinBreakoutRoomModal: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
-  breakoutSession: any;
-  setBreakoutSession: Dispatch<SetStateAction<any>>;
   joinAs: (owner?: boolean) => void;
   isOwner: boolean;
 };
@@ -27,12 +25,11 @@ type BreakoutMenuType = {
 const BreakoutMenu = ({
   showJoinBreakoutRoomModal,
   setShow,
-  breakoutSession,
-  setBreakoutSession,
   joinAs,
   isOwner,
 }: BreakoutMenuType) => {
   const { callFrame, setCallFrame } = useCall();
+  const { breakoutSession, setBreakoutSession } = useBreakoutRoom();
   const [manage, setManage] = useState<boolean>(false);
   const { endSession } = useBreakoutRoom();
 
@@ -42,16 +39,14 @@ const BreakoutMenu = ({
         content={
           <Menu>
             <Menu.Group>
-              {breakoutSession.config.exp && (
-                <Menu.Item disabled icon={TimeIcon}>
-                  Time left: <Timer expiry={breakoutSession.config.exp} />
-                </Menu.Item>
-              )}
-              {showJoinBreakoutRoomModal && (
-                <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
-                  Join breakout room
-                </Menu.Item>
-              )}
+              <Menu.Item disabled icon={TimeIcon}>
+                Time left: <Timer expiry={breakoutSession.config.exp} />
+              </Menu.Item>
+              <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
+                {showJoinBreakoutRoomModal
+                  ? 'Join breakout rooms'
+                  : 'Change breakout room'}
+              </Menu.Item>
               {isOwner && (
                 <Menu.Item
                   icon={SettingsIcon}
@@ -60,19 +55,18 @@ const BreakoutMenu = ({
                   Manage rooms
                 </Menu.Item>
               )}
-              {breakoutSession.config.allow_user_exit && (
-                <Menu.Item
-                  icon={LogOutIcon}
-                  onSelect={() => {
-                    callFrame?.destroy();
-                    setCallFrame(null);
-                    setBreakoutSession(null);
-                    joinAs(isOwner);
-                  }}
-                >
-                  Return to lobby
-                </Menu.Item>
-              )}
+              <Menu.Item
+                icon={LogOutIcon}
+                onSelect={() => {
+                  callFrame?.destroy();
+                  setCallFrame(null);
+                  setBreakoutSession(null);
+                  joinAs(isOwner);
+                }}
+                disabled={!breakoutSession.config.allow_user_exit}
+              >
+                Return to lobby
+              </Menu.Item>
             </Menu.Group>
             {isOwner && (
               <>
@@ -81,7 +75,10 @@ const BreakoutMenu = ({
                   <Menu.Item
                     icon={SmallCrossIcon}
                     intent="danger"
-                    onSelect={endSession}
+                    onSelect={() => {
+                      setShow(false);
+                      endSession();
+                    }}
                   >
                     End breakout session
                   </Menu.Item>

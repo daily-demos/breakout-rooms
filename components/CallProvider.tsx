@@ -38,6 +38,7 @@ interface ContextValue {
   callFrame: DailyCall | null;
   setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
   joinCall: (name: string, token?: string, breakout?: boolean) => void;
+  showBreakoutButton: boolean;
 }
 
 // @ts-ignore
@@ -45,8 +46,15 @@ export const CallContext = createContext<ContextValue>(null);
 
 export const CallProvider = ({ children }: CallProviderType) => {
   const callRef = useRef<HTMLDivElement>();
-
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
+  const [showBreakoutButton, setShowBreakoutButton] = useState<boolean>(false);
+
+  const handleLeftMeeting = useCallback(() => {
+    setShowBreakoutButton(false);
+    localStorage.removeItem('main-breakout-user-id');
+    callFrame?.destroy();
+    setCallFrame(null);
+  }, [callFrame]);
 
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
@@ -56,6 +64,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
       }),
     };
 
+    setShowBreakoutButton(true);
     await fetch('/api/socket', options);
   }, []);
 
@@ -100,20 +109,14 @@ export const CallProvider = ({ children }: CallProviderType) => {
           }
         });
 
-      const leave = async () => {
-        callFrame?.destroy();
-        setCallFrame(null);
-        localStorage.removeItem('main-breakout-user-id');
-      };
-
       newCallFrame.on('joined-meeting', handleJoinedMeeting);
-      newCallFrame.on('left-meeting', leave);
+      newCallFrame.on('left-meeting', handleLeftMeeting);
       return () => {
         newCallFrame.off('joined-meeting', handleJoinedMeeting);
-        newCallFrame.off('left-meeting', leave);
+        newCallFrame.off('left-meeting', handleLeftMeeting);
       };
     },
-    [callFrame, handleJoinedMeeting],
+    [handleJoinedMeeting, handleLeftMeeting],
   );
 
   return (
@@ -123,6 +126,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         callFrame,
         setCallFrame,
         joinCall,
+        showBreakoutButton,
       }}
     >
       {children}
