@@ -19,7 +19,7 @@ const Timer = ({ expiry }: TimerType) => {
       const timeNow = Math.round(new Date().getTime() / 1000);
       let timeLeft = expiry - timeNow;
       if (timeLeft < 0) {
-        await endSession();
+        endSession();
         return setSecs(null);
       }
       setSecs(

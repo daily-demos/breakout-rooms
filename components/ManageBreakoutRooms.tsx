@@ -18,11 +18,15 @@ import {
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
+import {
+  DailyBreakoutConfig,
+  DailyBreakoutRoom,
+  DailyBreakoutSession,
+} from '../types/next';
 
 type ManageBreakoutRoomsType = {
   isShown: boolean;
   setShown: Dispatch<SetStateAction<boolean>>;
-  breakoutSession: any;
 };
 
 const getListStyle = (isDraggingOver: any) => ({
@@ -37,21 +41,23 @@ const getListStyle = (isDraggingOver: any) => ({
 const ManageBreakoutRooms = ({
   isShown,
   setShown,
-  breakoutSession,
 }: ManageBreakoutRoomsType) => {
-  const { updateSession } = useBreakoutRoom();
+  const { breakoutSession, updateSession } = useBreakoutRoom();
   const [newParticipantIds, setNewParticipantIds] = useState<String[]>([]);
-  const [newBreakoutSession, setNewBreakoutSession] = useState(breakoutSession);
-  const [config, setConfig] = useState(breakoutSession.config);
+  const [newBreakoutSession, setNewBreakoutSession] =
+    useState<DailyBreakoutSession>(
+      breakoutSession as unknown as DailyBreakoutSession,
+    );
+  const [config, setConfig] = useState(breakoutSession?.config);
 
   const handleOnDragEnd = useCallback(
     async (result: any) => {
       const { destination, source } = result;
-      const r = newBreakoutSession.rooms;
+      const r = newBreakoutSession?.rooms;
       r[Number(destination.droppableId)].participants.push(
         r[Number(source.droppableId)].participants[source.index],
       );
-      r[Number(destination.droppableId)].participantIds.push(
+      r[Number(destination.droppableId)].participantIds?.push(
         r[Number(source.droppableId)].participants[source.index].user_id,
       );
       setNewParticipantIds(newParticipantIds => [
@@ -59,8 +65,8 @@ const ManageBreakoutRooms = ({
         r[Number(source.droppableId)].participants[source.index].user_id,
       ]);
       r[Number(source.droppableId)].participants.splice(source.index, 1);
-      r[Number(source.droppableId)].participantIds.splice(source.index, 1);
-      setNewBreakoutSession((newBreakoutSession: any) => {
+      r[Number(source.droppableId)].participantIds?.splice(source.index, 1);
+      setNewBreakoutSession((newBreakoutSession: DailyBreakoutSession) => {
         return {
           ...newBreakoutSession,
           rooms: r,
@@ -73,7 +79,7 @@ const ManageBreakoutRooms = ({
   const handleSave = async () => {
     const b = newBreakoutSession;
     b.config = config;
-    await updateSession(b, newParticipantIds);
+    updateSession(b, newParticipantIds);
   };
 
   return (
@@ -97,48 +103,50 @@ const ManageBreakoutRooms = ({
           </Pane>
         </Pane>
         <Pane flex="1" overflowY="scroll" background="tint1" padding={16}>
-          {breakoutSession.rooms.map((room: any, index: number) => (
-            <Pane key={index} marginBottom={20}>
-              <Card backgroundColor="white" elevation={0} padding={20}>
-                <Heading>{room.name}</Heading>
-                <Droppable
-                  droppableId={index.toString()}
-                  direction="horizontal"
-                >
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      style={getListStyle(snapshot.isDraggingOver)}
-                    >
-                      {room?.participants?.map(
-                        (participant: DailyParticipant, index: number) => (
-                          <Draggable
-                            key={participant.user_id}
-                            draggableId={participant.user_id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <Badge
-                                margin={2}
-                                color="neutral"
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                {participant.user_name}
-                              </Badge>
-                            )}
-                          </Draggable>
-                        ),
-                      )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </Card>
-            </Pane>
-          ))}
+          {breakoutSession.rooms.map(
+            (room: DailyBreakoutRoom, index: number) => (
+              <Pane key={index} marginBottom={20}>
+                <Card backgroundColor="white" elevation={0} padding={20}>
+                  <Heading>{room.name}</Heading>
+                  <Droppable
+                    droppableId={index.toString()}
+                    direction="horizontal"
+                  >
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                      >
+                        {room?.participants?.map(
+                          (participant: DailyParticipant, index: number) => (
+                            <Draggable
+                              key={participant.user_id}
+                              draggableId={participant.user_id}
+                              index={index}
+                            >
+                              {(provided, snapshot) => (
+                                <Badge
+                                  margin={2}
+                                  color="neutral"
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                >
+                                  {participant.user_name}
+                                </Badge>
+                              )}
+                            </Draggable>
+                          ),
+                        )}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </Card>
+              </Pane>
+            ),
+          )}
           <Pane marginTop={10}>
             <Card backgroundColor="white" elevation={0} padding={20}>
               <Heading is="h3">Configurations</Heading>
@@ -163,7 +171,7 @@ const ManageBreakoutRooms = ({
                     <input
                       type="number"
                       min={0}
-                      value={config.expiryTime}
+                      value={config?.expiryTime ?? ''}
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         setConfig({
                           ...config,

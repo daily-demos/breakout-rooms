@@ -40,7 +40,10 @@ const BreakoutMenu = ({
           <Menu>
             <Menu.Group>
               <Menu.Item disabled icon={TimeIcon}>
-                Time left: <Timer expiry={breakoutSession.config.exp} />
+                Time left:{' '}
+                <Timer
+                  expiry={breakoutSession?.config.exp as unknown as number}
+                />
               </Menu.Item>
               <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
                 {showJoinBreakoutRoomModal
@@ -63,7 +66,7 @@ const BreakoutMenu = ({
                   setBreakoutSession(null);
                   joinAs(isOwner);
                 }}
-                disabled={!breakoutSession.config.allow_user_exit}
+                disabled={!breakoutSession?.config.allow_user_exit}
               >
                 Return to lobby
               </Menu.Item>
@@ -94,13 +97,7 @@ const BreakoutMenu = ({
           Breakout
         </button>
       </Popover>
-      {manage && (
-        <ManageBreakoutRooms
-          isShown={manage}
-          setShown={setManage}
-          breakoutSession={breakoutSession}
-        />
-      )}
+      {manage && <ManageBreakoutRooms isShown={manage} setShown={setManage} />}
     </>
   );
 };
