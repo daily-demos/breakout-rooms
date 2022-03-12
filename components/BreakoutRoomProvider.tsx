@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { DailyEvent, DailyParticipant } from '@daily-co/daily-js';
@@ -26,6 +27,7 @@ interface ContextValue {
   setConfig: Dispatch<SetStateAction<DailyBreakoutConfig>>;
   breakoutSession: DailyBreakoutSession | null;
   setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession | null>>;
+  myBreakoutRoom: DailyBreakoutRoom;
   createSession: (
     rooms: DailyBreakoutRoom[],
     config: DailyBreakoutConfig,
@@ -88,6 +90,16 @@ export const BreakoutRoomProvider = ({
     exp: false,
     expiryTime: 15,
   });
+
+  const myBreakoutRoom = useMemo(() => {
+    const localUser = callFrame?.participants()?.local;
+    if (breakoutSession) {
+      return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
+        room.participantIds?.includes(localUser?.user_id),
+      )[0];
+    } else return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [breakoutSession]);
 
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
@@ -301,6 +313,7 @@ export const BreakoutRoomProvider = ({
         setIsBreakoutRoom,
         breakoutSession,
         setBreakoutSession,
+        myBreakoutRoom,
         createSession,
         updateSession,
         endSession,
