@@ -52,7 +52,6 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
   const handleLeftMeeting = useCallback(() => {
     setShowBreakoutButton(false);
-    localStorage.removeItem('main-breakout-user-id');
     callFrame?.destroy();
     setCallFrame(null);
   }, [callFrame]);
@@ -99,16 +98,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
       setCallFrame(newCallFrame as DailyCall);
 
-      newCallFrame
-        .join({ url: `https://${domain}.daily.co/${name}`, token })
-        .then(() => {
-          if (!breakout) {
-            localStorage.setItem(
-              'main-breakout-user-id',
-              newCallFrame.participants().local.user_id,
-            );
-          }
-        });
+      newCallFrame.join({ url: `https://${domain}.daily.co/${name}`, token });
 
       newCallFrame.on('joined-meeting', handleJoinedMeeting);
       newCallFrame.on('left-meeting', handleLeftMeeting);

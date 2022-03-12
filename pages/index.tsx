@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { GridViewIcon, CornerDialog } from 'evergreen-ui';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CornerDialog, GridViewIcon } from 'evergreen-ui';
 import { io } from 'socket.io-client';
 import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
@@ -31,6 +31,7 @@ const Room = () => {
     setIsBreakoutRoom,
     breakoutSession,
     setBreakoutSession,
+    myBreakoutRoom,
     assignRoomToNewParticipant,
   } = useBreakoutRoom();
 
@@ -38,19 +39,17 @@ const Room = () => {
     async (sessionObject: DailyBreakoutSession) => {
       if (!callFrame) return;
 
-      const localUser = await callFrame.participants().local;
+      const localUser = await callFrame?.participants().local;
+
       sessionObject.rooms?.map(async (room: DailyBreakoutRoom) => {
-        if (
-          room.participantIds?.includes(
-            localStorage.getItem('main-breakout-user-id') as string,
-          )
-        ) {
+        if (room.participantIds?.includes(localUser?.user_id)) {
           const options = {
             method: 'POST',
             body: JSON.stringify({
               roomName: room.room_url,
               isOwner,
               username: localUser?.user_name,
+              userId: localUser?.user_id,
               recordBreakoutRooms:
                 sessionObject.config.record_breakout_sessions,
             }),
@@ -95,16 +94,16 @@ const Room = () => {
     async (data: any) => {
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
+
+      const localUser = await callFrame?.participants()?.local;
       if (
         data.newParticipantIds &&
-        data.newParticipantIds.includes(
-          localStorage.getItem('main-breakout-user-id'),
-        )
+        data.newParticipantIds.includes(localUser?.user_id)
       ) {
         await joinBreakoutRoom(data.sessionObject);
       }
     },
-    [joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
+    [callFrame, joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
   );
 
   const handleBreakoutSessionEnded = useCallback(() => {
@@ -189,16 +188,6 @@ const Room = () => {
     if (!breakoutSession) return;
     if (!isBreakoutRoom) assignParticipant();
   }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
-
-  const myBreakoutRoom = useMemo(() => {
-    if (breakoutSession) {
-      const localUserId = localStorage.getItem('main-breakout-user-id');
-      // @ts-ignore
-      return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
-        room.participantIds?.includes(localUserId as string),
-      )[0];
-    } else return null;
-  }, [breakoutSession]);
 
   return (
     <div>
