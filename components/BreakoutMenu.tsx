@@ -31,7 +31,7 @@ const BreakoutMenu = ({
   const { callFrame, setCallFrame } = useCall();
   const { breakoutSession, setBreakoutSession } = useBreakoutRoom();
   const [manage, setManage] = useState<boolean>(false);
-  const { endSession } = useBreakoutRoom();
+  const { isBreakoutRoom, endSession } = useBreakoutRoom();
 
   const returnToLobby = useCallback(() => {
     callFrame?.destroy();
@@ -46,7 +46,7 @@ const BreakoutMenu = ({
         content={
           <Menu>
             <Menu.Group>
-              {breakoutSession?.config?.exp && (
+              {isBreakoutRoom && breakoutSession?.config?.exp && (
                 <Menu.Item disabled icon={TimeIcon}>
                   Time left:{' '}
                   <Timer
@@ -65,7 +65,7 @@ const BreakoutMenu = ({
                   </Menu.Item>
                 )
               )}
-              {isOwner && (
+              {isBreakoutRoom && isOwner && (
                 <Menu.Item
                   icon={SettingsIcon}
                   onSelect={() => setManage(!manage)}
@@ -73,7 +73,7 @@ const BreakoutMenu = ({
                   Manage rooms
                 </Menu.Item>
               )}
-              {breakoutSession?.config.allow_user_exit && (
+              {isBreakoutRoom && breakoutSession?.config.allow_user_exit && (
                 <Menu.Item
                   icon={LogOutIcon}
                   onSelect={returnToLobby}
@@ -83,7 +83,7 @@ const BreakoutMenu = ({
                 </Menu.Item>
               )}
             </Menu.Group>
-            {isOwner && (
+            {isBreakoutRoom && isOwner && (
               <>
                 <Menu.Divider />
                 <Menu.Group>

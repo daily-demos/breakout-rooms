@@ -4,6 +4,7 @@ import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom } from '../types/next';
+import Avatars from './Avatars';
 
 type JoinBreakoutModalType = {
   show: boolean;
@@ -50,7 +51,7 @@ const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
             >
               <Pane flex={1}>
                 <Heading size={600}>{room.name}</Heading>
-                <Text>{presence[room.room_url]?.length} people</Text>
+                <Avatars participants={presence[room.room_url]} />
               </Pane>
               <Pane>
                 <Button appearance="primary" onClick={() => handleClick(index)}>
