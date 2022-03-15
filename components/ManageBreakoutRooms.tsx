@@ -10,7 +10,6 @@ import {
   Pane,
   Heading,
   Card,
-  Badge,
   Paragraph,
   Button,
   Checkbox,
@@ -20,6 +19,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';
+import DraggableParticipant from './DraggableParticipant';
 
 type ManageBreakoutRoomsType = {
   isShown: boolean;
@@ -114,15 +114,11 @@ const ManageBreakoutRooms = ({
                               index={index}
                             >
                               {(provided, snapshot) => (
-                                <Badge
-                                  margin={2}
-                                  color="neutral"
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  {participant.user_name}
-                                </Badge>
+                                <DraggableParticipant
+                                  provided={provided}
+                                  snapshot={snapshot}
+                                  participant={participant}
+                                />
                               )}
                             </Draggable>
                           ),

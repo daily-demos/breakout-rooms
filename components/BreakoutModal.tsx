@@ -5,7 +5,6 @@ import React, {
   useCallback,
 } from 'react';
 import {
-  Badge,
   Button,
   Checkbox,
   Dialog,
@@ -20,6 +19,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom, roomsInitialValue } from './BreakoutRoomProvider';
 import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
 import { getListStyle, getSample } from '../utils';
+import DraggableParticipant from './DraggableParticipant';
 
 type BreakoutModalType = {
   show: boolean;
@@ -165,15 +165,11 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
                           index={index}
                         >
                           {(provided, snapshot) => (
-                            <Badge
-                              margin={2}
-                              color="neutral"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              {participant.user_name}
-                            </Badge>
+                            <DraggableParticipant
+                              provided={provided}
+                              snapshot={snapshot}
+                              participant={participant}
+                            />
                           )}
                         </Draggable>
                       ),
@@ -210,15 +206,11 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
                       index={index}
                     >
                       {(provided, snapshot) => (
-                        <Badge
-                          margin={2}
-                          color="neutral"
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                        >
-                          {participant.user_name}
-                        </Badge>
+                        <DraggableParticipant
+                          provided={provided}
+                          snapshot={snapshot}
+                          participant={participant}
+                        />
                       )}
                     </Draggable>
                   ),
