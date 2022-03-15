@@ -19,29 +19,11 @@ import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom, roomsInitialValue } from './BreakoutRoomProvider';
 import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
+import { getListStyle, getSample } from '../utils';
 
 type BreakoutModalType = {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
-};
-
-const getListStyle = (isDraggingOver: any) => ({
-  background: isDraggingOver ? 'lightblue' : '#F9FAFC',
-  margin: '8px 0',
-  display: 'flex',
-  padding: 8,
-  overflow: 'auto',
-  height: '50px',
-});
-
-const sample = (arr: [], len: number) => {
-  let chunks = [],
-    i = 0,
-    n = arr.length;
-  while (i < n) {
-    chunks.push(arr.slice(i, (i += len)));
-  }
-  return chunks;
 };
 
 const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
@@ -102,7 +84,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
         r.assigned[index].participants = [];
       }
     });
-    const chunk = sample(
+    const chunk = getSample(
       // @ts-ignore
       r.unassigned,
       Math.ceil(r.unassigned.length / r.assigned.length),
@@ -118,6 +100,15 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
     r.unassigned.push(...r.assigned[index].participants);
     r.assigned[index].participants = [];
     setRooms({ ...r });
+  };
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    type = 'checkbox',
+  ) => {
+    if (type === 'number') {
+      setConfig({ ...config, [e.target.name]: e.target.valueAsNumber });
+    } else setConfig({ ...config, [e.target.name]: e.target.checked });
   };
 
   const handleSubmit = async () => {
@@ -137,154 +128,155 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       preventBodyScrolling
       hasFooter={false}
     >
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        {rooms.assigned.map((room: DailyBreakoutRoom, index: number) => (
-          <div key={index}>
-            <Pane display="flex">
-              <Pane flex={1} alignItems="center" display="flex">
-                <Heading is="h3">{room.name}</Heading>
-              </Pane>
-              <Pane>
-                {room?.participants?.length > 0 && (
-                  <Button
-                    appearance="minimal"
-                    intent="danger"
-                    size="small"
-                    onClick={() => handleRemoveAll(index)}
-                  >
-                    Remove all
-                  </Button>
-                )}
-                <Text>({room.participants?.length || 0} people)</Text>
-              </Pane>
-            </Pane>
-            <Droppable droppableId={index.toString()} direction="horizontal">
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  style={getListStyle(snapshot.isDraggingOver)}
-                >
-                  {room?.participants?.map(
-                    (participant: DailyParticipant, index: number) => (
-                      <Draggable
-                        key={participant.user_id}
-                        draggableId={participant.user_id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <Badge
-                            margin={2}
-                            color="neutral"
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            {participant.user_name}
-                          </Badge>
-                        )}
-                      </Draggable>
-                    ),
+      <div style={{ overflow: 'auto' }}>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          {rooms.assigned.map((room: DailyBreakoutRoom, index: number) => (
+            <div key={index}>
+              <Pane display="flex">
+                <Pane flex={1} alignItems="center" display="flex">
+                  <Heading is="h3">{room.name}</Heading>
+                </Pane>
+                <Pane>
+                  {room?.participants?.length > 0 && (
+                    <Button
+                      appearance="minimal"
+                      intent="danger"
+                      size="small"
+                      onClick={() => handleRemoveAll(index)}
+                    >
+                      Remove all
+                    </Button>
                   )}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-        ))}
-        <Pane display="flex">
-          <Pane flex={1} alignItems="center" display="flex">
-            <Heading is="h3">Unassigned</Heading>
-            <Paragraph color="muted" marginLeft={5}>
-              (Drag to assign)
-            </Paragraph>
-          </Pane>
-          <Pane>
-            <Text>({rooms.unassigned.length} people)</Text>
-          </Pane>
-        </Pane>
-        <Droppable droppableId="unassigned" direction="horizontal">
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              style={getListStyle(snapshot.isDraggingOver)}
-            >
-              {rooms.unassigned.map(
-                (participant: DailyParticipant, index: number) => (
-                  <Draggable
-                    key={participant.user_id}
-                    draggableId={participant.user_id}
-                    index={index}
+                  <Text>({room.participants?.length || 0} people)</Text>
+                </Pane>
+              </Pane>
+              <Droppable droppableId={index.toString()} direction="horizontal">
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    style={getListStyle(snapshot.isDraggingOver)}
                   >
-                    {(provided, snapshot) => (
-                      <Badge
-                        margin={2}
-                        color="neutral"
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        {participant.user_name}
-                      </Badge>
+                    {room?.participants?.map(
+                      (participant: DailyParticipant, index: number) => (
+                        <Draggable
+                          key={participant.user_id}
+                          draggableId={participant.user_id}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <Badge
+                              margin={2}
+                              color="neutral"
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              {participant.user_name}
+                            </Badge>
+                          )}
+                        </Draggable>
+                      ),
                     )}
-                  </Draggable>
-                ),
-              )}
-              {provided.placeholder}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          )}
-        </Droppable>
-        <Button onClick={handleAssignEvenly}>Assign evenly</Button>
-        <Pane marginTop={10}>
-          <Heading is="h3">Configurations</Heading>
-          <Checkbox
-            label="Let participant join after breakout room started"
-            checked={config.auto_join}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setConfig({ ...config, auto_join: e.target.checked })
-            }
-          />
-          <Checkbox
-            label="Allow participants to return to main lobby at any time"
-            checked={config.allow_user_exit}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setConfig({ ...config, allow_user_exit: e.target.checked })
-            }
-          />
-          <Checkbox
-            label={
-              <>
-                Automatically end breakout session after
-                <input
-                  type="number"
-                  min={0}
-                  value={config.expiryTime ?? ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setConfig({ ...config, expiryTime: e.target.valueAsNumber })
-                  }
-                  style={{ margin: '0 5px', width: '40px' }}
-                />
-                minutes
-              </>
-            }
-            checked={config.exp}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setConfig({ ...config, exp: e.target.checked })
-            }
-          />
-          <Checkbox
-            label="Record breakout session (will start automatically)"
-            checked={config.record_breakout_sessions}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setConfig({
-                ...config,
-                record_breakout_sessions: e.target.checked,
-              })
-            }
-          />
-        </Pane>
-      </DragDropContext>
+          ))}
+          <Pane display="flex">
+            <Pane flex={1} alignItems="center" display="flex">
+              <Heading is="h3">Unassigned</Heading>
+              <Paragraph color="muted" marginLeft={5}>
+                (Drag to assign)
+              </Paragraph>
+            </Pane>
+            <Pane>
+              <Text>({rooms.unassigned.length} people)</Text>
+            </Pane>
+          </Pane>
+          <Droppable droppableId="unassigned" direction="horizontal">
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                style={getListStyle(snapshot.isDraggingOver)}
+              >
+                {rooms.unassigned.map(
+                  (participant: DailyParticipant, index: number) => (
+                    <Draggable
+                      key={participant.user_id}
+                      draggableId={participant.user_id}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <Badge
+                          margin={2}
+                          color="neutral"
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          {participant.user_name}
+                        </Badge>
+                      )}
+                    </Draggable>
+                  ),
+                )}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+          <Button onClick={handleAssignEvenly}>Assign evenly</Button>
+          <Pane marginTop={10}>
+            <Heading is="h3">Configurations</Heading>
+            <Checkbox
+              name="auto_join"
+              label="Let participant join after breakout room started"
+              checked={config.auto_join}
+              onChange={handleChange}
+            />
+            <Checkbox
+              name="allow_user_exit"
+              label="Allow participants to return to main lobby at any time"
+              checked={config.allow_user_exit}
+              onChange={handleChange}
+            />
+            <Checkbox
+              name="exp"
+              label={
+                <>
+                  Automatically end breakout session after
+                  <input
+                    name="expiryTime"
+                    type="number"
+                    min={0}
+                    value={config.expiryTime ?? ''}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      handleChange(e, 'number')
+                    }
+                    style={{ margin: '0 5px', width: '40px' }}
+                  />
+                  minutes
+                </>
+              }
+              checked={config.exp}
+              onChange={handleChange}
+            />
+            <Checkbox
+              name="record_breakout_sessions"
+              label="Record breakout session (will start automatically)"
+              checked={config.record_breakout_sessions}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setConfig({
+                  ...config,
+                  record_breakout_sessions: e.target.checked,
+                })
+              }
+            />
+          </Pane>
+        </DragDropContext>
+      </div>
       <Pane display="flex" marginY={20}>
         <Pane flex={1} alignItems="center" display="flex">
           <Button onClick={() => setShow(false)}>Cancel</Button>

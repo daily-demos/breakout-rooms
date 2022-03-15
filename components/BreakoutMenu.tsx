@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import {
   GridViewIcon,
   LogOutIcon,
@@ -33,23 +33,38 @@ const BreakoutMenu = ({
   const [manage, setManage] = useState<boolean>(false);
   const { endSession } = useBreakoutRoom();
 
+  const returnToLobby = useCallback(() => {
+    callFrame?.destroy();
+    setCallFrame(null);
+    setBreakoutSession(null);
+    joinAs(isOwner);
+  }, [callFrame, isOwner, joinAs, setBreakoutSession, setCallFrame]);
+
   return (
     <>
       <Popover
         content={
           <Menu>
             <Menu.Group>
-              <Menu.Item disabled icon={TimeIcon}>
-                Time left:{' '}
-                <Timer
-                  expiry={breakoutSession?.config.exp as unknown as number}
-                />
-              </Menu.Item>
-              <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
-                {showJoinBreakoutRoomModal
-                  ? 'Join breakout rooms'
-                  : 'Change breakout room'}
-              </Menu.Item>
+              {breakoutSession?.config?.exp && (
+                <Menu.Item disabled icon={TimeIcon}>
+                  Time left:{' '}
+                  <Timer
+                    expiry={breakoutSession?.config.exp as unknown as number}
+                  />
+                </Menu.Item>
+              )}
+              {showJoinBreakoutRoomModal ? (
+                <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
+                  Join breakout rooms
+                </Menu.Item>
+              ) : (
+                breakoutSession?.rooms.length > 1 && (
+                  <Menu.Item icon={LogInIcon} onSelect={() => setShow(true)}>
+                    Change breakout room
+                  </Menu.Item>
+                )
+              )}
               {isOwner && (
                 <Menu.Item
                   icon={SettingsIcon}
@@ -58,18 +73,15 @@ const BreakoutMenu = ({
                   Manage rooms
                 </Menu.Item>
               )}
-              <Menu.Item
-                icon={LogOutIcon}
-                onSelect={() => {
-                  callFrame?.destroy();
-                  setCallFrame(null);
-                  setBreakoutSession(null);
-                  joinAs(isOwner);
-                }}
-                disabled={!breakoutSession?.config.allow_user_exit}
-              >
-                Return to lobby
-              </Menu.Item>
+              {breakoutSession?.config.allow_user_exit && (
+                <Menu.Item
+                  icon={LogOutIcon}
+                  onSelect={returnToLobby}
+                  disabled={!breakoutSession?.config.allow_user_exit}
+                >
+                  Return to lobby
+                </Menu.Item>
+              )}
             </Menu.Group>
             {isOwner && (
               <>

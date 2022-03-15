@@ -37,3 +37,7 @@
 .join {
   display: flex;
 }
+
+.info {
+  padding: 4rem 0;
+}

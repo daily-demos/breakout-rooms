@@ -9,7 +9,7 @@ This demo requires a `private` Daily [room](https://docs.daily.co/reference/rest
 ```bash
 npm install
 # or
-yarn
+yarn install
 ```
 
 2. Setting up environment variables
@@ -34,7 +34,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about Next.js and Typescript, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Typescript Documentation](https://www.typescriptlang.org/docs/) - learn about Typescript.

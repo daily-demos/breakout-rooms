@@ -84,10 +84,10 @@ export const BreakoutRoomProvider = ({
   );
 
   const [config, setConfig] = useState<DailyBreakoutConfig>({
-    auto_join: false,
-    allow_user_exit: false,
-    record_breakout_sessions: true,
-    exp: false,
+    auto_join: true,
+    allow_user_exit: true,
+    record_breakout_sessions: false,
+    exp: true,
     expiryTime: 15,
   });
 

@@ -123,7 +123,7 @@ const Room = () => {
   ]);
 
   const handleBreakoutSessionRequest = useCallback(async () => {
-    if (breakoutSession) {
+    if (breakoutSession && callFrame) {
       const options = {
         method: 'POST',
         body: JSON.stringify({
@@ -134,7 +134,7 @@ const Room = () => {
 
       await fetch('/api/socket', options);
     }
-  }, [breakoutSession]);
+  }, [breakoutSession, callFrame]);
 
   const handleBreakoutSessionSync = useCallback(
     (data: { sessionObject: DailyBreakoutSession }) => {
@@ -212,14 +212,16 @@ const Room = () => {
       {showBreakoutButton && (
         <>
           {!breakoutSession ? (
-            <button
-              type="button"
-              className="breakout-button"
-              onClick={() => setBreakoutModal(true)}
-            >
-              <GridViewIcon marginBottom={5} />
-              Breakout
-            </button>
+            isOwner && (
+              <button
+                type="button"
+                className="breakout-button"
+                onClick={() => setBreakoutModal(true)}
+              >
+                <GridViewIcon marginBottom={5} />
+                Breakout
+              </button>
+            )
           ) : (
             <BreakoutMenu
               showJoinBreakoutRoomModal={showJoinBreakoutRoomModal as boolean}

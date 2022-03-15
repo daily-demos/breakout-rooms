@@ -18,25 +18,13 @@ import {
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
-import {
-  DailyBreakoutConfig,
-  DailyBreakoutRoom,
-  DailyBreakoutSession,
-} from '../types/next';
+import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
+import { getListStyle } from '../utils';
 
 type ManageBreakoutRoomsType = {
   isShown: boolean;
   setShown: Dispatch<SetStateAction<boolean>>;
 };
-
-const getListStyle = (isDraggingOver: any) => ({
-  background: isDraggingOver ? 'lightblue' : '#F9FAFC',
-  margin: '8px 0',
-  display: 'flex',
-  padding: 8,
-  overflow: 'auto',
-  height: '50px',
-});
 
 const ManageBreakoutRooms = ({
   isShown,

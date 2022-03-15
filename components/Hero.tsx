@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head';
-import { Button } from 'evergreen-ui';
+import { Button, Image } from 'evergreen-ui';
 
 type HeroType = {
   joinAs: (owner?: boolean) => void;
@@ -16,6 +16,7 @@ const Hero = ({ joinAs }: HeroType) => {
       </Head>
 
       <main className={styles.main}>
+        <Image src="/daily-logo.svg" alt="Daily Logo" />
         <h1 className={styles.title}>
           Welcome to <span>Breakout Rooms!</span>
         </h1>
