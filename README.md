@@ -28,7 +28,9 @@ We are using [socket.io](https://socket.io) to listen to all the events in the c
 
 ## Getting Started
 
-This demo requires a `private` Daily [room](https://docs.daily.co/reference/rest-api/rooms/config#privacy), this can be done via Daily's [REST API](https://docs.daily.co/reference/rest-api/rooms/create-room) or the [Daily dashboard](https://dashboard.daily.co/rooms/create)
+This demo is intended to be used with a `private` Daily [room](https://docs.daily.co/reference/rest-api/rooms/config#privacy). This helps avoid participants joining the room from external links (i.e. not within the breakout room app.)
+
+To create a new private room, use either the Daily [REST API](https://docs.daily.co/reference/rest-api/rooms/create-room) or the [Daily dashboard](https://dashboard.daily.co/rooms/create)."
 
 1. Installing the dependencies
 
