@@ -1,0 +1,80 @@
+:root {
+  --grey-lightest: #f7f9fa;
+  --title: #0070f3;
+  --transparent: transparent;
+  --black: #000000;
+  --white: #ffffff;
+}
+
+.container {
+  padding: 0 2rem;
+}
+
+.main {
+  min-height: 100vh;
+  padding: 4rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.title span {
+  color: var(--title);
+  text-decoration: none;
+}
+
+.title {
+  margin: 0;
+  line-height: 1.15;
+  font-size: 4rem;
+}
+
+.title,
+.description {
+  text-align: center;
+}
+
+.description {
+  margin: 2rem 0;
+  line-height: 1.5;
+  font-size: 1.5rem;
+}
+
+.join {
+  display: flex;
+}
+
+.info {
+  padding: 4rem 0;
+}
+
+.breakout-button {
+  z-index: 10;
+  position: fixed;
+  bottom: 0.35rem;
+  right: 3.5rem;
+  background-color: var(--transparent);
+  color: var(--black);
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 16px;
+  margin: 0;
+  text-align: inherit;
+}
+
+@media (max-width: 450px) {
+  .breakout-button {
+    bottom: 4rem;
+    right: 0;
+    border-radius: 3px;
+    background: var(--white);
+  }
+}

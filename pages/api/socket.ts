@@ -19,7 +19,7 @@ export default async function handler(
           exp: sessionObject.config.exp,
         };
 
-        let retCode = await createRoom(room.room_url, roomProperties, {
+        let retCode = await createRoom(room.roomName, roomProperties, {
           enable_recording: 'cloud',
         });
         // If something went wrong, early out with response code
@@ -40,7 +40,7 @@ export default async function handler(
 // additionalProperties are extras that may be removed if
 // creation with them fails.
 function createRoom(
-  roomURL: string,
+  roomName: string,
   roomProperties: { [key: string]: string | boolean | number },
   additionalProperties: {
     [key: string]: string | boolean | number;
@@ -53,7 +53,7 @@ function createRoom(
       Authorization: `Bearer ${process.env.DAILY_API_KEY}`,
     },
     body: JSON.stringify({
-      name: roomURL,
+      name: roomName,
       privacy: 'private',
       // Basic + additional properties
       properties: {
@@ -80,7 +80,7 @@ function createRoom(
         for (const property in additionalProperties) {
           if (errorMsg.includes(`'${property}'`)) {
             delete additionalProperties[property];
-            return createRoom(roomURL, roomProperties, additionalProperties);
+            return createRoom(roomName, roomProperties, additionalProperties);
           }
         }
       }

@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
-import { useBreakoutRoom } from './BreakoutRoomProvider';
-import { useCall } from './CallProvider';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
+import { useCall } from '../contexts/CallProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom } from '../types/next';
 import Avatars from './Avatars';
@@ -51,7 +51,7 @@ const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
             >
               <Pane flex={1}>
                 <Heading size={600}>{room.name}</Heading>
-                <Avatars participants={presence[room.room_url]} />
+                <Avatars participants={presence[room.roomName]} />
               </Pane>
               <Pane>
                 <Button appearance="primary" onClick={() => handleClick(index)}>

@@ -16,7 +16,10 @@ import {
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { useBreakoutRoom, roomsInitialValue } from './BreakoutRoomProvider';
+import {
+  useBreakoutRoom,
+  roomsInitialValue,
+} from '../contexts/BreakoutRoomProvider';
 import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
 import { getListStyle, getSample } from '../utils';
 import DraggableParticipant from './DraggableParticipant';
@@ -67,7 +70,9 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
     const assigned = rooms.assigned;
     assigned.push({
       name: `Breakout Room ${assigned.length + 1}`,
-      room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-${assigned.length + 1}`,
+      roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-${
+        assigned.length + 1
+      }`,
       created: new Date(),
       participants: [],
     });
@@ -106,9 +111,9 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
     e: ChangeEvent<HTMLInputElement>,
     type = 'checkbox',
   ) => {
-    if (type === 'number') {
+    if (type === 'number')
       setConfig({ ...config, [e.target.name]: e.target.valueAsNumber });
-    } else setConfig({ ...config, [e.target.name]: e.target.checked });
+    else setConfig({ ...config, [e.target.name]: e.target.checked });
   };
 
   const handleSubmit = async () => {

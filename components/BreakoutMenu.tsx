@@ -11,9 +11,9 @@ import {
   LogInIcon,
 } from 'evergreen-ui';
 import Timer from './Timer';
-import { useBreakoutRoom } from './BreakoutRoomProvider';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import ManageBreakoutRooms from './ManageBreakoutRooms';
-import { useCall } from './CallProvider';
+import { useCall } from '../contexts/CallProvider';
 
 type BreakoutMenuType = {
   showJoinBreakoutRoomModal: boolean;

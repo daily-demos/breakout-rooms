@@ -13,7 +13,7 @@ export type NextApiResponseServerIO = NextApiResponse & {
 
 export type DailyBreakoutRoom = {
   name: string;
-  room_url: string;
+  roomName: string;
   created: Date;
   participants: DailyParticipant[];
   participantIds?: String[];

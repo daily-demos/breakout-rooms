@@ -16,7 +16,7 @@ export default async function handler(
   if (req.method === 'POST') {
     console.log(
       `Getting token for room '${
-        roomName || process.env.NEXT_PUBLIC_DAILY_ROOM
+        roomName || process.env.NEXT_PUBLIC_DAILY_ROOM_NAME
       }' as owner: ${isOwner}`,
     );
 
@@ -28,7 +28,7 @@ export default async function handler(
       },
       body: JSON.stringify({
         properties: {
-          room_name: roomName || process.env.NEXT_PUBLIC_DAILY_ROOM,
+          room_name: roomName || process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
           is_owner: isOwner,
           enable_recording: 'cloud',
           user_name: username,

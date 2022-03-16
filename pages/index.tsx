@@ -5,10 +5,10 @@ import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
 import Timer from '../components/Timer';
 import Hero from '../components/Hero';
-import { useCall } from '../components/CallProvider';
+import { useCall } from '../contexts/CallProvider';
 import BreakoutMenu from '../components/BreakoutMenu';
 import equal from 'fast-deep-equal';
-import { useBreakoutRoom } from '../components/BreakoutRoomProvider';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/JoinBreakoutModal';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
@@ -46,7 +46,7 @@ const Room = () => {
           const options = {
             method: 'POST',
             body: JSON.stringify({
-              roomName: room.room_url,
+              roomName: room.roomName,
               isOwner,
               username: localUser?.user_name,
               userId: localUser?.user_id,
@@ -58,7 +58,7 @@ const Room = () => {
           const res = await fetch('/api/token', options);
           const { token } = await res.json();
           await callFrame.destroy();
-          await joinCall(room.room_url, token, true);
+          await joinCall(room.roomName, token, true);
           setWarn(true);
         }
       });
@@ -76,7 +76,7 @@ const Room = () => {
       const res = await fetch('/api/token', options);
       const { token } = await res.json();
       setIsOwner(owner);
-      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM as string, token);
+      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string, token);
     },
     [joinCall],
   );
@@ -253,25 +253,6 @@ const Room = () => {
           height: 4vh;
           padding: 0.5rem;
           background: #eee;
-        }
-        :global(.breakout-button) {
-          z-index: 10;
-          position: fixed;
-          bottom: 0.5em;
-          right: 5em;
-          background-color: transparent;
-          color: #000000;
-          border: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-start;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: normal;
-          line-height: 16px;
-          margin: 0;
-          text-align: inherit;
         }
         .text-right {
           float: right;

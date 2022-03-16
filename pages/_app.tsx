@@ -1,7 +1,8 @@
 import '../styles/globals.css';
+import '../styles/Home.css';
 import type { AppProps } from 'next/app';
-import { CallProvider } from '../components/CallProvider';
-import { BreakoutRoomProvider } from '../components/BreakoutRoomProvider';
+import { CallProvider } from '../contexts/CallProvider';
+import { BreakoutRoomProvider } from '../contexts/BreakoutRoomProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

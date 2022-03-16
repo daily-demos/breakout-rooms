@@ -16,7 +16,7 @@ import {
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { useBreakoutRoom } from './BreakoutRoomProvider';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';
 import DraggableParticipant from './DraggableParticipant';

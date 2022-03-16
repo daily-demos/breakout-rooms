@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useBreakoutRoom } from './BreakoutRoomProvider';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 
 type TimerType = {
   expiry: number;

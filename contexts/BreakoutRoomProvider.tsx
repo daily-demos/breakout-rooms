@@ -57,13 +57,13 @@ export const roomsInitialValue = (date: Date): DailyBreakoutProviderRooms => {
     assigned: [
       {
         name: 'Breakout Room 1',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-1`,
+        roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-1`,
         created: date,
         participants: [],
       },
       {
         name: 'Breakout Room 2',
-        room_url: `${process.env.NEXT_PUBLIC_DAILY_ROOM}-2`,
+        roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-2`,
         created: date,
         participants: [],
       },

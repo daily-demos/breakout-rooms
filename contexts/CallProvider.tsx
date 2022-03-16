@@ -8,6 +8,7 @@ import React, {
   useContext,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import {useRouter} from "next/router";
 
 const CALL_OPTIONS = {
   showLeaveButton: true,
@@ -46,15 +47,17 @@ interface ContextValue {
 export const CallContext = createContext<ContextValue>(null);
 
 export const CallProvider = ({ children }: CallProviderType) => {
-  const callRef = useRef<HTMLDivElement>();
+  const router = useRouter();
+  const callRef = useRef<HTMLDivElement>(null);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [showBreakoutButton, setShowBreakoutButton] = useState<boolean>(false);
 
   const handleLeftMeeting = useCallback(() => {
+    router.reload();
+    callFrame.destroy();
     setShowBreakoutButton(false);
-    callFrame?.destroy();
     setCallFrame(null);
-  }, [callFrame]);
+  }, [callFrame, router]);
 
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
@@ -70,7 +73,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
   const joinCall = useCallback(
     (
-      name = process.env.NEXT_PUBLIC_DAILY_ROOM,
+      name = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
       token = '',
       breakout = false,
     ) => {
@@ -98,7 +101,8 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
       setCallFrame(newCallFrame as DailyCall);
 
-      newCallFrame.join({ url: `https://${domain}.daily.co/${name}`, token });
+      const url: string = `https://${domain}.daily.co/${name}`;
+      newCallFrame.join({ url, token });
 
       newCallFrame.on('joined-meeting', handleJoinedMeeting);
       newCallFrame.on('left-meeting', handleLeftMeeting);
