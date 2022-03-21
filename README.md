@@ -1,36 +1,28 @@
-![breakout-rooms-cover](./public/breakout-room-modal.png)
 
 # Daily Breakout Rooms
 
-## Demo features
+This demo shows how to use Daily's embeddable video call UI -- [Daily Prebuilt](https://docs.daily.co/guides/products/prebuilt) -- and custom events in a [Next.js](https://nextjs.org/) app to create a breakout room feature. "Breakout rooms" in this context refers to having one main video call where participants can then be split into multiple, smaller video calls.
 
-- Allows joining as `Owner` or `Participant` for the call.
-- Private rooms (both the lobby and breakout rooms) - users will be need tokens to join.
-- It supports a few configurations like
-    - `rooms` - the total number of rooms the users must be divided into once the breakout rooms start.
-    - `auto_join` - if they should be automatically joined into any breakout room when the session is active, or should we let them choose the breakout room to join.
-    - `allow_user_exist` - to let users leave the breakout rooms that they are assigned.
-    - `exp` - expiry datetime when the breakout rooms expire and all the participants will be moved into the main lobby.
-    - `auto_record` - allows to auto-record (cloud recording) breakout rooms.
-- Lets owners assign rooms to participants.
-- Allows managing breakout rooms for owners of the call.
+The breakout room feature is often seen in use cases such as online classrooms where the class format switches between a main lecture and smaller group work sessions.
 
-## Technical implementation
+[Socket.IO](https://socket.io) is used in this demo to handle receiving custom events between participants/rooms.
 
-- We made the following events for the breakout rooms, and they will be dispatched to everyone in the call,
-  - `DAILY_BREAKOUT_STARTED` - this event dispatches whenever an owner starts the breakout session.
-  - `DAILY_BREAKOUT_UPDATED` - this event dispatches whenever a participant changes their respective rooms and also when an owner updates the configuration of the breakout session.
-  - `DAILY_BREAKOUT_CONCLUDED` - this event dispatches whenever owner of the call ends the breakout session.
-  - `DAILY_BREAKOUT_REQUEST` - whenever a new participant joins the main lobby, after starting the breakout session, he will be needing the breakout session object to join any breakout room, so we are using this request method to get the breakout session object from the participants who are in the call.
-  - `DAILY_BREAKOUT_SYNC` - if someone in the call receives the `DAILY_BREAKOUT_REQUEST` and if the participant has the breakout session object with him, the object will be sent to everyone in the call. 
+[TypeScript](https://www.typescriptlang.org/) is also used in this demo.
 
-We are using [socket.io](https://socket.io) to listen to all the events in the call, we can't use the Daily's inbuilt `sendAppMessage` event as the participants will be in different calls and `sendAppMessage` will only listen to the events who are in the same call.  
+![Breakout room modal from "lobby" view](./public/breakout-room-modal.png)
 
+See below for a more thorough breakdown of app features.
+
+---
 ## Getting Started
 
 This demo is intended to be used with a `private` Daily [room](https://docs.daily.co/reference/rest-api/rooms/config#privacy). This helps avoid participants joining the room from external links (i.e. not within the breakout room app.)
 
-To create a new private room, use either the Daily [REST API](https://docs.daily.co/reference/rest-api/rooms/create-room) or the [Daily dashboard](https://dashboard.daily.co/rooms/create)."
+To create a new private room, use either the Daily [REST API](https://docs.daily.co/reference/rest-api/rooms/create-room) or the [Daily dashboard](https://dashboard.daily.co/rooms/create).
+
+![Private room setting in Daily dashboard](./public/private-room.png)
+
+You will need the room information when setting up environment variables below.
 
 1. Installing the dependencies
 
@@ -48,7 +40,7 @@ cp .env.example .env.local
 
 Now, you can update your variables accordingly in `.env.local` file.
 
-4. Running the development server
+3. Running the development server
 
 ```bash
 npm run dev
@@ -56,11 +48,47 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with the browser of your choice.
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+---
+## Demo features
+
+1. This demo has two participant types:
+    - owners, who can:
+      - start/end breakout room sessions
+      - configure breakout room settings before and while in the call
+      - move participants to different breakout rooms
+    - participants, who can:
+      - join the main call
+      - be moved to breakout rooms
+
+Owners are identified by the `is_owner` value on the Daily [meeting token](https://docs.daily.co/reference/rest-api/meeting-tokens/config#is_owner) used for participants in the call.
+
+2. As mentioned, the Daily room used is private, which means:
+    - Rooms cannot be joined externally (i.e. from outside the context of the app) without permission (i.e. a [token](https://docs.daily.co/reference/rest-api/meeting-tokens)).
+3. This demo supports several configurations, including
+    - The total number of breakout rooms participants can be split into.
+    - Auto-joining: if participants should automatically join a breakout room when the breakout session becomes active, or if they can choose when to join.
+    - Letting users leave the breakout rooms to return to the lobby room, or making them stay until the breakout session is complete.
+    - Breakout room expiration time: when a breakout room expires and all the participants are moved back to the main lobby room
+
+## Technical implementation
+
+The following custom events are used for managing the breakout rooms, which are dispatched to all call participants:
+  - `DAILY_BREAKOUT_STARTED`: dispatched when an owner starts the breakout session.
+  - `DAILY_BREAKOUT_UPDATED`: dispatched when a participant changes their respective room. Additionally, when an owner updates the configuration of the breakout session.
+  - `DAILY_BREAKOUT_CONCLUDED`: dispatched when an owner of the call ends the breakout session.
+  - `DAILY_BREAKOUT_REQUEST`: dispatched when a new participant joins the main lobby. To sync with the call, they will need the breakout session object, so this event is used to request it from an existing participant.
+  - `DAILY_BREAKOUT_SYNC`: dispatched when a participant in the call receives the `DAILY_BREAKOUT_REQUEST` event from a new participant. If they have the breakout session object, they will send the object to everyone in the call in response. This helps keep all participants in the call in sync.
+
+### A note on Socket.IO
+We are using [Socket.IO](https://socket.io) to listen to all of these events in the call. If you are familiar with Daily, you may know Daily's [`sendAppMessage` method](https://docs.daily.co/reference/daily-js/instance-methods/send-app-message) is often suggested for sending information between participant calls. However, in this demo, Socket.IO is used instead to accommodate this Daily managing multiple Daily rooms at the same time. (`sendAppMessage` will only listen to the events for a single Daily call.)  
+
+---
 
 ## Learn More
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 To learn more about Next.js and Typescript, take a look at the following resources:
 
