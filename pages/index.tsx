@@ -67,18 +67,28 @@ const Room = () => {
   );
 
   const joinAs = useCallback(
-    async (owner: boolean = false) => {
-      const options = {
-        method: 'POST',
-        body: JSON.stringify({ is_owner: owner }),
+    async (owner: boolean = false, disablePrejoin: boolean = false) => {
+      const body: { [key: string]: string | boolean } = {
+        is_owner: owner,
+        enable_prejoin_ui: !disablePrejoin,
       };
 
+      if (disablePrejoin) {
+        const localUser = await callFrame.participants().local;
+        body.user_id = localUser.user_id;
+      }
+      const options = {
+        method: 'POST',
+        body: JSON.stringify(body),
+      };
       const res = await fetch('/api/token', options);
       const { token } = await res.json();
       setIsOwner(owner);
+
+      if (disablePrejoin) await callFrame?.destroy();
       await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string, token);
     },
-    [joinCall],
+    [callFrame, joinCall],
   );
 
   const handleBreakoutSessionStarted = useCallback(
@@ -111,10 +121,8 @@ const Room = () => {
     setIsBreakoutRoom(false);
     setBreakoutSession(null);
     setWarn(false);
-    callFrame?.destroy();
-    joinAs(isOwner);
+    joinAs(isOwner, true);
   }, [
-    callFrame,
     isOwner,
     joinAs,
     setBreakoutSession,

@@ -63,28 +63,29 @@ function createRoom(
     }),
   };
 
-  return fetch('https://api.daily.co/v1/rooms', options).then(
-    async response => {
-      // If everything is OK, just return 200
-      if (response.status === 200) return 200;
-      // If something went wrong, get response body
-      const data = await response.json();
+  const url: string = `${
+    process.env.DAILY_API_URL || 'https://api.daily.co/v1'
+  }/rooms`;
+  return fetch(url, options).then(async response => {
+    // If everything is OK, just return 200
+    if (response.status === 200) return 200;
+    // If something went wrong, get response body
+    const data = await response.json();
 
-      // Check if one of the additional properties is actually the problematic one,
-      // and retry without it if so
-      const errorMsg = data?.info;
-      console.log(
-        `Failed to create breakout room. Status code: ${response.status}, error: ${errorMsg}`,
-      );
-      if (response.status === 400 && additionalProperties && errorMsg) {
-        for (const property in additionalProperties) {
-          if (errorMsg.includes(`'${property}'`)) {
-            delete additionalProperties[property];
-            return createRoom(roomName, roomProperties, additionalProperties);
-          }
+    // Check if one of the additional properties is actually the problematic one,
+    // and retry without it if so
+    const errorMsg = data?.info;
+    console.log(
+      `Failed to create breakout room. Status code: ${response.status}, error: ${errorMsg}`,
+    );
+    if (response.status === 400 && additionalProperties && errorMsg) {
+      for (const property in additionalProperties) {
+        if (errorMsg.includes(`'${property}'`)) {
+          delete additionalProperties[property];
+          return createRoom(roomName, roomProperties, additionalProperties);
         }
       }
-      return 500;
-    },
-  );
+    }
+    return 500;
+  });
 }

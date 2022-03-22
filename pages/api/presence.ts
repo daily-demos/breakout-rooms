@@ -17,7 +17,10 @@ export default async function handler(
       },
     };
 
-    const dailyRes = await fetch('https://api.daily.co/v1/presence', options);
+    const url: string = `${
+      process.env.DAILY_API_URL || 'https://api.daily.co/v1'
+    }/presence`;
+    const dailyRes = await fetch(url, options);
 
     const response = await dailyRes.json();
     return res.status(200).json(response);

@@ -8,7 +8,7 @@ import React, {
   useContext,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import {useRouter} from "next/router";
+import { useRouter } from 'next/router';
 
 const CALL_OPTIONS = {
   showLeaveButton: true,

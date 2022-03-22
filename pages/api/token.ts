@@ -38,10 +38,10 @@ export default async function handler(
       }),
     };
 
-    const dailyRes = await fetch(
-      'https://api.daily.co/v1/meeting-tokens',
-      options,
-    );
+    const url: string = `${
+      process.env.DAILY_API_URL || 'https://api.daily.co/v1'
+    }/meeting-tokens`;
+    const dailyRes = await fetch(url, options);
 
     const { token, error } = await dailyRes.json();
 
