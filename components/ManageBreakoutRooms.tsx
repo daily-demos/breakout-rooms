@@ -15,7 +15,7 @@ import {
   Checkbox,
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import {DragDropContext, Draggable, Droppable, DropResult} from 'react-beautiful-dnd';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';
@@ -39,21 +39,27 @@ const ManageBreakoutRooms = ({
   const [config, setConfig] = useState(breakoutSession?.config);
 
   const handleOnDragEnd = useCallback(
-    async (result: any) => {
+    async (result: DropResult) => {
       const { destination, source } = result;
       const r = newBreakoutSession?.rooms;
-      r[Number(destination.droppableId)].participants.push(
-        r[Number(source.droppableId)].participants[source.index],
+
+      if (!r) return;
+
+      const destinationDroppableId = Number(destination.droppableId);
+      const sourceDroppableId = Number(source.droppableId);
+
+      r[destinationDroppableId].participants.push(
+        r[sourceDroppableId].participants[source.index],
       );
-      r[Number(destination.droppableId)].participantIds?.push(
-        r[Number(source.droppableId)].participants[source.index].user_id,
+      r[destinationDroppableId].participantIds?.push(
+        r[sourceDroppableId].participants[source.index].user_id,
       );
       setNewParticipantIds(newParticipantIds => [
         ...newParticipantIds,
-        r[Number(source.droppableId)].participants[source.index].user_id,
+        r[sourceDroppableId].participants[source.index].user_id,
       ]);
-      r[Number(source.droppableId)].participants.splice(source.index, 1);
-      r[Number(source.droppableId)].participantIds?.splice(source.index, 1);
+      r[sourceDroppableId].participants.splice(source.index, 1);
+      r[sourceDroppableId].participantIds?.splice(source.index, 1);
       setNewBreakoutSession((newBreakoutSession: DailyBreakoutSession) => {
         return {
           ...newBreakoutSession,

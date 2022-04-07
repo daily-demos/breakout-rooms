@@ -68,7 +68,7 @@ export const roomsInitialValue = (date: Date): DailyBreakoutProviderRooms => {
         participants: [],
       },
     ],
-    unassigned: [],
+    unassignedParticipants: [],
   };
 };
 
@@ -107,8 +107,8 @@ export const BreakoutRoomProvider = ({
         setRooms((rooms: DailyBreakoutProviderRooms) => {
           return {
             ...rooms,
-            unassigned: Array.from(
-              new Set(rooms.unassigned).add(event.participants.local),
+            unassignedParticipants: Array.from(
+              new Set(rooms.unassignedParticipants).add(event.participants.local),
             ),
           };
         });
@@ -117,8 +117,8 @@ export const BreakoutRoomProvider = ({
         setRooms((rooms: DailyBreakoutProviderRooms) => {
           return {
             ...rooms,
-            unassigned: Array.from(
-              new Set(rooms.unassigned).add(event.participant),
+            unassignedParticipants: Array.from(
+              new Set(rooms.unassignedParticipants).add(event.participant),
             ),
           };
         });
@@ -127,11 +127,11 @@ export const BreakoutRoomProvider = ({
         const participant = event.participant;
         setRooms((rooms: DailyBreakoutProviderRooms) => {
           const r = rooms;
-          const idx = r.unassigned?.findIndex(
+          const idx = r.unassignedParticipants?.findIndex(
             (p: DailyParticipant) => p.user_id === participant.user_id,
           );
           if (idx >= 0) {
-            r.unassigned[idx] = participant;
+            r.unassignedParticipants[idx] = participant;
           } else {
             r.assigned.map((room: DailyBreakoutRoom, index: number) => {
               const idx = room.participants?.findIndex(
@@ -164,8 +164,8 @@ export const BreakoutRoomProvider = ({
           return {
             ...rooms,
             assigned,
-            unassigned: [
-              ...rooms.unassigned.filter(
+            unassignedParticipants: [
+              ...rooms.unassignedParticipants.filter(
                 (p: DailyParticipant) => p.user_id !== idx,
               ),
             ],
@@ -253,8 +253,10 @@ export const BreakoutRoomProvider = ({
       const r: DailyBreakoutRoom[] | undefined = breakoutSession?.rooms;
       if (roomIndex) {
         if (r) {
-          r[roomIndex].participants.push(participant);
-          r[roomIndex].participantIds?.push(participant.user_id);
+          const room = r[roomIndex];
+          room.participants.push(participant);
+          room.participantIds?.push(participant.user_id);
+          r[roomIndex] = room;
         }
       } else {
         // @ts-ignore
@@ -265,8 +267,10 @@ export const BreakoutRoomProvider = ({
           Math.min(...participantsInRooms),
         );
         if (r) {
-          r[minParticipantRoomIndex].participants.push(participant);
-          r[minParticipantRoomIndex].participantIds?.push(participant.user_id);
+          const room = r[minParticipantRoomIndex];
+          room.participants.push(participant);
+          room.participantIds?.push(participant.user_id);
+          r[minParticipantRoomIndex] = room;
         }
       }
       const options = {

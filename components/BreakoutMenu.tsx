@@ -22,6 +22,9 @@ type BreakoutMenuType = {
   isOwner: boolean;
 };
 
+// whenever the breakout session is active we will be showing the following menu to all the participants.
+// - it shows the time left, allows you to change and leave room and for owners it will also allow managing rooms.
+
 const BreakoutMenu = ({
   showJoinBreakoutRoomModal,
   setShow,
@@ -50,7 +53,7 @@ const BreakoutMenu = ({
                 <Menu.Item disabled icon={TimeIcon}>
                   Time left:{' '}
                   <Timer
-                    expiry={breakoutSession?.config.exp as unknown as number}
+                    expiry={breakoutSession.config.exp as unknown as number}
                   />
                 </Menu.Item>
               )}
@@ -77,7 +80,7 @@ const BreakoutMenu = ({
                 <Menu.Item
                   icon={LogOutIcon}
                   onSelect={returnToLobby}
-                  disabled={!breakoutSession?.config.allow_user_exit}
+                  disabled={!breakoutSession.config.allow_user_exit}
                 >
                   Return to lobby
                 </Menu.Item>

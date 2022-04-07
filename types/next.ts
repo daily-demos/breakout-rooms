@@ -21,7 +21,7 @@ export type DailyBreakoutRoom = {
 
 export type DailyBreakoutProviderRooms = {
   assigned: DailyBreakoutRoom[];
-  unassigned: DailyParticipant[];
+  unassignedParticipants: DailyParticipant[];
 };
 
 export type DailyBreakoutConfig = {

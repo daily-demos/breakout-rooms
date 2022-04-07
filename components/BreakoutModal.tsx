@@ -23,6 +23,7 @@ import {
 import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
 import { getListStyle, getSample } from '../utils';
 import DraggableParticipant from './DraggableParticipant';
+import { DropResult, DraggableLocation } from 'react-beautiful-dnd';
 
 type BreakoutModalType = {
   show: boolean;
@@ -33,16 +34,21 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
   const { rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
 
+  // whenever we drag and drop the participants in the breakout room modal,
+  // we will be returned the source index, so we need to get the value of the dragged item,
+  // this function allows us to get the value of it.
   const sourceValue = useCallback(
-    (source: any) => {
+    (source: DraggableLocation) => {
       let r,
         duplicateRooms = rooms;
       if (source.droppableId === 'unassigned') {
-        r = rooms.unassigned[source.index];
-        duplicateRooms.unassigned.splice(source.index, 1);
+        r = rooms.unassignedParticipants[source.index];
+        duplicateRooms.unassignedParticipants.splice(source.index, 1);
       } else {
-        r = rooms.assigned[source.droppableId].participants[source.index];
-        duplicateRooms.assigned[source.droppableId].participants.splice(
+        // we have to cast the type to unknown as it's default string, but we need it to be
+        // number to get the particular index.
+        r = rooms.assigned[source.droppableId as unknown as number].participants[source.index];
+        duplicateRooms.assigned[source.droppableId as unknown as number].participants.splice(
           source.index,
           1,
         );
@@ -54,13 +60,13 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
   );
 
   const handleOnDragEnd = useCallback(
-    (result: any) => {
+    (result: DropResult) => {
       const r = rooms;
       if (result.destination.droppableId !== 'unassigned') {
         r.assigned[Number(result.destination.droppableId)].participants.push(
           sourceValue(result.source),
         );
-      } else r.unassigned.push(sourceValue(result.source));
+      } else r.unassignedParticipants.push(sourceValue(result.source));
       setRooms({ ...r });
     },
     [rooms, sourceValue, setRooms],
@@ -85,24 +91,24 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
     const r: DailyBreakoutProviderRooms = rooms;
     r.assigned.map((room: DailyBreakoutRoom, index: number) => {
       if (room?.participants?.length > 0) {
-        r.unassigned.push(...room.participants);
+        r.unassignedParticipants.push(...room.participants);
         r.assigned[index].participants = [];
       }
     });
     const chunk = getSample(
       // @ts-ignore
-      r.unassigned,
-      Math.ceil(r.unassigned.length / r.assigned.length),
+      r.unassignedParticipants,
+      Math.ceil(r.unassignedParticipants.length / r.assigned.length),
     );
     Array.from({ length: r.assigned.length }, (_, i) => {
       r.assigned[i].participants = chunk[i];
     });
-    setRooms({ assigned: r.assigned, unassigned: [] });
+    setRooms({ assigned: r.assigned, unassignedParticipants: [] });
   };
 
   const handleRemoveAll = (index: number) => {
     const r = rooms;
-    r.unassigned.push(...r.assigned[index].participants);
+    r.unassignedParticipants.push(...r.assigned[index].participants);
     r.assigned[index].participants = [];
     setRooms({ ...r });
   };
@@ -193,7 +199,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
               </Paragraph>
             </Pane>
             <Pane>
-              <Text>({rooms.unassigned.length} people)</Text>
+              <Text>({rooms.unassignedParticipants.length} people)</Text>
             </Pane>
           </Pane>
           <Droppable droppableId="unassigned" direction="horizontal">
@@ -203,7 +209,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
                 {...provided.droppableProps}
                 style={getListStyle(snapshot.isDraggingOver)}
               >
-                {rooms.unassigned.map(
+                {rooms.unassignedParticipants.map(
                   (participant: DailyParticipant, index: number) => (
                     <Draggable
                       key={participant.user_id}
@@ -284,7 +290,7 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
           </Button>
           <Button
             appearance="primary"
-            disabled={rooms.unassigned.length > 0}
+            disabled={rooms.unassignedParticipants.length > 0}
             onClick={handleSubmit}
           >
             Open Rooms
