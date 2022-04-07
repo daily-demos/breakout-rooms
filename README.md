@@ -85,7 +85,7 @@ The following custom events are used for managing the breakout rooms, which are 
 
 ### A note on Socket.IO
 
-We are using [Socket.IO](https://socket.io) to listen to all of these events in the call. If you are familiar with Daily, you may know Daily's [`sendAppMessage` method](https://docs.daily.co/reference/daily-js/instance-methods/send-app-message) is often suggested for sending information between participant calls. However, in this demo, Socket.IO is used instead to accommodate this Daily managing multiple Daily rooms at the same time. (`sendAppMessage` will only listen to the events for a single Daily call.)
+We are using [Socket.IO](https://socket.io) to listen to all of these events in the call. If you are familiar with Daily, you may know Daily's [`sendAppMessage` method](https://docs.daily.co/reference/daily-js/instance-methods/send-app-message) is often suggested for sending information between participant calls. However, in this demo, Socket.IO is used instead to accommodate managing multiple Daily rooms at the same time. (`sendAppMessage` will only listen to the events for a single Daily call.)
 
 ---
 
