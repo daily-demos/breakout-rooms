@@ -18,7 +18,7 @@ import { useCall } from '../contexts/CallProvider';
 type BreakoutMenuType = {
   showJoinBreakoutRoomModal: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
-  joinAs: (owner?: boolean) => void;
+  joinAs: (owner?: boolean, disablePrejoin?: boolean) => void;
   isOwner: boolean;
 };
 
@@ -31,7 +31,7 @@ const BreakoutMenu = ({
   joinAs,
   isOwner,
 }: BreakoutMenuType) => {
-  const { callFrame, setCallFrame } = useCall();
+  const { callFrame, setCallFrame, setShowBreakoutButton } = useCall();
   const { breakoutSession, setBreakoutSession } = useBreakoutRoom();
   const [manage, setManage] = useState<boolean>(false);
   const { isBreakoutRoom, endSession } = useBreakoutRoom();
@@ -40,7 +40,7 @@ const BreakoutMenu = ({
     callFrame?.destroy();
     setCallFrame(null);
     setBreakoutSession(null);
-    joinAs(isOwner);
+    joinAs(isOwner, true);
   }, [callFrame, isOwner, joinAs, setBreakoutSession, setCallFrame]);
 
   return (
@@ -95,6 +95,7 @@ const BreakoutMenu = ({
                     intent="danger"
                     onSelect={() => {
                       setShow(false);
+                      setShowBreakoutButton(false);
                       endSession();
                     }}
                   >

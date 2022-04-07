@@ -15,7 +15,12 @@ import {
   Checkbox,
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
-import {DragDropContext, Draggable, Droppable, DropResult} from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from 'react-beautiful-dnd';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';

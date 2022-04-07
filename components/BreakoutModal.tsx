@@ -47,11 +47,13 @@ const BreakoutModal = ({ show, setShow }: BreakoutModalType) => {
       } else {
         // we have to cast the type to unknown as it's default string, but we need it to be
         // number to get the particular index.
-        r = rooms.assigned[source.droppableId as unknown as number].participants[source.index];
-        duplicateRooms.assigned[source.droppableId as unknown as number].participants.splice(
-          source.index,
-          1,
-        );
+        r =
+          rooms.assigned[source.droppableId as unknown as number].participants[
+            source.index
+          ];
+        duplicateRooms.assigned[
+          source.droppableId as unknown as number
+        ].participants.splice(source.index, 1);
       }
       setRooms(duplicateRooms);
       return r;

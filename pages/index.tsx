@@ -52,6 +52,7 @@ const Room = () => {
               userId: localUser?.user_id,
               recordBreakoutRooms:
                 sessionObject.config.record_breakout_sessions,
+              prejoinUI: false,
             }),
           };
 
@@ -69,13 +70,14 @@ const Room = () => {
   const joinAs = useCallback(
     async (owner: boolean = false, disablePrejoin: boolean = false) => {
       const body: { [key: string]: string | boolean } = {
-        is_owner: owner,
-        enable_prejoin_ui: !disablePrejoin,
+        roomName: process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string,
+        isOwner: owner,
+        prejoinUI: !disablePrejoin,
       };
 
       if (disablePrejoin) {
         const localUser = await callFrame.participants().local;
-        body.user_id = localUser.user_id;
+        body.userId = localUser.user_id;
       }
       const options = {
         method: 'POST',
@@ -118,8 +120,8 @@ const Room = () => {
 
   const handleBreakoutSessionEnded = useCallback(() => {
     setShowBreakoutButton(false);
-    setIsBreakoutRoom(false);
     setBreakoutSession(null);
+    setIsBreakoutRoom(false);
     setWarn(false);
     joinAs(isOwner, true);
   }, [

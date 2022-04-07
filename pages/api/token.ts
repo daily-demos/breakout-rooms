@@ -10,8 +10,14 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const { isOwner, roomName, username, userId, recordBreakoutRooms } =
-    JSON.parse(req.body);
+  const {
+    isOwner,
+    roomName,
+    username,
+    userId,
+    prejoinUI,
+    recordBreakoutRooms,
+  } = JSON.parse(req.body);
 
   if (req.method === 'POST') {
     console.log(
@@ -34,6 +40,7 @@ export default async function handler(
           user_name: username,
           user_id: userId,
           start_cloud_recording: recordBreakoutRooms,
+          enable_prejoin_ui: prejoinUI,
         },
       }),
     };

@@ -108,7 +108,9 @@ export const BreakoutRoomProvider = ({
           return {
             ...rooms,
             unassignedParticipants: Array.from(
-              new Set(rooms.unassignedParticipants).add(event.participants.local),
+              new Set(rooms.unassignedParticipants).add(
+                event.participants.local,
+              ),
             ),
           };
         });
