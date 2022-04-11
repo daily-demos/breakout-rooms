@@ -184,7 +184,7 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
               </Droppable>
               <Pane
                 display="grid"
-                gridTemplateColumns="auto auto"
+                gridTemplateColumns="repeat(auto-fit, minmax(100px, 1fr));"
                 gridGap={10}
                 marginTop={20}
               >
@@ -221,7 +221,7 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
                                 alignItems="center"
                               >
                                 {snapshot.isDraggingOver ? (
-                                  <Text color="muted">Drop to add</Text>
+                                  <Text color="muted">Drop to add to room</Text>
                                 ) : (
                                   <Text color="muted">Drag people here</Text>
                                 )}
