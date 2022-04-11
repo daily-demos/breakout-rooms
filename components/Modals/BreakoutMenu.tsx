@@ -9,9 +9,9 @@ import {
   Pane,
   Text,
 } from 'evergreen-ui';
-import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
-import ManageBreakoutRooms from './ManageBreakoutRooms';
-import { useCall } from '../contexts/CallProvider';
+import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
+import ManageBreakoutRooms from '../ManageBreakoutRooms';
+import { useCall } from '../../contexts/CallProvider';
 
 type BreakoutMenuType = {
   joinAs: (owner?: boolean, disablePrejoin?: boolean) => void;

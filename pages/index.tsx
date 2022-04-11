@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CornerDialog } from 'evergreen-ui';
 import { io } from 'socket.io-client';
 import Head from 'next/head';
-import BreakoutModal from '../components/BreakoutModal';
-import BreakoutMenu from '../components/BreakoutMenu';
+import BreakoutModal from '../components/Modals/BreakoutModal';
+import BreakoutMenu from '../components/Modals/BreakoutMenu';
 import Timer from '../components/Timer';
 import Hero from '../components/Hero';
 import { useCall } from '../contexts/CallProvider';
 import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
-import JoinBreakoutModal from '../components/JoinBreakoutModal';
+import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 

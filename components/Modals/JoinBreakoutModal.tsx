@@ -1,10 +1,10 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
-import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
-import { useCall } from '../contexts/CallProvider';
+import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
+import { useCall } from '../../contexts/CallProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
-import { DailyBreakoutRoom } from '../types/next';
-import Avatars from './Avatars';
+import { DailyBreakoutRoom } from '../../types/next';
+import Avatars from '../Avatars';
 
 type JoinBreakoutModalType = {
   show: boolean;

@@ -20,10 +20,16 @@ const DraggableParticipant = ({
   const child = (
     <Badge
       margin={2}
-      color="neutral"
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
+      height={24}
+      fontSize={12}
+      paddingY={4}
+      paddingX={6}
+      border="1px solid #C8D1DC"
+      textTransform="initial"
+      style={{ color: '#121A24' }}
     >
       {participant.user_name}
     </Badge>

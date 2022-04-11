@@ -1,25 +1,19 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  Heading,
-  Pane,
-  PlusIcon,
-  Text,
-  Paragraph,
-} from 'evergreen-ui';
+import { Button, Checkbox, Dialog, Heading, Pane, Text } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import {
   useBreakoutRoom,
   roomsInitialValue,
-} from '../contexts/BreakoutRoomProvider';
-import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
-import { getListStyle, getSample } from '../utils';
-import DraggableParticipant from './DraggableParticipant';
+} from '../../contexts/BreakoutRoomProvider';
+import {
+  DailyBreakoutProviderRooms,
+  DailyBreakoutRoom,
+} from '../../types/next';
+import { getListStyle, getSample } from '../../utils';
+import DraggableParticipant from '../DraggableParticipant';
 import { DropResult, DraggableLocation } from 'react-beautiful-dnd';
-import { useCall } from '../contexts/CallProvider';
+import { useCall } from '../../contexts/CallProvider';
 
 type BreakoutModalType = {
   isOwner: boolean;
@@ -103,13 +97,6 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
     setRooms({ assigned: r.assigned, unassignedParticipants: [] });
   };
 
-  const handleRemoveAll = (index: number) => {
-    const r = rooms;
-    r.unassignedParticipants.push(...r.assigned[index].participants);
-    r.assigned[index].participants = [];
-    setRooms({ ...r });
-  };
-
   const handleChange = (
     e: ChangeEvent<HTMLInputElement>,
     type = 'checkbox',
@@ -131,7 +118,11 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
   return (
     <Dialog
       isShown={showBreakoutModal}
-      title="Create breakout session"
+      title={
+        isOwner
+          ? 'Create breakout session'
+          : 'You are not authorized to view this.'
+      }
       onCloseComplete={() => setShowBreakoutModal(false)}
       preventBodyScrolling
       hasFooter={false}
@@ -140,65 +131,9 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
         <>
           <div style={{ overflow: 'auto' }}>
             <DragDropContext onDragEnd={handleOnDragEnd}>
-              {rooms.assigned.map((room: DailyBreakoutRoom, index: number) => (
-                <div key={index}>
-                  <Pane display="flex">
-                    <Pane flex={1} alignItems="center" display="flex">
-                      <Heading is="h3">{room.name}</Heading>
-                    </Pane>
-                    <Pane>
-                      {room?.participants?.length > 0 && (
-                        <Button
-                          appearance="minimal"
-                          intent="danger"
-                          size="small"
-                          onClick={() => handleRemoveAll(index)}
-                        >
-                          Remove all
-                        </Button>
-                      )}
-                      <Text>({room.participants?.length || 0} people)</Text>
-                    </Pane>
-                  </Pane>
-                  <Droppable
-                    droppableId={index.toString()}
-                    direction="horizontal"
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        style={getListStyle(snapshot.isDraggingOver)}
-                      >
-                        {room?.participants?.map(
-                          (participant: DailyParticipant, index: number) => (
-                            <Draggable
-                              key={participant.user_id}
-                              draggableId={participant.user_id}
-                              index={index}
-                            >
-                              {(provided, snapshot) => (
-                                <DraggableParticipant
-                                  provided={provided}
-                                  snapshot={snapshot}
-                                  participant={participant}
-                                />
-                              )}
-                            </Draggable>
-                          ),
-                        )}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              ))}
               <Pane display="flex">
                 <Pane flex={1} alignItems="center" display="flex">
-                  <Heading is="h3">Unassigned</Heading>
-                  <Paragraph color="muted" marginLeft={5}>
-                    (Drag to assign)
-                  </Paragraph>
+                  <Heading is="h3">Participants</Heading>
                 </Pane>
                 <Pane>
                   <Text>({rooms.unassignedParticipants.length} people)</Text>
@@ -209,8 +144,23 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={getListStyle(snapshot.isDraggingOver)}
+                    style={getListStyle(
+                      snapshot.isDraggingOver,
+                      rooms.unassignedParticipants.length,
+                    )}
                   >
+                    {rooms.unassignedParticipants.length < 1 && (
+                      <Pane
+                        width="100%"
+                        height="100%"
+                        display="flex"
+                        textAlign="center"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <Text color="muted">All in breakout rooms</Text>
+                      </Pane>
+                    )}
                     {rooms.unassignedParticipants.map(
                       (participant: DailyParticipant, index: number) => (
                         <Draggable
@@ -232,8 +182,81 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
                   </div>
                 )}
               </Droppable>
-              <Button onClick={handleAssignEvenly}>Assign evenly</Button>
-              <Pane marginTop={10}>
+              <Pane
+                display="grid"
+                gridTemplateColumns="auto auto"
+                gridGap={10}
+                marginTop={20}
+              >
+                {rooms.assigned.map(
+                  (room: DailyBreakoutRoom, index: number) => (
+                    <div key={index}>
+                      <Pane display="flex">
+                        <Heading is="h3">{room.name}</Heading>
+                        <Text marginLeft={5}>
+                          {room.participants?.length > 0 &&
+                            `(${room.participants?.length} people)`}
+                        </Text>
+                      </Pane>
+                      <Droppable
+                        droppableId={index.toString()}
+                        direction="horizontal"
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            style={getListStyle(
+                              snapshot.isDraggingOver,
+                              room?.participants?.length,
+                            )}
+                          >
+                            {room?.participants?.length < 1 && (
+                              <Pane
+                                width="100%"
+                                height="100%"
+                                display="flex"
+                                textAlign="center"
+                                justifyContent="center"
+                                alignItems="center"
+                              >
+                                {snapshot.isDraggingOver ? (
+                                  <Text color="muted">Drop to add</Text>
+                                ) : (
+                                  <Text color="muted">Drag people here</Text>
+                                )}
+                              </Pane>
+                            )}
+                            {room?.participants?.map(
+                              (
+                                participant: DailyParticipant,
+                                index: number,
+                              ) => (
+                                <Draggable
+                                  key={participant.user_id}
+                                  draggableId={participant.user_id}
+                                  index={index}
+                                >
+                                  {(provided, snapshot) => (
+                                    <DraggableParticipant
+                                      provided={provided}
+                                      snapshot={snapshot}
+                                      participant={participant}
+                                    />
+                                  )}
+                                </Draggable>
+                              ),
+                            )}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  ),
+                )}
+              </Pane>
+              <Button onClick={handleAddRoom}>Add room</Button>
+              <Pane marginTop={20}>
                 <Heading is="h3">Configurations</Heading>
                 <Checkbox
                   name="auto_join"
@@ -283,31 +306,24 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
             </DragDropContext>
           </div>
           <Pane display="flex" marginY={20}>
-            <Pane flex={1} alignItems="center" display="flex">
-              <Button onClick={() => setShowBreakoutModal(false)}>
-                Cancel
-              </Button>
-            </Pane>
-            <Pane>
-              <Button
-                iconAfter={PlusIcon}
-                marginRight={16}
-                onClick={handleAddRoom}
-              >
-                Add Room
-              </Button>
-              <Button
-                appearance="primary"
-                disabled={rooms.unassignedParticipants.length > 0}
-                onClick={handleSubmit}
-              >
-                Open Rooms
-              </Button>
-            </Pane>
+            <Button
+              marginRight={10}
+              appearance="primary"
+              disabled={rooms.unassignedParticipants.length > 0}
+              onClick={handleSubmit}
+            >
+              Create Rooms
+            </Button>
+            <Button onClick={handleAssignEvenly}>
+              Assign participants evenly
+            </Button>
           </Pane>
         </>
       ) : (
-        <p>Not authorized</p>
+        <Text>
+          Participants can&apos;t create breakout session, once owner create a
+          breakout session, you will be able to view this.
+        </Text>
       )}
     </Dialog>
   );
