@@ -1,5 +1,14 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import { Button, Checkbox, Dialog, Heading, Pane, Text } from 'evergreen-ui';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  Heading,
+  Pane,
+  Text,
+  EmptyState,
+  LockIcon,
+} from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import {
@@ -118,11 +127,7 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
   return (
     <Dialog
       isShown={showBreakoutModal}
-      title={
-        isOwner
-          ? 'Create breakout session'
-          : 'You are not authorized to view this.'
-      }
+      title="Create breakout session"
       onCloseComplete={() => setShowBreakoutModal(false)}
       preventBodyScrolling
       hasFooter={false}
@@ -320,10 +325,15 @@ const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
           </Pane>
         </>
       ) : (
-        <Text>
-          Participants can&apos;t create breakout session, once owner create a
-          breakout session, you will be able to view this.
-        </Text>
+        <Pane width="auto" height="auto">
+          <EmptyState
+            title="You need permission to create breakout session"
+            orientation="vertical"
+            icon={<LockIcon color="#EBAC91" />}
+            iconBgColor="#F8E3DA"
+            description="To see these sources, you need to join as owner, participants can not create breakout sessions"
+          />
+        </Pane>
       )}
     </Dialog>
   );
