@@ -44,6 +44,8 @@ interface ContextValue {
   isBreakoutRoom: boolean;
   setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
   showJoinModal: boolean;
+  join: boolean;
+  setJoin: Dispatch<SetStateAction<boolean>>;
 }
 
 // @ts-ignore
@@ -77,6 +79,7 @@ export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
   const { callFrame } = useCall();
+  const [join, setJoin] = useState<boolean>(false);
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
@@ -316,6 +319,20 @@ export const BreakoutRoomProvider = ({
     if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
   }, [callFrame, breakoutSession, isBreakoutRoom]);
 
+  useEffect(() => {
+    if (!callFrame) return;
+
+    const assignParticipant = async () => {
+      if (breakoutSession?.config.auto_join) {
+        const localUser = await callFrame.participants().local;
+        await assignRoomToNewParticipant(localUser as DailyParticipant);
+      } else setJoin(true);
+    };
+
+    if (!breakoutSession) return;
+    if (!isBreakoutRoom) assignParticipant();
+  }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
+
   return (
     <BreakoutRoomContext.Provider
       value={{
@@ -333,6 +350,8 @@ export const BreakoutRoomProvider = ({
         endSession,
         assignRoomToNewParticipant,
         showJoinModal,
+        join,
+        setJoin,
       }}
     >
       {children}

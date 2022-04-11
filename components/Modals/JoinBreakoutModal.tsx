@@ -1,18 +1,14 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Dialog, Heading, Pane, Button, Text } from 'evergreen-ui';
+import React, { useEffect, useState } from 'react';
+import { Dialog, Heading, Pane, Button } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../contexts/CallProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom } from '../../types/next';
 import Avatars from '../Avatars';
 
-type JoinBreakoutModalType = {
-  show: boolean;
-  setShow: Dispatch<SetStateAction<boolean>>;
-};
-
-const JoinBreakoutModal = ({ show, setShow }: JoinBreakoutModalType) => {
+const JoinBreakoutModal = () => {
   const { callFrame } = useCall();
+  const { join: show, setJoin: setShow } = useBreakoutRoom();
   const [presence, setPresence] = useState<any>({});
   const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
 

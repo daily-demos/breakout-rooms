@@ -23,12 +23,10 @@ import { getListStyle, getSample } from '../../utils';
 import DraggableParticipant from '../DraggableParticipant';
 import { DropResult, DraggableLocation } from 'react-beautiful-dnd';
 import { useCall } from '../../contexts/CallProvider';
+import { useSocket } from '../../contexts/SocketProvider';
 
-type BreakoutModalType = {
-  isOwner: boolean;
-};
-
-const BreakoutModal = ({ isOwner }: BreakoutModalType) => {
+const BreakoutModal = () => {
+  const { isOwner } = useSocket();
   const { showBreakoutModal, setShowBreakoutModal } = useCall();
   const { rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { CornerDialog } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/Modals/BreakoutModal';
@@ -8,35 +8,13 @@ import Hero from '../components/Hero';
 import { useCall } from '../contexts/CallProvider';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
-import { DailyParticipant } from '@daily-co/daily-js';
 import { useSocket } from '../contexts/SocketProvider';
 
 const Room = () => {
-  const [join, setJoin] = useState<boolean>(false);
-
   const { callRef, callFrame } = useCall();
-  const {
-    isBreakoutRoom,
-    breakoutSession,
-    myBreakoutRoom,
-    assignRoomToNewParticipant,
-  } = useBreakoutRoom();
+  const { breakoutSession, myBreakoutRoom } = useBreakoutRoom();
 
-  const { isOwner, warn, setWarn, joinAs } = useSocket();
-
-  useEffect(() => {
-    if (!callFrame) return;
-
-    const assignParticipant = async () => {
-      if (breakoutSession?.config.auto_join) {
-        const localUser = await callFrame.participants().local;
-        assignRoomToNewParticipant(localUser as DailyParticipant);
-      } else setJoin(true);
-    };
-
-    if (!breakoutSession) return;
-    if (!isBreakoutRoom) assignParticipant();
-  }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
+  const { warn, setWarn } = useSocket();
 
   return (
     <div>
@@ -57,16 +35,13 @@ const Room = () => {
           )}
         </div>
       )}
-      {!callFrame && <Hero joinAs={joinAs} />}
+
+      {!callFrame && <Hero />}
 
       <div ref={callRef} className="room" />
 
-      {breakoutSession ? (
-        <BreakoutMenu joinAs={joinAs} isOwner={isOwner} setJoin={setJoin} />
-      ) : (
-        <BreakoutModal isOwner={isOwner} />
-      )}
-      {breakoutSession && <JoinBreakoutModal show={join} setShow={setJoin} />}
+      {breakoutSession ? <BreakoutMenu /> : <BreakoutModal />}
+      {breakoutSession && <JoinBreakoutModal />}
       <CornerDialog
         title="Muted video & audio"
         isShown={warn}

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   LogOutIcon,
   SettingsIcon,
@@ -12,20 +12,16 @@ import {
 import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
 import ManageBreakoutRooms from '../ManageBreakoutRooms';
 import { useCall } from '../../contexts/CallProvider';
-
-type BreakoutMenuType = {
-  joinAs: (owner?: boolean, disablePrejoin?: boolean) => void;
-  isOwner: boolean;
-  setJoin: Dispatch<SetStateAction<boolean>>;
-};
+import { useSocket } from '../../contexts/SocketProvider';
 
 // whenever the breakout session is active we will be showing the following menu to all the participants.
 // - it shows the time left, allows you to change and leave room and for owners it will also allow managing rooms.
 
-const BreakoutMenu = ({ joinAs, isOwner, setJoin }: BreakoutMenuType) => {
+const BreakoutMenu = () => {
+  const { isOwner, joinAs } = useSocket();
   const { callFrame, setCallFrame, showBreakoutModal, setShowBreakoutModal } =
     useCall();
-  const { breakoutSession, setBreakoutSession, showJoinModal } =
+  const { breakoutSession, setBreakoutSession, showJoinModal, setJoin } =
     useBreakoutRoom();
   const [manage, setManage] = useState<boolean>(false);
   const { isBreakoutRoom, endSession } = useBreakoutRoom();

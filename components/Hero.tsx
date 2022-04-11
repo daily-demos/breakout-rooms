@@ -4,12 +4,10 @@ import { Button, Card, Pane } from 'evergreen-ui';
 import { ReactComponent as IconOne } from './icons/1-sm.svg';
 import { ReactComponent as IconTwo } from './icons/2-sm.svg';
 import Header from './Header';
+import { useSocket } from '../contexts/SocketProvider';
 
-type HeroType = {
-  joinAs: (owner?: boolean) => void;
-};
-
-const Hero = ({ joinAs }: HeroType) => {
+const Hero = () => {
+  const { joinAs } = useSocket();
   return (
     <Pane>
       <Head>
@@ -35,7 +33,7 @@ const Hero = ({ joinAs }: HeroType) => {
           >
             <div className="join-header">
               <IconOne style={{ marginRight: '10px' }} />
-              Enter as Owner
+              Enter as owner
             </div>
             <p className="join-text">
               Join call in new tab as a meeting owner. You can configure
