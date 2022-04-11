@@ -1,12 +1,9 @@
 import React from 'react';
-import { Image, Strong, Pane, Button, IconButton } from 'evergreen-ui';
+import {Image, Strong, Pane, Button, IconButton, Link} from 'evergreen-ui';
 import { ReactComponent as IconLink } from './icons/link-sm.svg';
 import { ReactComponent as IconGithub } from './icons/github-sm.svg';
-import { useRouter } from 'next/router';
 
 const Header = () => {
-  const router = useRouter();
-
   return (
     <header>
       <Pane
@@ -16,16 +13,17 @@ const Header = () => {
         borderBottom="1px solid #C8D1DC"
       >
         <Pane flex={1} alignItems="center" display="flex">
-          <Image src="/daily-logo.svg" alt="Daily Logo" />
+          <Link href="https://daily.co" target="_blank">
+            <Image src="/daily-logo.svg" alt="Daily Logo" />
+          </Link>
           <Strong marginLeft={20}>Breakout Room demo</Strong>
         </Pane>
         <Pane>
-          <Button
-            iconAfter={IconLink}
-            onClick={() => router.push('https://docs.daily.co')}
-          >
-            API docs
-          </Button>
+          <Link href="https://docs.daily.co" target="_blank">
+            <Button iconAfter={IconLink}>
+              API docs
+            </Button>
+          </Link>
           <div
             style={{
               display: 'inline-flex',
@@ -36,13 +34,9 @@ const Header = () => {
               verticalAlign: 'middle',
             }}
           />
-          <IconButton
-            appearance="minimal"
-            icon={IconGithub}
-            onClick={() =>
-              router.push('https://github.com/daily-demos/breakout-rooms')
-            }
-          />
+          <Link href="https://github.com/daily-demos/breakout-rooms" target="_blank">
+            <IconButton appearance="minimal" icon={IconGithub} />
+          </Link>
         </Pane>
       </Pane>
     </header>
