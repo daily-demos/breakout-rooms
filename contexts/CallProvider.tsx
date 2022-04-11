@@ -1,33 +1,31 @@
 import React, {
-  Dispatch,
-  useCallback,
-  SetStateAction,
-  useState,
-  useRef,
   createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
   useContext,
+  useRef,
+  useState,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import { useRouter } from 'next/router';
 
-const CALL_OPTIONS = {
-  showLeaveButton: true,
-  iframeStyle: {
-    height: '100vh',
-    width: '100vw',
-    aspectRatio: '16 / 9',
-    border: '0',
-  },
-};
-
-const BREAKOUT_CALL_OPTIONS = {
-  showLeaveButton: true,
-  iframeStyle: {
-    height: '96vh',
-    width: '100vw',
-    aspectRatio: '16 / 9',
-    border: '0',
-  },
+const getCallConfig = (isBreakoutRoom: boolean) => {
+  return {
+    showLeaveButton: true,
+    iframeStyle: {
+      height: isBreakoutRoom ? '96vh' : '100vh',
+      width: '100vw',
+      aspectRatio: '16 / 9',
+      border: '0',
+    },
+    customTrayButtons: {
+      breakout: {
+        iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
+        label: 'Breakout',
+        tooltip: 'Breakout rooms',
+      },
+    },
+  };
 };
 
 type CallProviderType = {
@@ -39,25 +37,22 @@ interface ContextValue {
   callFrame: DailyCall | null;
   setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
   joinCall: (name: string, token?: string, breakout?: boolean) => void;
-  showBreakoutButton: boolean;
-  setShowBreakoutButton: Dispatch<SetStateAction<boolean>>;
+  showBreakoutModal: boolean;
+  setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
 }
 
 // @ts-ignore
 export const CallContext = createContext<ContextValue>(null);
 
 export const CallProvider = ({ children }: CallProviderType) => {
-  const router = useRouter();
   const callRef = useRef<HTMLDivElement>(null);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
-  const [showBreakoutButton, setShowBreakoutButton] = useState<boolean>(false);
+  const [showBreakoutModal, setShowBreakoutModal] = useState<boolean>(false);
 
   const handleLeftMeeting = useCallback(() => {
-    router.reload();
-    callFrame.destroy();
-    setShowBreakoutButton(false);
+    if (callFrame) callFrame.destroy();
     setCallFrame(null);
-  }, [callFrame, router]);
+  }, [callFrame]);
 
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
@@ -67,8 +62,13 @@ export const CallProvider = ({ children }: CallProviderType) => {
       }),
     };
 
-    setShowBreakoutButton(true);
     await fetch('/api/socket', options);
+  }, []);
+
+  const handleCustomButtonClick = useCallback(event => {
+    if (event.button_id === 'breakout') {
+      setShowBreakoutModal(button => !button);
+    }
   }, []);
 
   const joinCall = useCallback(
@@ -78,10 +78,11 @@ export const CallProvider = ({ children }: CallProviderType) => {
       breakout = false,
     ) => {
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
+      const callOptions = getCallConfig(breakout);
 
       const newCallFrame: DailyCall = DailyIframe.createFrame(
         callRef?.current as unknown as HTMLElement,
-        breakout ? BREAKOUT_CALL_OPTIONS : CALL_OPTIONS,
+        callOptions,
       );
 
       newCallFrame.setTheme({
@@ -101,17 +102,19 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
       setCallFrame(newCallFrame as DailyCall);
 
-      const url: string = `https://${domain}.daily.co/${name}`;
+      const url: string = `https://${domain}.staging.daily.co/${name}`;
       newCallFrame.join({ url, token });
 
       newCallFrame.on('joined-meeting', handleJoinedMeeting);
       newCallFrame.on('left-meeting', handleLeftMeeting);
+      newCallFrame.on('custom-button-click', handleCustomButtonClick);
       return () => {
         newCallFrame.off('joined-meeting', handleJoinedMeeting);
         newCallFrame.off('left-meeting', handleLeftMeeting);
+        newCallFrame.off('custom-button-click', handleCustomButtonClick);
       };
     },
-    [handleJoinedMeeting, handleLeftMeeting],
+    [handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting],
   );
 
   return (
@@ -121,8 +124,8 @@ export const CallProvider = ({ children }: CallProviderType) => {
         callFrame,
         setCallFrame,
         joinCall,
-        showBreakoutButton,
-        setShowBreakoutButton,
+        showBreakoutModal,
+        setShowBreakoutModal,
       }}
     >
       {children}

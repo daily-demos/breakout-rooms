@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CornerDialog, GridViewIcon } from 'evergreen-ui';
+import { CornerDialog } from 'evergreen-ui';
 import { io } from 'socket.io-client';
 import Head from 'next/head';
 import BreakoutModal from '../components/BreakoutModal';
+import BreakoutMenu from '../components/BreakoutMenu';
 import Timer from '../components/Timer';
 import Hero from '../components/Hero';
 import { useCall } from '../contexts/CallProvider';
-import BreakoutMenu from '../components/BreakoutMenu';
 import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/JoinBreakoutModal';
@@ -16,16 +16,9 @@ import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 const Room = () => {
   const [warn, setWarn] = useState<boolean>(false);
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [breakoutModal, setBreakoutModal] = useState<boolean>(false);
   const [join, setJoin] = useState<boolean>(false);
 
-  const {
-    callRef,
-    callFrame,
-    joinCall,
-    showBreakoutButton,
-    setShowBreakoutButton,
-  } = useCall();
+  const { callRef, callFrame, joinCall, setShowBreakoutModal } = useCall();
   const {
     isBreakoutRoom,
     setIsBreakoutRoom,
@@ -95,11 +88,17 @@ const Room = () => {
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: { sessionObject: DailyBreakoutSession }) => {
+      setShowBreakoutModal(false);
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
       await joinBreakoutRoom(data.sessionObject);
     },
-    [joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
+    [
+      joinBreakoutRoom,
+      setBreakoutSession,
+      setIsBreakoutRoom,
+      setShowBreakoutModal,
+    ],
   );
 
   const handleBreakoutSessionUpdated = useCallback(
@@ -119,7 +118,7 @@ const Room = () => {
   );
 
   const handleBreakoutSessionEnded = useCallback(() => {
-    setShowBreakoutButton(false);
+    setShowBreakoutModal(false);
     setBreakoutSession(null);
     setIsBreakoutRoom(false);
     setWarn(false);
@@ -129,7 +128,7 @@ const Room = () => {
     joinAs,
     setBreakoutSession,
     setIsBreakoutRoom,
-    setShowBreakoutButton,
+    setShowBreakoutModal,
   ]);
 
   const handleBreakoutSessionRequest = useCallback(async () => {
@@ -178,13 +177,6 @@ const Room = () => {
     handleBreakoutSessionUpdated,
   ]);
 
-  const showJoinBreakoutRoomModal = useMemo(() => {
-    if (!callFrame) return false;
-
-    if (!breakoutSession) return false;
-    if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
-  }, [callFrame, breakoutSession, isBreakoutRoom]);
-
   useEffect(() => {
     if (!callFrame) return;
 
@@ -205,6 +197,7 @@ const Room = () => {
         <title>Breakout Rooms</title>
         <meta name="description" content="Breakout Rooms" />
       </Head>
+
       {callFrame && breakoutSession && myBreakoutRoom?.name && (
         <div className="banner">
           <b>{myBreakoutRoom?.name}</b>
@@ -218,32 +211,13 @@ const Room = () => {
         </div>
       )}
       {!callFrame && <Hero joinAs={joinAs} />}
+
       <div ref={callRef} className="room" />
-      {showBreakoutButton && (
-        <>
-          {!breakoutSession ? (
-            isOwner && (
-              <button
-                type="button"
-                className="breakout-button"
-                onClick={() => setBreakoutModal(true)}
-              >
-                <GridViewIcon marginBottom={5} />
-                Breakout
-              </button>
-            )
-          ) : (
-            <BreakoutMenu
-              showJoinBreakoutRoomModal={showJoinBreakoutRoomModal as boolean}
-              setShow={setJoin}
-              joinAs={joinAs}
-              isOwner={isOwner}
-            />
-          )}
-        </>
-      )}
-      {!breakoutSession && (
-        <BreakoutModal show={breakoutModal} setShow={setBreakoutModal} />
+
+      {breakoutSession ? (
+        <BreakoutMenu joinAs={joinAs} isOwner={isOwner} setJoin={setJoin} />
+      ) : (
+        <BreakoutModal isOwner={isOwner} />
       )}
       {breakoutSession && <JoinBreakoutModal show={join} setShow={setJoin} />}
       <CornerDialog

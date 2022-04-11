@@ -1,4 +1,6 @@
-export const getSample = (arr: [], len: number) => {
+import { DailyParticipant } from '@daily-co/daily-js';
+
+export const getSample = (arr: DailyParticipant[], len: number) => {
   let chunks = [],
     i = 0,
     n = arr.length;

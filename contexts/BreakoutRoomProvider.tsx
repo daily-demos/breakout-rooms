@@ -43,6 +43,7 @@ interface ContextValue {
   ) => {};
   isBreakoutRoom: boolean;
   setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
+  showJoinModal: boolean;
 }
 
 // @ts-ignore
@@ -308,6 +309,13 @@ export const BreakoutRoomProvider = ({
     return status;
   };
 
+  const showJoinModal = useMemo(() => {
+    if (!callFrame) return false;
+
+    if (!breakoutSession) return false;
+    if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
+  }, [callFrame, breakoutSession, isBreakoutRoom]);
+
   return (
     <BreakoutRoomContext.Provider
       value={{
@@ -324,6 +332,7 @@ export const BreakoutRoomProvider = ({
         updateSession,
         endSession,
         assignRoomToNewParticipant,
+        showJoinModal,
       }}
     >
       {children}
