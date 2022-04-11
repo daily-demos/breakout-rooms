@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Strong, Pane, Button, IconButton, Link} from 'evergreen-ui';
+import { Image, Strong, Pane, Button, IconButton, Link } from 'evergreen-ui';
 import { ReactComponent as IconLink } from './icons/link-sm.svg';
 import { ReactComponent as IconGithub } from './icons/github-sm.svg';
 
@@ -20,9 +20,7 @@ const Header = () => {
         </Pane>
         <Pane>
           <Link href="https://docs.daily.co" target="_blank">
-            <Button iconAfter={IconLink}>
-              API docs
-            </Button>
+            <Button iconAfter={IconLink}>API docs</Button>
           </Link>
           <div
             style={{
@@ -34,7 +32,10 @@ const Header = () => {
               verticalAlign: 'middle',
             }}
           />
-          <Link href="https://github.com/daily-demos/breakout-rooms" target="_blank">
+          <Link
+            href="https://github.com/daily-demos/breakout-rooms"
+            target="_blank"
+          >
             <IconButton appearance="minimal" icon={IconGithub} />
           </Link>
         </Pane>

@@ -4,6 +4,7 @@ import type { AppProps } from 'next/app';
 import { CallProvider } from '../contexts/CallProvider';
 import { BreakoutRoomProvider } from '../contexts/BreakoutRoomProvider';
 import { ThemeProvider, mergeTheme, defaultTheme } from 'evergreen-ui';
+import { SocketProvider } from '../contexts/SocketProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const theme = mergeTheme(defaultTheme, {
@@ -13,7 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           primary: {
             backgroundColor: '#1BEBB9',
             color: 'black',
-          }
+          },
         },
       },
     },
@@ -23,7 +24,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ThemeProvider value={theme}>
       <CallProvider>
         <BreakoutRoomProvider>
-          <Component {...pageProps} />
+          <SocketProvider>
+            <Component {...pageProps} />
+          </SocketProvider>
         </BreakoutRoomProvider>
       </CallProvider>
     </ThemeProvider>
