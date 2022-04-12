@@ -11,10 +11,8 @@ import {
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import {
-  useBreakoutRoom,
-  roomsInitialValue,
-} from '../../contexts/BreakoutRoomProvider';
+import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
+import { getRoomsInitialValues } from '../../utils/getRooms';
 import {
   DailyBreakoutProviderRooms,
   DailyBreakoutRoom,
@@ -118,7 +116,7 @@ const BreakoutModal = () => {
     // @ts-ignore
     if (status === 'success') {
       setShowBreakoutModal(false);
-      setRooms(roomsInitialValue(new Date()));
+      setRooms(getRoomsInitialValues(new Date()));
     }
   };
 

@@ -8,17 +8,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { DailyEvent, DailyParticipant } from '@daily-co/daily-js';
+import { DailyParticipant } from '@daily-co/daily-js';
 import { useCall } from './CallProvider';
+import { getRoomsInitialValues } from '../utils/getRooms';
+import { getDateTimeAfter } from '../utils/getTimeAfter';
 import {
   DailyBreakoutConfig,
   DailyBreakoutProviderRooms,
   DailyBreakoutRoom,
   DailyBreakoutSession,
 } from '../types/next';
-
-const getDateTimeAfter = (minutes: number) =>
-  Math.round(new Date(new Date().getTime() + minutes * 60000).getTime() / 1000);
+import { useDailyEvent } from '@daily-co/daily-react-hooks';
 
 interface ContextValue {
   rooms: DailyBreakoutProviderRooms;
@@ -57,26 +57,6 @@ type BreakoutRoomProviderType = {
   children: React.ReactNode;
 };
 
-export const roomsInitialValue = (date: Date): DailyBreakoutProviderRooms => {
-  return {
-    assigned: [
-      {
-        name: 'Breakout Room 1',
-        roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-1`,
-        created: date,
-        participants: [],
-      },
-      {
-        name: 'Breakout Room 2',
-        roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-2`,
-        created: date,
-        participants: [],
-      },
-    ],
-    unassignedParticipants: [],
-  };
-};
-
 export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
@@ -88,7 +68,7 @@ export const BreakoutRoomProvider = ({
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
   const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>(
-    roomsInitialValue(new Date()),
+    getRoomsInitialValues(new Date()),
   );
 
   const [config, setConfig] = useState<DailyBreakoutConfig>({
@@ -187,20 +167,10 @@ export const BreakoutRoomProvider = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (!callFrame) return;
-
-    const events = [
-      'joined-meeting',
-      'participant-joined',
-      'participant-updated',
-      'participant-left',
-    ];
-    handleNewParticipantsState();
-    events.forEach((event: string) =>
-      callFrame.on(event as DailyEvent, handleNewParticipantsState),
-    );
-  }, [callFrame, handleNewParticipantsState]);
+  useDailyEvent('joined-meeting', handleNewParticipantsState);
+  useDailyEvent('participant-joined', handleNewParticipantsState);
+  useDailyEvent('participant-updated', handleNewParticipantsState);
+  useDailyEvent('participant-left', handleNewParticipantsState);
 
   const createSession = async (
     rooms: DailyBreakoutRoom[],
@@ -309,7 +279,7 @@ export const BreakoutRoomProvider = ({
         event: 'DAILY_BREAKOUT_CONCLUDED',
       }),
     };
-    setRooms(roomsInitialValue(new Date()));
+    setRooms(getRoomsInitialValues(new Date()));
 
     const res = await fetch('/api/socket', options);
     const { status } = await res.json();

@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { DailyProvider } from '@daily-co/daily-react-hooks';
 
 const getCallConfig = (isBreakoutRoom: boolean) => {
   return {
@@ -128,7 +129,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         setShowBreakoutModal,
       }}
     >
-      {children}
+      <DailyProvider callObject={callFrame}>{children}</DailyProvider>
     </CallContext.Provider>
   );
 };
