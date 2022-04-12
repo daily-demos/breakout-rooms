@@ -11,18 +11,13 @@
 }
 
 .main {
-  min-height: 100vh;
+  height: 90vh;
   padding: 4rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.title span {
-  color: var(--title);
-  text-decoration: none;
 }
 
 .title {

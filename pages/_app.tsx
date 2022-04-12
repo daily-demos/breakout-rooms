@@ -7,6 +7,7 @@ import { ThemeProvider, mergeTheme, defaultTheme } from 'evergreen-ui';
 import { SocketProvider } from '../contexts/SocketProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const color = 'green';
   const theme = mergeTheme(defaultTheme, {
     components: {
       Button: {
@@ -14,6 +15,11 @@ function MyApp({ Component, pageProps }: AppProps) {
           primary: {
             backgroundColor: '#1BEBB9',
             color: 'black',
+            _disabled: {
+              backgroundColor: `colors.${color}100`,
+              borderColor: `colors.${color}100`,
+              cursor: 'not-allowed',
+            },
           },
         },
       },

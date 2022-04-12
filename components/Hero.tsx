@@ -5,9 +5,12 @@ import { ReactComponent as IconOne } from './icons/1-sm.svg';
 import { ReactComponent as IconTwo } from './icons/2-sm.svg';
 import Header from './Header';
 import { useSocket } from '../contexts/SocketProvider';
+import { useWindowSize } from '../hooks/useWindowSize';
 
 const Hero = () => {
   const { joinAs } = useSocket();
+  const { width } = useWindowSize();
+
   return (
     <Pane>
       <Head>
@@ -22,7 +25,7 @@ const Hero = () => {
           Demo a breakout room UX built using Daily video APIs.
         </p>
 
-        <Pane display="flex" gap={15} marginY={24}>
+        <Pane display={width < 630 ? 'initial' : 'flex'} gap={15}>
           <Card
             padding={20}
             paddingBottom={5}
@@ -30,6 +33,7 @@ const Hero = () => {
             height={232}
             border="1px solid #C8D1DC"
             borderRadius={8}
+            marginY={24}
           >
             <div className="join-header">
               <IconOne style={{ marginRight: '10px' }} />
@@ -53,6 +57,7 @@ const Hero = () => {
             height={232}
             border="1px solid #C8D1DC"
             borderRadius={8}
+            marginY={24}
           >
             <div className="join-header">
               <IconTwo style={{ marginRight: '10px' }} />
