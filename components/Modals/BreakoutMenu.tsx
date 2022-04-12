@@ -60,23 +60,23 @@ const BreakoutMenu = () => {
         justifyContent="center"
         paddingBottom={20}
       >
-        {showJoinModal ||
-          (isBreakoutRoom && breakoutSession?.rooms.length > 1 && (
-            <Card
-              elevation={1}
-              border="muted"
-              padding={10}
-              flexGrow={1}
-              width={150}
-              cursor="pointer"
-              onClick={() => setJoin(join => !join)}
-            >
-              <LogInIcon size={40} marginY={10} />
-              <Text display="grid">
-                {showJoinModal ? 'Join breakout' : 'Change room'}
-              </Text>
-            </Card>
-          ))}
+        {(showJoinModal ||
+          (isBreakoutRoom && breakoutSession?.rooms.length > 1)) && (
+          <Card
+            elevation={1}
+            border="muted"
+            padding={10}
+            flexGrow={1}
+            width={150}
+            cursor="pointer"
+            onClick={() => setJoin(join => !join)}
+          >
+            <LogInIcon size={24} marginY={10} />
+            <Text display="grid">
+              {showJoinModal ? 'Join breakout' : 'Change room'}
+            </Text>
+          </Card>
+        )}
         {isBreakoutRoom && isOwner && (
           <Card
             elevation={1}
@@ -87,7 +87,7 @@ const BreakoutMenu = () => {
             cursor="pointer"
             onClick={() => setManage(!manage)}
           >
-            <SettingsIcon size={40} marginY={10} />
+            <SettingsIcon size={24} marginY={10} />
             <Text display="grid">Manage Room</Text>
           </Card>
         )}
@@ -101,7 +101,7 @@ const BreakoutMenu = () => {
             cursor="pointer"
             onClick={returnToLobby}
           >
-            <LogOutIcon size={40} marginY={10} />
+            <LogOutIcon size={24} marginY={10} />
             <Text display="grid">Lobby</Text>
           </Card>
         )}
@@ -115,7 +115,7 @@ const BreakoutMenu = () => {
             cursor="pointer"
             onClick={endBreakoutSession}
           >
-            <SmallCrossIcon size={40} marginY={10} />
+            <SmallCrossIcon size={24} marginY={10} />
             <Text display="grid">End session</Text>
           </Card>
         )}
