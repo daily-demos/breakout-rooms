@@ -9,6 +9,7 @@ import { useCall } from '../contexts/CallProvider';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
 import { useSocket } from '../contexts/SocketProvider';
+import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
 
 const Room = () => {
   const { callRef, callFrame } = useCall();
@@ -42,6 +43,8 @@ const Room = () => {
 
       {breakoutSession ? <BreakoutMenu /> : <BreakoutModal />}
       {breakoutSession && <JoinBreakoutModal />}
+      {breakoutSession && <ManageBreakoutRooms />}
+
       <CornerDialog
         title="Muted video & audio"
         isShown={warn}

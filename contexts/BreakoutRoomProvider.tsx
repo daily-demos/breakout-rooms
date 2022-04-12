@@ -46,6 +46,8 @@ interface ContextValue {
   showJoinModal: boolean;
   join: boolean;
   setJoin: Dispatch<SetStateAction<boolean>>;
+  manage: boolean;
+  setManage: Dispatch<SetStateAction<boolean>>;
 }
 
 // @ts-ignore
@@ -80,6 +82,8 @@ export const BreakoutRoomProvider = ({
 }: BreakoutRoomProviderType) => {
   const { callFrame } = useCall();
   const [join, setJoin] = useState<boolean>(false);
+  const [manage, setManage] = useState(false);
+
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
@@ -96,12 +100,12 @@ export const BreakoutRoomProvider = ({
   });
 
   const myBreakoutRoom = useMemo(() => {
+    if (!breakoutSession) return null;
+
     const localUser = callFrame?.participants()?.local;
-    if (breakoutSession) {
-      return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
-        room.participantIds?.includes(localUser?.user_id),
-      )[0];
-    } else return null;
+    return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
+      room.participantIds?.includes(localUser?.user_id),
+    )[0];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breakoutSession]);
 
@@ -352,6 +356,8 @@ export const BreakoutRoomProvider = ({
         showJoinModal,
         join,
         setJoin,
+        manage,
+        setManage,
       }}
     >
       {children}

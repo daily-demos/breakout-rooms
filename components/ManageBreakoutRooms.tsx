@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useState,
-} from 'react';
+import React, { ChangeEvent, useCallback, useState } from 'react';
 import {
   SideSheet,
   Pane,
@@ -26,16 +20,9 @@ import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';
 import DraggableParticipant from './DraggableParticipant';
 
-type ManageBreakoutRoomsType = {
-  isShown: boolean;
-  setShown: Dispatch<SetStateAction<boolean>>;
-};
-
-const ManageBreakoutRooms = ({
-  isShown,
-  setShown,
-}: ManageBreakoutRoomsType) => {
-  const { breakoutSession, updateSession } = useBreakoutRoom();
+const ManageBreakoutRooms = () => {
+  const { breakoutSession, updateSession, manage, setManage } =
+    useBreakoutRoom();
   const [newParticipantIds, setNewParticipantIds] = useState<String[]>([]);
   const [newBreakoutSession, setNewBreakoutSession] =
     useState<DailyBreakoutSession>(
@@ -79,12 +66,13 @@ const ManageBreakoutRooms = ({
     const b = newBreakoutSession;
     b.config = config;
     updateSession(b, newParticipantIds);
+    setManage(manage => !manage);
   };
 
   return (
     <SideSheet
-      isShown={isShown}
-      onCloseComplete={() => setShown(false)}
+      isShown={manage}
+      onCloseComplete={() => setManage(false)}
       width={500}
       containerProps={{
         display: 'flex',

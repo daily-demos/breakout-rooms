@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   LogOutIcon,
   SettingsIcon,
@@ -10,7 +10,6 @@ import {
   Text,
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
-import ManageBreakoutRooms from '../ManageBreakoutRooms';
 import { useCall } from '../../contexts/CallProvider';
 import { useSocket } from '../../contexts/SocketProvider';
 
@@ -20,9 +19,13 @@ import { useSocket } from '../../contexts/SocketProvider';
 const BreakoutMenu = () => {
   const { isOwner, joinAs } = useSocket();
   const { showBreakoutModal, setShowBreakoutModal } = useCall();
-  const { breakoutSession, setBreakoutSession, showJoinModal, setJoin } =
-    useBreakoutRoom();
-  const [manage, setManage] = useState<boolean>(false);
+  const {
+    breakoutSession,
+    setBreakoutSession,
+    showJoinModal,
+    setJoin,
+    setManage,
+  } = useBreakoutRoom();
   const { isBreakoutRoom, endSession } = useBreakoutRoom();
 
   const handleJoinRoom = useCallback(() => {
@@ -34,12 +37,7 @@ const BreakoutMenu = () => {
     setShowBreakoutModal(false);
     setBreakoutSession(null);
     joinAs(isOwner, true);
-  }, [
-    isOwner,
-    joinAs,
-    setBreakoutSession,
-    setShowBreakoutModal,
-  ]);
+  }, [isOwner, joinAs, setBreakoutSession, setShowBreakoutModal]);
 
   const handleManage = () => setManage(manage => !manage);
 
@@ -122,7 +120,6 @@ const BreakoutMenu = () => {
           </Card>
         )}
       </Pane>
-      {manage && <ManageBreakoutRooms isShown={manage} setShown={setManage} />}
     </Dialog>
   );
 };
