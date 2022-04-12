@@ -19,27 +19,29 @@ import { useSocket } from '../../contexts/SocketProvider';
 
 const BreakoutMenu = () => {
   const { isOwner, joinAs } = useSocket();
-  const { callFrame, setCallFrame, showBreakoutModal, setShowBreakoutModal } =
-    useCall();
+  const { showBreakoutModal, setShowBreakoutModal } = useCall();
   const { breakoutSession, setBreakoutSession, showJoinModal, setJoin } =
     useBreakoutRoom();
   const [manage, setManage] = useState<boolean>(false);
   const { isBreakoutRoom, endSession } = useBreakoutRoom();
 
+  const handleJoinRoom = useCallback(() => {
+    setShowBreakoutModal(false);
+    setJoin(join => !join);
+  }, [setJoin, setShowBreakoutModal]);
+
   const returnToLobby = useCallback(() => {
     setShowBreakoutModal(false);
-    callFrame?.destroy();
-    setCallFrame(null);
     setBreakoutSession(null);
     joinAs(isOwner, true);
   }, [
-    callFrame,
     isOwner,
     joinAs,
     setBreakoutSession,
-    setCallFrame,
     setShowBreakoutModal,
   ]);
+
+  const handleManage = () => setManage(manage => !manage);
 
   const endBreakoutSession = useCallback(() => {
     setShowBreakoutModal(false);
@@ -69,7 +71,7 @@ const BreakoutMenu = () => {
             flexGrow={1}
             width={150}
             cursor="pointer"
-            onClick={() => setJoin(join => !join)}
+            onClick={handleJoinRoom}
           >
             <LogInIcon size={24} marginY={10} />
             <Text display="grid">
@@ -85,7 +87,7 @@ const BreakoutMenu = () => {
             flexGrow={1}
             width={150}
             cursor="pointer"
-            onClick={() => setManage(!manage)}
+            onClick={handleManage}
           >
             <SettingsIcon size={24} marginY={10} />
             <Text display="grid">Manage Room</Text>

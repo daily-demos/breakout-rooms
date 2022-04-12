@@ -77,8 +77,10 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
       if (disablePrejoin) {
         const localUser = await callFrame.participants().local;
+        body.username = localUser.user_name;
         body.userId = localUser.user_id;
       }
+
       const options = {
         method: 'POST',
         body: JSON.stringify(body),

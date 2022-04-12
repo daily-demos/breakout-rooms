@@ -7,7 +7,7 @@ import { DailyBreakoutRoom } from '../../types/next';
 import Avatars from '../Avatars';
 
 const JoinBreakoutModal = () => {
-  const { callFrame } = useCall();
+  const { callFrame, setShowBreakoutModal } = useCall();
   const { join: show, setJoin: setShow } = useBreakoutRoom();
   const [presence, setPresence] = useState<any>({});
   const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
@@ -44,6 +44,7 @@ const JoinBreakoutModal = () => {
               borderRadius={3}
               key={index}
               marginY={10}
+              alignItems="center"
             >
               <Pane flex={1}>
                 <Heading size={600}>{room.name}</Heading>
