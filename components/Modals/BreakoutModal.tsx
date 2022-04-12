@@ -1,7 +1,6 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
-  Checkbox,
   Dialog,
   Heading,
   Pane,
@@ -22,6 +21,7 @@ import DraggableParticipant from '../DraggableParticipant';
 import { DropResult, DraggableLocation } from 'react-beautiful-dnd';
 import { useCall } from '../../contexts/CallProvider';
 import { useSocket } from '../../contexts/SocketProvider';
+import BreakoutConfigurations from '../BreakoutConfigurations';
 
 const BreakoutModal = () => {
   const { isOwner } = useSocket();
@@ -100,15 +100,6 @@ const BreakoutModal = () => {
       r.assigned[i].participants = chunk[i];
     });
     setRooms({ assigned: r.assigned, unassignedParticipants: [] });
-  };
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    type = 'checkbox',
-  ) => {
-    if (type === 'number')
-      setConfig({ ...config, [e.target.name]: e.target.valueAsNumber });
-    else setConfig({ ...config, [e.target.name]: e.target.checked });
   };
 
   const handleSubmit = async () => {
@@ -259,50 +250,7 @@ const BreakoutModal = () => {
               <Button onClick={handleAddRoom}>Add room</Button>
               <Pane marginTop={20}>
                 <Heading is="h3">Configurations</Heading>
-                <Checkbox
-                  name="auto_join"
-                  label="Let participant join after breakout room started"
-                  checked={config.auto_join}
-                  onChange={handleChange}
-                />
-                <Checkbox
-                  name="allow_user_exit"
-                  label="Allow participants to return to main lobby at any time"
-                  checked={config.allow_user_exit}
-                  onChange={handleChange}
-                />
-                <Checkbox
-                  name="exp"
-                  label={
-                    <>
-                      Automatically end breakout session after
-                      <input
-                        name="expiryTime"
-                        type="number"
-                        min={0}
-                        value={config.expiryTime ?? ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          handleChange(e, 'number')
-                        }
-                        style={{ margin: '0 5px', width: '40px' }}
-                      />
-                      minutes
-                    </>
-                  }
-                  checked={config.exp}
-                  onChange={handleChange}
-                />
-                <Checkbox
-                  name="record_breakout_sessions"
-                  label="Record breakout session (will start automatically)"
-                  checked={config.record_breakout_sessions}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setConfig({
-                      ...config,
-                      record_breakout_sessions: e.target.checked,
-                    })
-                  }
-                />
+                <BreakoutConfigurations config={config} setConfig={setConfig} />
               </Pane>
             </DragDropContext>
           </div>

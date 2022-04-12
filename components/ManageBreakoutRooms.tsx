@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   SideSheet,
   Pane,
@@ -6,7 +6,6 @@ import {
   Card,
   Paragraph,
   Button,
-  Checkbox,
 } from 'evergreen-ui';
 import { DailyParticipant } from '@daily-co/daily-js';
 import {
@@ -19,6 +18,7 @@ import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { getListStyle } from '../utils';
 import DraggableParticipant from './DraggableParticipant';
+import BreakoutConfigurations from './BreakoutConfigurations';
 
 const ManageBreakoutRooms = () => {
   const { breakoutSession, updateSession, manage, setManage } =
@@ -133,55 +133,10 @@ const ManageBreakoutRooms = () => {
           <Pane marginTop={10}>
             <Card backgroundColor="white" elevation={0} padding={20}>
               <Heading is="h3">Configurations</Heading>
-              <Checkbox
-                label="Let participant join after breakout room started"
-                checked={config.auto_join}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConfig({ ...config, auto_join: e.target.checked })
-                }
-              />
-              <Checkbox
-                label="Allow participants to return to main lobby at any time"
-                checked={config.allow_user_exit}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConfig({ ...config, allow_user_exit: e.target.checked })
-                }
-              />
-              <Checkbox
-                label={
-                  <>
-                    Automatically end breakout session after
-                    <input
-                      type="number"
-                      min={0}
-                      value={config?.expiryTime ?? ''}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setConfig({
-                          ...config,
-                          expiryTime: e.target.valueAsNumber,
-                        })
-                      }
-                      style={{ margin: '0 5px', width: '40px' }}
-                    />
-                    minutes
-                  </>
-                }
-                disabled
-                checked={config.exp}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConfig({ ...config, exp: e.target.checked })
-                }
-              />
-              <Checkbox
-                label="Record breakout session (will start automatically)"
-                disabled
-                checked={config.record_breakout_sessions}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConfig({
-                    ...config,
-                    record_breakout_sessions: e.target.checked,
-                  })
-                }
+              <BreakoutConfigurations
+                manage
+                config={config}
+                setConfig={setConfig}
               />
             </Card>
           </Pane>
