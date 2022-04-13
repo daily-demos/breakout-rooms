@@ -46,10 +46,6 @@ const ManageBreakoutRooms = () => {
       r[destinationDroppableId].participantIds?.push(
         r[sourceDroppableId].participants[source.index].user_id,
       );
-      setNewParticipantIds(newParticipantIds => [
-        ...newParticipantIds,
-        r[sourceDroppableId].participants[source.index].user_id,
-      ]);
       r[sourceDroppableId].participants.splice(source.index, 1);
       r[sourceDroppableId].participantIds?.splice(source.index, 1);
       setNewBreakoutSession((newBreakoutSession: DailyBreakoutSession) => {
@@ -65,7 +61,7 @@ const ManageBreakoutRooms = () => {
   const handleSave = async () => {
     const b = newBreakoutSession;
     b.config = config;
-    updateSession(b, newParticipantIds);
+    updateSession(b);
     setManage(manage => !manage);
   };
 

@@ -12,6 +12,7 @@ import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
+import { DailyRoomInfo } from '@daily-co/daily-js';
 
 type SocketProviderType = {
   children: React.ReactNode;
@@ -32,8 +33,13 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
   const [warn, setWarn] = useState<boolean>(false);
 
   const { callFrame, joinCall, setShowBreakoutModal } = useCall();
-  const { breakoutSession, setBreakoutSession, setIsBreakoutRoom } =
-    useBreakoutRoom();
+  const {
+    breakout,
+    breakoutSession,
+    setBreakoutSession,
+    setIsBreakoutRoom,
+    myBreakoutRoom,
+  } = useBreakoutRoom();
 
   const joinBreakoutRoom = useCallback(
     async (sessionObject: DailyBreakoutSession) => {
@@ -97,12 +103,14 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: { sessionObject: DailyBreakoutSession }) => {
+      breakout.sync(data.sessionObject);
       setShowBreakoutModal(false);
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
       await joinBreakoutRoom(data.sessionObject);
     },
     [
+      breakout,
       joinBreakoutRoom,
       setBreakoutSession,
       setIsBreakoutRoom,
@@ -111,28 +119,35 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
   );
 
   const handleBreakoutSessionUpdated = useCallback(
-    async (data: any) => {
+    async (data: { sessionObject: DailyBreakoutSession }) => {
+      breakout.sync(data.sessionObject);
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
 
-      const localUser = await callFrame?.participants()?.local;
-      if (
-        data.newParticipantIds &&
-        data.newParticipantIds.includes(localUser?.user_id)
-      ) {
+      const room = (await callFrame.room()) as DailyRoomInfo;
+
+      if (breakout.getMyBreakoutRoom().roomName !== room?.name) {
         await joinBreakoutRoom(data.sessionObject);
       }
     },
-    [callFrame, joinBreakoutRoom, setBreakoutSession, setIsBreakoutRoom],
+    [
+      breakout,
+      callFrame,
+      joinBreakoutRoom,
+      setBreakoutSession,
+      setIsBreakoutRoom,
+    ],
   );
 
   const handleBreakoutSessionEnded = useCallback(() => {
+    breakout.sync({});
     setShowBreakoutModal(false);
     setBreakoutSession(null);
     setIsBreakoutRoom(false);
     setWarn(false);
     joinAs(isOwner, true);
   }, [
+    breakout,
     isOwner,
     joinAs,
     setBreakoutSession,

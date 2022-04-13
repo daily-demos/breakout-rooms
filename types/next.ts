@@ -16,7 +16,7 @@ export type DailyBreakoutRoom = {
   roomName: string;
   created: Date;
   participants: DailyParticipant[];
-  participantIds?: String[];
+  participantIds?: string[];
 };
 
 export type DailyBreakoutProviderRooms = {

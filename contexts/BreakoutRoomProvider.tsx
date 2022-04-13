@@ -19,8 +19,10 @@ import {
   DailyBreakoutSession,
 } from '../types/next';
 import { useDailyEvent } from '@daily-co/daily-react-hooks';
+import BreakoutRoom from './BreakoutRoom';
 
 interface ContextValue {
+  breakout: any;
   rooms: DailyBreakoutProviderRooms;
   setRooms: Dispatch<SetStateAction<DailyBreakoutProviderRooms>>;
   config: DailyBreakoutConfig;
@@ -32,10 +34,7 @@ interface ContextValue {
     rooms: DailyBreakoutRoom[],
     config: DailyBreakoutConfig,
   ) => {};
-  updateSession: (
-    breakoutSession: DailyBreakoutSession,
-    newParticipantIds: String[],
-  ) => {};
+  updateSession: (breakoutSession: DailyBreakoutSession) => {};
   endSession: () => {};
   assignRoomToNewParticipant: (
     participant: DailyParticipant,
@@ -71,6 +70,8 @@ export const BreakoutRoomProvider = ({
     getRoomsInitialValues(new Date()),
   );
 
+  const [myRoom, setMyRoom] = useState(null);
+
   const [config, setConfig] = useState<DailyBreakoutConfig>({
     auto_join: true,
     allow_user_exit: true,
@@ -79,15 +80,7 @@ export const BreakoutRoomProvider = ({
     expiryTime: 15,
   });
 
-  const myBreakoutRoom = useMemo(() => {
-    if (!breakoutSession) return null;
-
-    const localUser = callFrame?.participants()?.local;
-    return breakoutSession.rooms.filter((room: DailyBreakoutRoom) =>
-      room.participantIds?.includes(localUser?.user_id),
-    )[0];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [breakoutSession]);
+  const breakout: any = new BreakoutRoom(callFrame);
 
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
@@ -176,19 +169,8 @@ export const BreakoutRoomProvider = ({
     rooms: DailyBreakoutRoom[],
     config: DailyBreakoutConfig,
   ) => {
-    const r: DailyBreakoutRoom[] = [];
-    rooms.map((room: DailyBreakoutRoom) => {
-      if (room?.participants?.length > 0)
-        r.push({
-          ...room,
-          participantIds: room.participants.map(
-            (p: DailyParticipant) => p.user_id,
-          ),
-        });
-    });
-
-    const sessionObject = {
-      rooms: r,
+    const properties = {
+      rooms,
       config: {
         auto_join: config.auto_join,
         allow_user_exit: config.allow_user_exit,
@@ -196,11 +178,14 @@ export const BreakoutRoomProvider = ({
         record_breakout_sessions: config.record_breakout_sessions,
       },
     };
+    const { breakoutSession, myBreakoutRoom } =
+      breakout.startSession(properties);
+    setMyRoom(myBreakoutRoom);
 
     const options = {
       method: 'POST',
       body: JSON.stringify({
-        sessionObject,
+        sessionObject: breakoutSession,
         event: 'DAILY_BREAKOUT_STARTED',
       }),
     };
@@ -210,15 +195,14 @@ export const BreakoutRoomProvider = ({
     return status;
   };
 
-  const updateSession = async (
-    breakoutSession: DailyBreakoutSession,
-    newParticipantIds: String[],
-  ) => {
+  const updateSession = async (breakoutSession: DailyBreakoutSession) => {
+    const { breakoutSession: sessionObject } =
+      breakout.updateSession(breakoutSession);
+
     const options = {
       method: 'POST',
       body: JSON.stringify({
-        sessionObject: breakoutSession,
-        newParticipantIds,
+        sessionObject,
         event: 'DAILY_BREAKOUT_UPDATED',
       }),
     };
@@ -310,6 +294,7 @@ export const BreakoutRoomProvider = ({
   return (
     <BreakoutRoomContext.Provider
       value={{
+        breakout,
         rooms,
         setRooms,
         config,
@@ -318,7 +303,7 @@ export const BreakoutRoomProvider = ({
         setIsBreakoutRoom,
         breakoutSession,
         setBreakoutSession,
-        myBreakoutRoom,
+        myBreakoutRoom: myRoom,
         createSession,
         updateSession,
         endSession,

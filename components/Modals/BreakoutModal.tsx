@@ -26,7 +26,7 @@ import BreakoutConfigurations from '../BreakoutConfigurations';
 const BreakoutModal = () => {
   const { isOwner } = useSocket();
   const { showBreakoutModal, setShowBreakoutModal } = useCall();
-  const { rooms, setRooms, config, setConfig, createSession } =
+  const { breakout, rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
 
   // whenever we drag and drop the participants in the breakout room modal,
@@ -86,20 +86,11 @@ const BreakoutModal = () => {
 
   const handleAssignEvenly = () => {
     const r: DailyBreakoutProviderRooms = rooms;
-    r.assigned.map((room: DailyBreakoutRoom, index: number) => {
-      if (room?.participants?.length > 0) {
-        r.unassignedParticipants.push(...room.participants);
-        r.assigned[index].participants = [];
-      }
-    });
-    const chunk = getSample(
-      r.unassignedParticipants,
-      Math.ceil(r.unassignedParticipants.length / r.assigned.length),
+
+    const autoAssignRooms: DailyBreakoutRoom[] = breakout.autoAssign(
+      r.assigned.length,
     );
-    Array.from({ length: r.assigned.length }, (_, i) => {
-      r.assigned[i].participants = chunk[i];
-    });
-    setRooms({ assigned: r.assigned, unassignedParticipants: [] });
+    setRooms({ assigned: autoAssignRooms, unassignedParticipants: [] });
   };
 
   const handleSubmit = async () => {
