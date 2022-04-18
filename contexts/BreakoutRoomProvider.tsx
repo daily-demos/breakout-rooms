@@ -20,6 +20,7 @@ import {
 } from '../types/next';
 import { useDailyEvent } from '@daily-co/daily-react-hooks';
 import BreakoutRoom from './BreakoutRoom';
+import { io } from 'socket.io-client';
 
 interface ContextValue {
   breakout: any;
@@ -48,6 +49,9 @@ interface ContextValue {
   setJoin: Dispatch<SetStateAction<boolean>>;
   manage: boolean;
   setManage: Dispatch<SetStateAction<boolean>>;
+  warn: boolean;
+  setWarn: Dispatch<SetStateAction<boolean>>;
+  joinAs: (owner?: boolean, disablePrejoin?: boolean) => void;
 }
 
 // @ts-ignore
@@ -60,9 +64,11 @@ type BreakoutRoomProviderType = {
 export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
-  const { callFrame, joinCall } = useCall();
+  const [breakout, setBreakout] = useState(null);
+  const { callFrame, joinCall, setShowBreakoutModal } = useCall();
   const [join, setJoin] = useState<boolean>(false);
   const [manage, setManage] = useState(false);
+  const [warn, setWarn] = useState<boolean>(false);
 
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
@@ -82,7 +88,10 @@ export const BreakoutRoomProvider = ({
   });
 
   const createToken = useCallback(
-    async (recordBreakoutRooms, roomName) => {
+    async (
+      recordBreakoutRooms,
+      roomName = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
+    ) => {
       const localUser = callFrame?.participants().local;
       const options = {
         method: 'POST',
@@ -103,88 +112,136 @@ export const BreakoutRoomProvider = ({
     [callFrame],
   );
 
-  const breakout: any = useMemo(
-    () => new BreakoutRoom(callFrame, joinCall, createToken),
-    [callFrame, createToken, joinCall],
+  const onBreakoutStarted = useCallback(
+    (breakoutSession, myBreakoutRoom) => {
+      setBreakoutSession(breakoutSession);
+      setMyRoom(myBreakoutRoom);
+      setShowBreakoutModal(false);
+      setIsBreakoutRoom(true);
+      setWarn(true);
+    },
+    [setShowBreakoutModal],
   );
 
-  const handleNewParticipantsState = useCallback((event = null) => {
-    switch (event?.action) {
-      case 'joined-meeting':
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          return {
-            ...rooms,
-            unassignedParticipants: Array.from(
-              new Set(rooms.unassignedParticipants).add(
-                event.participants.local,
+  const onBreakoutUpdated = useCallback((breakoutSession, myBreakoutRoom) => {
+    setBreakoutSession(breakoutSession);
+    setMyRoom(myBreakoutRoom);
+    setIsBreakoutRoom(true);
+  }, []);
+
+  const onBreakoutConcluded = useCallback(() => {
+    setMyRoom(null);
+    setShowBreakoutModal(false);
+    setBreakoutSession(null);
+    setIsBreakoutRoom(false);
+    setWarn(false);
+  }, [setShowBreakoutModal]);
+
+  const handleOn = useMemo(
+    () => ({
+      onBreakoutStarted,
+      onBreakoutUpdated,
+      onBreakoutConcluded,
+    }),
+    [onBreakoutConcluded, onBreakoutStarted, onBreakoutUpdated],
+  );
+
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, {
+      path: '/api/socketio',
+    });
+    const b = new BreakoutRoom(
+      callFrame,
+      joinCall,
+      socket,
+      createToken,
+      handleOn,
+    );
+    setBreakout(b);
+  }, [callFrame, createToken, handleOn, joinCall]);
+
+  const handleNewParticipantsState = useCallback(
+    (event = null) => {
+      if (isBreakoutRoom) return;
+
+      switch (event?.action) {
+        case 'joined-meeting':
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            return {
+              ...rooms,
+              unassignedParticipants: Array.from(
+                new Set(rooms.unassignedParticipants).add(
+                  event.participants.local,
+                ),
               ),
-            ),
-          };
-        });
-        break;
-      case 'participant-joined':
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          return {
-            ...rooms,
-            unassignedParticipants: Array.from(
-              new Set(rooms.unassignedParticipants).add(event.participant),
-            ),
-          };
-        });
-        break;
-      case 'participant-updated':
-        const participant = event.participant;
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          const r = rooms;
-          const idx = r.unassignedParticipants?.findIndex(
-            (p: DailyParticipant) => p.user_id === participant.user_id,
-          );
-          if (idx >= 0) {
-            r.unassignedParticipants[idx] = participant;
-          } else {
-            r.assigned.map((room: DailyBreakoutRoom, index: number) => {
-              const idx = room.participants?.findIndex(
-                (p: DailyParticipant) => p.user_id === participant.user_id,
-              );
-              if (idx >= 0) {
-                r.assigned[index].participants[idx] = participant;
-              }
+            };
+          });
+          break;
+        case 'participant-joined':
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            return {
+              ...rooms,
+              unassignedParticipants: Array.from(
+                new Set(rooms.unassignedParticipants).add(event.participant),
+              ),
+            };
+          });
+          break;
+        case 'participant-updated':
+          const participant = event.participant;
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            const r = rooms;
+            const idx = r.unassignedParticipants?.findIndex(
+              (p: DailyParticipant) => p.user_id === participant.user_id,
+            );
+            if (idx >= 0) {
+              r.unassignedParticipants[idx] = participant;
+            } else {
+              r.assigned.map((room: DailyBreakoutRoom, index: number) => {
+                const idx = room.participants?.findIndex(
+                  (p: DailyParticipant) => p.user_id === participant.user_id,
+                );
+                if (idx >= 0) {
+                  r.assigned[index].participants[idx] = participant;
+                }
+              });
+            }
+            return {
+              ...r,
+            };
+          });
+          break;
+        case 'participant-left':
+          const idx = event.participant.user_id;
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            const assigned = rooms.assigned;
+            assigned.map((room: DailyBreakoutRoom, index: number) => {
+              assigned[index] = {
+                ...rooms.assigned[index],
+                participants: [
+                  ...room?.participants?.filter(
+                    (p: DailyParticipant) => p.user_id !== idx,
+                  ),
+                ],
+              };
             });
-          }
-          return {
-            ...r,
-          };
-        });
-        break;
-      case 'participant-left':
-        const idx = event.participant.user_id;
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          const assigned = rooms.assigned;
-          assigned.map((room: DailyBreakoutRoom, index: number) => {
-            assigned[index] = {
-              ...rooms.assigned[index],
-              participants: [
-                ...room?.participants?.filter(
+            return {
+              ...rooms,
+              assigned,
+              unassignedParticipants: [
+                ...rooms.unassignedParticipants.filter(
                   (p: DailyParticipant) => p.user_id !== idx,
                 ),
               ],
             };
           });
-          return {
-            ...rooms,
-            assigned,
-            unassignedParticipants: [
-              ...rooms.unassignedParticipants.filter(
-                (p: DailyParticipant) => p.user_id !== idx,
-              ),
-            ],
-          };
-        });
-        break;
-      default:
-        break;
-    }
-  }, []);
+          break;
+        default:
+          break;
+      }
+    },
+    [isBreakoutRoom],
+  );
 
   useDailyEvent('joined-meeting', handleNewParticipantsState);
   useDailyEvent('participant-joined', handleNewParticipantsState);
@@ -204,73 +261,15 @@ export const BreakoutRoomProvider = ({
         record_breakout_sessions: config.record_breakout_sessions,
       },
     };
-    const { breakoutSession } = breakout.startSession(properties);
-
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        sessionObject: breakoutSession,
-        event: 'DAILY_BREAKOUT_STARTED',
-      }),
-    };
-
-    const res = await fetch('/api/socket', options);
-    const { status } = await res.json();
-    return status;
+    breakout?.startSession(properties);
   };
 
-  const updateSession = async (breakoutSession: DailyBreakoutSession) => {
-    const { breakoutSession: sessionObject } =
-      breakout.updateSession(breakoutSession);
-
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        sessionObject,
-        event: 'DAILY_BREAKOUT_UPDATED',
-      }),
-    };
-
-    const res = await fetch('/api/socket', options);
-    const { status } = await res.json();
-    return status;
-  };
-
-  const assignRoomToNewParticipant = useCallback(
-    async (participant, roomIndex = null) => {
-      const r: DailyBreakoutRoom[] | undefined = breakoutSession?.rooms;
-
-      const { breakoutSession: sessionObject } =
-        breakout.assignRoomToNewParticipant(participant, roomIndex);
-      const options = {
-        method: 'POST',
-        body: JSON.stringify({
-          sessionObject,
-          event: 'DAILY_BREAKOUT_UPDATED',
-        }),
-      };
-
-      const res = await fetch('/api/socket', options);
-      const { status } = await res.json();
-      return status;
-    },
-    [breakout, breakoutSession?.rooms],
-  );
+  const updateSession = breakout?.updateSession;
+  const assignRoomToNewParticipant = breakout?.assignRoomToNewParticipant;
 
   const endSession = async () => {
-    breakout.endSession();
+    breakout?.endSession();
     setRooms(getRoomsInitialValues(new Date()));
-
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        event: 'DAILY_BREAKOUT_CONCLUDED',
-      }),
-    };
-
-    const res = await fetch('/api/socket', options);
-    const { status } = await res.json();
-    return status;
   };
 
   const showJoinModal = useMemo(() => {
@@ -279,6 +278,33 @@ export const BreakoutRoomProvider = ({
     if (!breakoutSession) return false;
     if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
   }, [callFrame, breakoutSession, isBreakoutRoom]);
+
+  const joinAs = useCallback(
+    async (owner: boolean = false, disablePrejoin: boolean = false) => {
+      const body: { [key: string]: string | boolean } = {
+        roomName: process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string,
+        isOwner: owner,
+        prejoinUI: !disablePrejoin,
+      };
+
+      if (disablePrejoin) {
+        const localUser = await callFrame.participants().local;
+        body.username = localUser.user_name;
+        body.userId = localUser.user_id;
+      }
+
+      const options = {
+        method: 'POST',
+        body: JSON.stringify(body),
+      };
+      const res = await fetch('/api/token', options);
+      const { token } = await res.json();
+
+      if (disablePrejoin) await callFrame?.destroy();
+      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string, token);
+    },
+    [callFrame, joinCall],
+  );
 
   useEffect(() => {
     if (!callFrame) return;
@@ -317,6 +343,9 @@ export const BreakoutRoomProvider = ({
         setJoin,
         manage,
         setManage,
+        warn,
+        setWarn,
+        joinAs,
       }}
     >
       {children}

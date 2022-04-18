@@ -23,7 +23,6 @@ import BreakoutConfigurations from './BreakoutConfigurations';
 const ManageBreakoutRooms = () => {
   const { breakoutSession, updateSession, manage, setManage } =
     useBreakoutRoom();
-  const [newParticipantIds, setNewParticipantIds] = useState<String[]>([]);
   const [newBreakoutSession, setNewBreakoutSession] =
     useState<DailyBreakoutSession>(
       breakoutSession as unknown as DailyBreakoutSession,
@@ -55,7 +54,7 @@ const ManageBreakoutRooms = () => {
         };
       });
     },
-    [newBreakoutSession.rooms],
+    [newBreakoutSession?.rooms],
   );
 
   const handleSave = async () => {

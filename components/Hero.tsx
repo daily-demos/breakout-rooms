@@ -4,11 +4,11 @@ import { Button, Card, Pane } from 'evergreen-ui';
 import { ReactComponent as IconOne } from './icons/1-sm.svg';
 import { ReactComponent as IconTwo } from './icons/2-sm.svg';
 import Header from './Header';
-import { useSocket } from '../contexts/SocketProvider';
 import { useWindowSize } from '../hooks/useWindowSize';
+import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 
 const Hero = () => {
-  const { joinAs } = useSocket();
+  const { joinAs } = useBreakoutRoom();
   const { width } = useWindowSize();
 
   return (

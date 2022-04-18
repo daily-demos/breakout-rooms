@@ -26,6 +26,20 @@ const getCallConfig = (isBreakoutRoom: boolean) => {
         tooltip: 'Breakout rooms',
       },
     },
+    theme: {
+      colors: {
+        accent: '#286DA8',
+        accentText: '#FFFFFF',
+        background: '#FFFFFF',
+        backgroundAccent: '#FBFCFD',
+        baseText: '#000000',
+        border: '#EBEFF4',
+        mainAreaBg: '#000000',
+        mainAreaBgAccent: '#071D3A',
+        mainAreaText: '#FFFFFF',
+        supportiveText: '#808080',
+      },
+    },
   };
 };
 
@@ -73,7 +87,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
   }, []);
 
   const joinCall = useCallback(
-    (
+    async (
       name = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
       token = '',
       breakout = false,
@@ -85,21 +99,6 @@ export const CallProvider = ({ children }: CallProviderType) => {
         callRef?.current as unknown as HTMLElement,
         callOptions,
       );
-
-      newCallFrame.setTheme({
-        colors: {
-          accent: '#286DA8',
-          accentText: '#FFFFFF',
-          background: '#FFFFFF',
-          backgroundAccent: '#FBFCFD',
-          baseText: '#000000',
-          border: '#EBEFF4',
-          mainAreaBg: '#000000',
-          mainAreaBgAccent: '#071D3A',
-          mainAreaText: '#FFFFFF',
-          supportiveText: '#808080',
-        },
-      });
 
       setCallFrame(newCallFrame as DailyCall);
 
@@ -115,7 +114,12 @@ export const CallProvider = ({ children }: CallProviderType) => {
         newCallFrame.off('custom-button-click', handleCustomButtonClick);
       };
     },
-    [handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting],
+    [
+      callFrame,
+      handleCustomButtonClick,
+      handleJoinedMeeting,
+      handleLeftMeeting,
+    ],
   );
 
   return (

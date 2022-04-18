@@ -16,15 +16,15 @@ import {
   DailyBreakoutProviderRooms,
   DailyBreakoutRoom,
 } from '../../types/next';
-import { getListStyle, getSample } from '../../utils';
+import { getListStyle } from '../../utils';
 import DraggableParticipant from '../DraggableParticipant';
 import { DropResult, DraggableLocation } from 'react-beautiful-dnd';
 import { useCall } from '../../contexts/CallProvider';
-import { useSocket } from '../../contexts/SocketProvider';
 import BreakoutConfigurations from '../BreakoutConfigurations';
+import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const BreakoutModal = () => {
-  const { isOwner } = useSocket();
+  const localParticipant = useLocalParticipant();
   const { showBreakoutModal, setShowBreakoutModal } = useCall();
   const { breakout, rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
@@ -110,7 +110,7 @@ const BreakoutModal = () => {
       preventBodyScrolling
       hasFooter={false}
     >
-      {isOwner ? (
+      {localParticipant?.owner ? (
         <>
           <div style={{ overflow: 'auto' }}>
             <DragDropContext onDragEnd={handleOnDragEnd}>

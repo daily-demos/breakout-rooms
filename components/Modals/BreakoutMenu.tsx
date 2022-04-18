@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   LogOutIcon,
   SettingsIcon,
@@ -11,13 +11,12 @@ import {
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../contexts/CallProvider';
-import { useSocket } from '../../contexts/SocketProvider';
+import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 // whenever the breakout session is active we will be showing the following menu to all the participants.
 // - it shows the time left, allows you to change and leave room and for owners it will also allow managing rooms.
 
 const BreakoutMenu = () => {
-  const { isOwner, joinAs } = useSocket();
   const { showBreakoutModal, setShowBreakoutModal } = useCall();
   const {
     breakoutSession,
@@ -25,8 +24,16 @@ const BreakoutMenu = () => {
     showJoinModal,
     setJoin,
     setManage,
+    joinAs,
+    isBreakoutRoom,
+    endSession,
   } = useBreakoutRoom();
-  const { isBreakoutRoom, endSession } = useBreakoutRoom();
+
+  const localParticipant = useLocalParticipant();
+  const isOwner = useMemo(
+    () => localParticipant?.owner,
+    [localParticipant?.owner],
+  );
 
   const handleJoinRoom = useCallback(() => {
     setShowBreakoutModal(false);

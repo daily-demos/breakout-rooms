@@ -8,14 +8,11 @@ import Hero from '../components/Hero';
 import { useCall } from '../contexts/CallProvider';
 import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
-import { useSocket } from '../contexts/SocketProvider';
 import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
 
 const Room = () => {
   const { callRef, callFrame } = useCall();
-  const { breakoutSession, myBreakoutRoom } = useBreakoutRoom();
-
-  const { warn, setWarn } = useSocket();
+  const { breakoutSession, myBreakoutRoom, warn, setWarn } = useBreakoutRoom();
 
   return (
     <div>
@@ -29,9 +26,7 @@ const Room = () => {
           <b>{myBreakoutRoom?.name}</b>
           {breakoutSession.config.exp && (
             <span className="text-right">
-              <Timer
-                expiry={breakoutSession?.config.exp as unknown as number}
-              />
+              <Timer expiry={breakoutSession.config.exp as unknown as number} />
             </span>
           )}
         </div>
