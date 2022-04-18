@@ -8,11 +8,10 @@ import React, {
   useState,
 } from 'react';
 import { io } from 'socket.io-client';
-import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
+import { DailyBreakoutSession } from '../types/next';
 import equal from 'fast-deep-equal';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
-import { DailyRoomInfo } from '@daily-co/daily-js';
 
 type SocketProviderType = {
   children: React.ReactNode;
@@ -38,40 +37,8 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     breakoutSession,
     setBreakoutSession,
     setIsBreakoutRoom,
-    myBreakoutRoom,
+    setMyBreakoutRoom,
   } = useBreakoutRoom();
-
-  const joinBreakoutRoom = useCallback(
-    async (sessionObject: DailyBreakoutSession) => {
-      if (!callFrame) return;
-
-      const localUser = await callFrame?.participants().local;
-
-      sessionObject.rooms?.map(async (room: DailyBreakoutRoom) => {
-        if (room.participantIds?.includes(localUser?.user_id)) {
-          const options = {
-            method: 'POST',
-            body: JSON.stringify({
-              roomName: room.roomName,
-              isOwner,
-              username: localUser?.user_name,
-              userId: localUser?.user_id,
-              recordBreakoutRooms:
-                sessionObject.config.record_breakout_sessions,
-              prejoinUI: false,
-            }),
-          };
-
-          const res = await fetch('/api/token', options);
-          const { token } = await res.json();
-          await callFrame.destroy();
-          await joinCall(room.roomName, token, true);
-          setWarn(true);
-        }
-      });
-    },
-    [callFrame, isOwner, joinCall],
-  );
 
   const joinAs = useCallback(
     async (owner: boolean = false, disablePrejoin: boolean = false) => {
@@ -103,55 +70,44 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: { sessionObject: DailyBreakoutSession }) => {
-      breakout.sync(data.sessionObject);
+      await breakout.onBreakoutSessionStarted(data.sessionObject);
+      setMyBreakoutRoom(breakout.getMyBreakoutRoom());
       setShowBreakoutModal(false);
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
-      await joinBreakoutRoom(data.sessionObject);
+      setWarn(true);
     },
     [
       breakout,
-      joinBreakoutRoom,
       setBreakoutSession,
       setIsBreakoutRoom,
+      setMyBreakoutRoom,
       setShowBreakoutModal,
     ],
   );
 
   const handleBreakoutSessionUpdated = useCallback(
     async (data: { sessionObject: DailyBreakoutSession }) => {
-      breakout.sync(data.sessionObject);
+      await breakout.onBreakoutSessionUpdated(data.sessionObject);
+      setMyBreakoutRoom(breakout.getMyBreakoutRoom());
       setIsBreakoutRoom(true);
       setBreakoutSession(data.sessionObject);
-
-      const room = (await callFrame.room()) as DailyRoomInfo;
-
-      if (breakout.getMyBreakoutRoom().roomName !== room?.name) {
-        await joinBreakoutRoom(data.sessionObject);
-      }
     },
-    [
-      breakout,
-      callFrame,
-      joinBreakoutRoom,
-      setBreakoutSession,
-      setIsBreakoutRoom,
-    ],
+    [breakout, setBreakoutSession, setIsBreakoutRoom, setMyBreakoutRoom],
   );
 
   const handleBreakoutSessionEnded = useCallback(() => {
-    breakout.sync({});
+    breakout.onBreakoutSessionEnded();
+    setMyBreakoutRoom(null);
     setShowBreakoutModal(false);
     setBreakoutSession(null);
     setIsBreakoutRoom(false);
     setWarn(false);
-    joinAs(isOwner, true);
   }, [
     breakout,
-    isOwner,
-    joinAs,
     setBreakoutSession,
     setIsBreakoutRoom,
+    setMyBreakoutRoom,
     setShowBreakoutModal,
   ]);
 
@@ -173,8 +129,10 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     (data: { sessionObject: DailyBreakoutSession }) => {
       if (equal(data.sessionObject, breakoutSession)) return;
       setBreakoutSession(data.sessionObject);
+      breakout.sync(data.sessionObject);
+      setMyBreakoutRoom(breakout.getMyBreakoutRoom());
     },
-    [breakoutSession, setBreakoutSession],
+    [breakout, breakoutSession, setBreakoutSession, setMyBreakoutRoom],
   );
 
   useEffect((): any => {

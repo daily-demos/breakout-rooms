@@ -30,6 +30,7 @@ interface ContextValue {
   breakoutSession: DailyBreakoutSession | null;
   setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession | null>>;
   myBreakoutRoom: DailyBreakoutRoom;
+  setMyBreakoutRoom: Dispatch<SetStateAction<DailyBreakoutRoom | null>>;
   createSession: (
     rooms: DailyBreakoutRoom[],
     config: DailyBreakoutConfig,
@@ -59,7 +60,7 @@ type BreakoutRoomProviderType = {
 export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
-  const { callFrame } = useCall();
+  const { callFrame, joinCall } = useCall();
   const [join, setJoin] = useState<boolean>(false);
   const [manage, setManage] = useState(false);
 
@@ -80,7 +81,32 @@ export const BreakoutRoomProvider = ({
     expiryTime: 15,
   });
 
-  const breakout: any = new BreakoutRoom(callFrame);
+  const createToken = useCallback(
+    async (recordBreakoutRooms, roomName) => {
+      const localUser = callFrame?.participants().local;
+      const options = {
+        method: 'POST',
+        body: JSON.stringify({
+          roomName,
+          isOwner: localUser?.owner,
+          username: localUser?.user_name,
+          userId: localUser?.user_id,
+          recordBreakoutRooms,
+          prejoinUI: false,
+        }),
+      };
+
+      const res = await fetch('/api/token', options);
+      const { token } = await res.json();
+      return token;
+    },
+    [callFrame],
+  );
+
+  const breakout: any = useMemo(
+    () => new BreakoutRoom(callFrame, joinCall, createToken),
+    [callFrame, createToken, joinCall],
+  );
 
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
@@ -178,9 +204,7 @@ export const BreakoutRoomProvider = ({
         record_breakout_sessions: config.record_breakout_sessions,
       },
     };
-    const { breakoutSession, myBreakoutRoom } =
-      breakout.startSession(properties);
-    setMyRoom(myBreakoutRoom);
+    const { breakoutSession } = breakout.startSession(properties);
 
     const options = {
       method: 'POST',
@@ -215,36 +239,13 @@ export const BreakoutRoomProvider = ({
   const assignRoomToNewParticipant = useCallback(
     async (participant, roomIndex = null) => {
       const r: DailyBreakoutRoom[] | undefined = breakoutSession?.rooms;
-      if (roomIndex) {
-        if (r) {
-          const room = r[roomIndex];
-          room.participants.push(participant);
-          room.participantIds?.push(participant.user_id);
-          r[roomIndex] = room;
-        }
-      } else {
-        // @ts-ignore
-        const participantsInRooms = r.map(
-          (room: DailyBreakoutRoom) => room.participants.length,
-        );
-        const minParticipantRoomIndex = participantsInRooms.indexOf(
-          Math.min(...participantsInRooms),
-        );
-        if (r) {
-          const room = r[minParticipantRoomIndex];
-          room.participants.push(participant);
-          room.participantIds?.push(participant.user_id);
-          r[minParticipantRoomIndex] = room;
-        }
-      }
+
+      const { breakoutSession: sessionObject } =
+        breakout.assignRoomToNewParticipant(participant, roomIndex);
       const options = {
         method: 'POST',
         body: JSON.stringify({
-          sessionObject: {
-            ...breakoutSession,
-            rooms: r,
-          },
-          newParticipantIds: [participant.user_id],
+          sessionObject,
           event: 'DAILY_BREAKOUT_UPDATED',
         }),
       };
@@ -253,17 +254,19 @@ export const BreakoutRoomProvider = ({
       const { status } = await res.json();
       return status;
     },
-    [breakoutSession],
+    [breakout, breakoutSession?.rooms],
   );
 
   const endSession = async () => {
+    breakout.endSession();
+    setRooms(getRoomsInitialValues(new Date()));
+
     const options = {
       method: 'POST',
       body: JSON.stringify({
         event: 'DAILY_BREAKOUT_CONCLUDED',
       }),
     };
-    setRooms(getRoomsInitialValues(new Date()));
 
     const res = await fetch('/api/socket', options);
     const { status } = await res.json();
@@ -304,6 +307,7 @@ export const BreakoutRoomProvider = ({
         breakoutSession,
         setBreakoutSession,
         myBreakoutRoom: myRoom,
+        setMyBreakoutRoom: setMyRoom,
         createSession,
         updateSession,
         endSession,
