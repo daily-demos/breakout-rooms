@@ -47,7 +47,7 @@ export default class BreakoutRoom {
         : false,
       roomName,
     );
-    if (this?.daily) await this?.daily?.destroy();
+    if (this?.daily) await this?.daily?.leave();
     await this.joinCall(roomName, token, isBreakoutRoom);
   };
 

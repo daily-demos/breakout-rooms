@@ -21,15 +21,25 @@ const Room = () => {
         <meta name="description" content="Breakout Rooms" />
       </Head>
 
-      {callFrame && breakoutSession && myBreakoutRoom?.name && (
-        <div className="banner">
-          <b>{myBreakoutRoom?.name}</b>
-          {breakoutSession.config.exp && (
-            <span className="text-right">
-              <Timer expiry={breakoutSession.config.exp as unknown as number} />
-            </span>
+      {callFrame && (
+        <>
+          {breakoutSession && myBreakoutRoom?.name ? (
+            <div className="banner">
+              <b>{myBreakoutRoom?.name}</b>
+              {breakoutSession.config.exp && (
+                <span className="text-right">
+                  <Timer
+                    expiry={breakoutSession.config.exp as unknown as number}
+                  />
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="banner">
+              <b>Powered by Daily</b>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {!callFrame && <Hero />}

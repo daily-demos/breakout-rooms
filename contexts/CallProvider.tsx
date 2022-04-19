@@ -10,37 +10,35 @@ import React, {
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 import { DailyProvider } from '@daily-co/daily-react-hooks';
 
-const getCallConfig = (isBreakoutRoom: boolean) => {
-  return {
-    showLeaveButton: true,
-    iframeStyle: {
-      height: isBreakoutRoom ? '96vh' : '100vh',
-      width: '100vw',
-      aspectRatio: '16 / 9',
-      border: '0',
+const CALL_OPTIONS = {
+  showLeaveButton: true,
+  iframeStyle: {
+    height: '96vh',
+    width: '100vw',
+    aspectRatio: '16 / 9',
+    border: '0',
+  },
+  customTrayButtons: {
+    breakout: {
+      iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
+      label: 'Breakout',
+      tooltip: 'Breakout rooms',
     },
-    customTrayButtons: {
-      breakout: {
-        iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
-        label: 'Breakout',
-        tooltip: 'Breakout rooms',
-      },
+  },
+  theme: {
+    colors: {
+      accent: '#286DA8',
+      accentText: '#FFFFFF',
+      background: '#FFFFFF',
+      backgroundAccent: '#FBFCFD',
+      baseText: '#000000',
+      border: '#EBEFF4',
+      mainAreaBg: '#000000',
+      mainAreaBgAccent: '#071D3A',
+      mainAreaText: '#FFFFFF',
+      supportiveText: '#808080',
     },
-    theme: {
-      colors: {
-        accent: '#286DA8',
-        accentText: '#FFFFFF',
-        background: '#FFFFFF',
-        backgroundAccent: '#FBFCFD',
-        baseText: '#000000',
-        border: '#EBEFF4',
-        mainAreaBg: '#000000',
-        mainAreaBgAccent: '#071D3A',
-        mainAreaText: '#FFFFFF',
-        supportiveText: '#808080',
-      },
-    },
-  };
+  },
 };
 
 type CallProviderType = {
@@ -79,28 +77,26 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
   const handleCustomButtonClick = useCallback(event => {
     if (event.button_id === 'breakout') {
-      setShowBreakoutModal(button => !button);
+      setShowBreakoutModal(true);
     }
   }, []);
 
   const joinCall = useCallback(
-    async (
+    (
       name = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
       token = '',
       breakout = false,
     ) => {
-      if (breakout && callFrame) {
-        await callFrame.destroy();
-        setCallFrame(null);
-      }
-
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
-      const callOptions = getCallConfig(breakout);
-
-      const newCallFrame: DailyCall = DailyIframe.createFrame(
-        callRef?.current as unknown as HTMLElement,
-        callOptions,
-      );
+      let newCallFrame: DailyCall;
+      if (breakout) {
+        newCallFrame = callFrame;
+      } else {
+        newCallFrame = DailyIframe.createFrame(
+          callRef?.current as unknown as HTMLElement,
+          CALL_OPTIONS,
+        );
+      }
       setCallFrame(newCallFrame as DailyCall);
 
       const url: string = `https://${domain}.staging.daily.co/${name}`;
