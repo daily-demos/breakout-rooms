@@ -77,7 +77,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
   const handleCustomButtonClick = useCallback(event => {
     if (event.button_id === 'breakout') {
-      setShowBreakoutModal(true);
+      setShowBreakoutModal(show => !show);
     }
   }, []);
 
@@ -87,29 +87,33 @@ export const CallProvider = ({ children }: CallProviderType) => {
       token = '',
       breakout = false,
     ) => {
-      const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
       let newCallFrame: DailyCall;
+      const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
+
+      const url: string = `https://${domain}.staging.daily.co/${name}`;
+
       if (breakout) {
-        newCallFrame = callFrame;
+        const url: string = `https://${domain}.staging.daily.co/${name}`;
+        callFrame.join({ url, token });
+        setCallFrame(callFrame);
       } else {
         newCallFrame = DailyIframe.createFrame(
           callRef?.current as unknown as HTMLElement,
           CALL_OPTIONS,
         );
+        setCallFrame(newCallFrame as DailyCall);
+
+        newCallFrame.join({ url, token });
+
+        newCallFrame.on('joined-meeting', handleJoinedMeeting);
+        newCallFrame.on('left-meeting', handleLeftMeeting);
+        newCallFrame.on('custom-button-click', handleCustomButtonClick);
+        return () => {
+          newCallFrame.off('joined-meeting', handleJoinedMeeting);
+          newCallFrame.off('left-meeting', handleLeftMeeting);
+          newCallFrame.off('custom-button-click', handleCustomButtonClick);
+        };
       }
-      setCallFrame(newCallFrame as DailyCall);
-
-      const url: string = `https://${domain}.staging.daily.co/${name}`;
-      newCallFrame.join({ url, token });
-
-      newCallFrame.on('joined-meeting', handleJoinedMeeting);
-      newCallFrame.on('left-meeting', handleLeftMeeting);
-      newCallFrame.on('custom-button-click', handleCustomButtonClick);
-      return () => {
-        newCallFrame.off('joined-meeting', handleJoinedMeeting);
-        newCallFrame.off('left-meeting', handleLeftMeeting);
-        newCallFrame.off('custom-button-click', handleCustomButtonClick);
-      };
     },
     [
       callFrame,
