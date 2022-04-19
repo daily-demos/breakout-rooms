@@ -1,5 +1,3 @@
-import { io } from 'socket.io-client';
-
 const getSampleRooms = (arr, len) => {
   let chunks = [],
     i = 0,
@@ -10,33 +8,22 @@ const getSampleRooms = (arr, len) => {
   return chunks;
 };
 
+const isEqual = (a, b) =>
+  Object.entries(a).sort().toString() === Object.entries(b).sort().toString();
+
 export default class BreakoutRoom {
   breakoutSession;
   myBreakoutRoom;
-  socket = null;
+  isBreakoutRoom = false;
 
-  constructor(callFrame, joinCall, socket, createToken, handleOn = null) {
+  constructor(callFrame, joinCall, createToken) {
     this.daily = callFrame;
     this.breakoutSession = null;
     this.myBreakoutRoom = null;
     this.joinCall = joinCall;
     this.createToken = createToken;
-    this.socket = socket;
-    this._initializeSocketEvents();
-    if (handleOn) {
-      this.handleOnBreakoutStarted = handleOn.onBreakoutStarted;
-      this.handleOnBreakoutUpdated = handleOn.onBreakoutUpdated;
-      this.handleOnBreakoutConcluded = handleOn.onBreakoutConcluded;
-    }
+    this.isBreakoutRoom = false;
   }
-
-  _initializeSocketEvents = () => {
-    this.socket.on('DAILY_BREAKOUT_STARTED', this.onBreakoutSessionStarted);
-    this.socket.on('DAILY_BREAKOUT_UPDATED', this.onBreakoutSessionUpdated);
-    this.socket.on('DAILY_BREAKOUT_CONCLUDED', this.onBreakoutSessionEnded);
-    this.socket.on('DAILY_BREAKOUT_REQUEST', this.onBreakoutSessionRequest);
-    this.socket.on('DAILY_BREAKOUT_SYNC', this.onBreakoutSessionSync);
-  };
 
   _updateMyBreakoutRoom = breakoutSession => {
     if (
@@ -53,6 +40,7 @@ export default class BreakoutRoom {
   };
 
   _join = async (roomName, isBreakoutRoom) => {
+    this.isBreakoutRoom = isBreakoutRoom;
     const token = await this.createToken(
       isBreakoutRoom
         ? this.breakoutSession.config.record_breakout_sessions
@@ -191,9 +179,6 @@ export default class BreakoutRoom {
 
   // Breakout session handlers
   onBreakoutSessionStarted = async data => {
-    if (this.handleOnBreakoutStarted)
-      this?.handleOnBreakoutStarted(data.sessionObject, this.myBreakoutRoom);
-
     this._syncSession(data.sessionObject);
     if (!this.myBreakoutRoom?.roomName) return;
 
@@ -201,9 +186,6 @@ export default class BreakoutRoom {
   };
 
   onBreakoutSessionUpdated = async data => {
-    if (this.handleOnBreakoutUpdated)
-      this?.handleOnBreakoutUpdated(data.sessionObject, this.myBreakoutRoom);
-
     this._syncSession(data.sessionObject);
     const room = await this.daily?.room();
 
@@ -213,7 +195,6 @@ export default class BreakoutRoom {
   };
 
   onBreakoutSessionEnded = () => {
-    if (this.handleOnBreakoutConcluded) this?.handleOnBreakoutConcluded();
     this._syncSession(null);
     this._join(null, false);
   };
@@ -224,7 +205,7 @@ export default class BreakoutRoom {
     }
   };
 
-  onBreakoutSessionSync = data => {
+  onBreakoutSessionSync = async data => {
     this._syncSession(data.sessionObject);
   };
 }

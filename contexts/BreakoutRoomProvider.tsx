@@ -64,7 +64,6 @@ type BreakoutRoomProviderType = {
 export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
-  const [breakout, setBreakout] = useState(null);
   const { callFrame, joinCall, setShowBreakoutModal } = useCall();
   const [join, setJoin] = useState<boolean>(false);
   const [manage, setManage] = useState(false);
@@ -112,22 +111,30 @@ export const BreakoutRoomProvider = ({
     [callFrame],
   );
 
+  const breakout = useMemo(
+    () => new BreakoutRoom(callFrame, joinCall, createToken),
+    [callFrame, createToken, joinCall],
+  );
+
   const onBreakoutStarted = useCallback(
-    (breakoutSession, myBreakoutRoom) => {
+    breakoutSession => {
       setBreakoutSession(breakoutSession);
-      setMyRoom(myBreakoutRoom);
+      setMyRoom(breakout.getMyBreakoutRoom());
       setShowBreakoutModal(false);
       setIsBreakoutRoom(true);
       setWarn(true);
     },
-    [setShowBreakoutModal],
+    [breakout, setShowBreakoutModal],
   );
 
-  const onBreakoutUpdated = useCallback((breakoutSession, myBreakoutRoom) => {
-    setBreakoutSession(breakoutSession);
-    setMyRoom(myBreakoutRoom);
-    setIsBreakoutRoom(true);
-  }, []);
+  const onBreakoutUpdated = useCallback(
+    breakoutSession => {
+      setBreakoutSession(breakoutSession);
+      setMyRoom(breakout.getMyBreakoutRoom());
+      setIsBreakoutRoom(true);
+    },
+    [breakout],
+  );
 
   const onBreakoutConcluded = useCallback(() => {
     setMyRoom(null);
@@ -137,28 +144,41 @@ export const BreakoutRoomProvider = ({
     setWarn(false);
   }, [setShowBreakoutModal]);
 
-  const handleOn = useMemo(
-    () => ({
-      onBreakoutStarted,
-      onBreakoutUpdated,
-      onBreakoutConcluded,
-    }),
-    [onBreakoutConcluded, onBreakoutStarted, onBreakoutUpdated],
-  );
-
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, {
       path: '/api/socketio',
     });
-    const b = new BreakoutRoom(
-      callFrame,
-      joinCall,
-      socket,
-      createToken,
-      handleOn,
-    );
-    setBreakout(b);
-  }, [callFrame, createToken, handleOn, joinCall]);
+
+    socket.on('DAILY_BREAKOUT_STARTED', data => {
+      breakout
+        .onBreakoutSessionStarted(data)
+        .finally(() => onBreakoutStarted(data.sessionObject));
+    });
+    socket.on('DAILY_BREAKOUT_UPDATED', data => {
+      breakout
+        .onBreakoutSessionUpdated(data)
+        .finally(() => onBreakoutUpdated(data.sessionObject));
+    });
+    socket.on('DAILY_BREAKOUT_CONCLUDED', () => {
+      breakout.onBreakoutSessionEnded();
+      onBreakoutConcluded();
+    });
+    socket.on('DAILY_BREAKOUT_REQUEST', breakout.onBreakoutSessionRequest);
+    socket.on('DAILY_BREAKOUT_SYNC', breakout.onBreakoutSessionSync);
+  }, [
+    breakout,
+    breakout.onBreakoutSessionEnded,
+    breakout.onBreakoutSessionRequest,
+    breakout.onBreakoutSessionStarted,
+    breakout.onBreakoutSessionSync,
+    breakout.onBreakoutSessionUpdated,
+    callFrame,
+    createToken,
+    joinCall,
+    onBreakoutConcluded,
+    onBreakoutStarted,
+    onBreakoutUpdated,
+  ]);
 
   const handleNewParticipantsState = useCallback(
     (event = null) => {
@@ -312,7 +332,7 @@ export const BreakoutRoomProvider = ({
     const assignParticipant = async () => {
       if (breakoutSession?.config.auto_join) {
         const localUser = await callFrame.participants().local;
-        await assignRoomToNewParticipant(localUser as DailyParticipant);
+        assignRoomToNewParticipant(localUser as DailyParticipant);
       } else setJoin(true);
     };
 

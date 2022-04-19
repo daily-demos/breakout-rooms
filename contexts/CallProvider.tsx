@@ -92,6 +92,8 @@ export const CallProvider = ({ children }: CallProviderType) => {
       token = '',
       breakout = false,
     ) => {
+      if (breakout) callFrame?.destroy();
+
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
       const callOptions = getCallConfig(breakout);
 
@@ -114,12 +116,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         newCallFrame.off('custom-button-click', handleCustomButtonClick);
       };
     },
-    [
-      callFrame,
-      handleCustomButtonClick,
-      handleJoinedMeeting,
-      handleLeftMeeting,
-    ],
+    [callFrame, handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting],
   );
 
   return (
