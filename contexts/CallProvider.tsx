@@ -64,10 +64,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [showBreakoutModal, setShowBreakoutModal] = useState<boolean>(false);
 
-  const handleLeftMeeting = useCallback(() => {
-    if (callFrame) callFrame.destroy();
-    setCallFrame(null);
-  }, [callFrame]);
+  const handleLeftMeeting = useCallback(() => setCallFrame(null), []);
 
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
@@ -92,7 +89,10 @@ export const CallProvider = ({ children }: CallProviderType) => {
       token = '',
       breakout = false,
     ) => {
-      if (breakout) callFrame?.destroy();
+      if (breakout && callFrame) {
+        await callFrame.destroy();
+        setCallFrame(null);
+      }
 
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
       const callOptions = getCallConfig(breakout);
@@ -101,7 +101,6 @@ export const CallProvider = ({ children }: CallProviderType) => {
         callRef?.current as unknown as HTMLElement,
         callOptions,
       );
-
       setCallFrame(newCallFrame as DailyCall);
 
       const url: string = `https://${domain}.staging.daily.co/${name}`;
@@ -116,7 +115,12 @@ export const CallProvider = ({ children }: CallProviderType) => {
         newCallFrame.off('custom-button-click', handleCustomButtonClick);
       };
     },
-    [callFrame, handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting],
+    [
+      callFrame,
+      handleCustomButtonClick,
+      handleJoinedMeeting,
+      handleLeftMeeting,
+    ],
   );
 
   return (

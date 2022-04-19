@@ -18,7 +18,10 @@ import {
   DailyBreakoutRoom,
   DailyBreakoutSession,
 } from '../types/next';
-import { useDailyEvent } from '@daily-co/daily-react-hooks';
+import {
+  useDailyEvent,
+  useLocalParticipant,
+} from '@daily-co/daily-react-hooks';
 import BreakoutRoom from './BreakoutRoom';
 import { io } from 'socket.io-client';
 
@@ -85,6 +88,7 @@ export const BreakoutRoomProvider = ({
     exp: true,
     expiryTime: 15,
   });
+  const localParticipant = useLocalParticipant();
 
   const createToken = useCallback(
     async (
@@ -172,9 +176,6 @@ export const BreakoutRoomProvider = ({
     breakout.onBreakoutSessionStarted,
     breakout.onBreakoutSessionSync,
     breakout.onBreakoutSessionUpdated,
-    callFrame,
-    createToken,
-    joinCall,
     onBreakoutConcluded,
     onBreakoutStarted,
     onBreakoutUpdated,
@@ -182,7 +183,7 @@ export const BreakoutRoomProvider = ({
 
   const handleNewParticipantsState = useCallback(
     (event = null) => {
-      if (isBreakoutRoom) return;
+      if (isBreakoutRoom || !localParticipant?.owner) return;
 
       switch (event?.action) {
         case 'joined-meeting':
@@ -260,7 +261,7 @@ export const BreakoutRoomProvider = ({
           break;
       }
     },
-    [isBreakoutRoom],
+    [isBreakoutRoom, localParticipant?.owner],
   );
 
   useDailyEvent('joined-meeting', handleNewParticipantsState);
@@ -326,19 +327,19 @@ export const BreakoutRoomProvider = ({
     [callFrame, joinCall],
   );
 
-  useEffect(() => {
-    if (!callFrame) return;
-
-    const assignParticipant = async () => {
-      if (breakoutSession?.config.auto_join) {
-        const localUser = await callFrame.participants().local;
-        assignRoomToNewParticipant(localUser as DailyParticipant);
-      } else setJoin(true);
-    };
-
-    if (!breakoutSession) return;
-    if (!isBreakoutRoom) assignParticipant();
-  }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
+  // useEffect(() => {
+  //   if (!callFrame) return;
+  //
+  //   const assignParticipant = async () => {
+  //     if (breakoutSession?.config.auto_join) {
+  //       const localUser = await callFrame.participants().local;
+  //       assignRoomToNewParticipant(localUser as DailyParticipant);
+  //     } else setJoin(true);
+  //   };
+  //
+  //   if (!breakoutSession) return;
+  //   if (!isBreakoutRoom) assignParticipant();
+  // }, [assignRoomToNewParticipant, isBreakoutRoom, breakoutSession, callFrame]);
 
   return (
     <BreakoutRoomContext.Provider
