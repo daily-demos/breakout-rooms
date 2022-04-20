@@ -4,7 +4,6 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -20,7 +19,6 @@ import {
 } from '../types/next';
 import { useDailyEvent } from '@daily-co/daily-react-hooks';
 import BreakoutRoom from './BreakoutRoom';
-import { io } from 'socket.io-client';
 
 interface ContextValue {
   breakout: any;
@@ -111,24 +109,22 @@ export const BreakoutRoomProvider = ({
     [callFrame],
   );
 
-  const breakout = useMemo(
-    () => new BreakoutRoom(callFrame, joinCall, createToken),
-    [callFrame, createToken, joinCall],
+  const onBreakoutStarted = useCallback(
+    breakout => {
+      setBreakoutSession(breakout.getBreakoutSession());
+      setMyRoom(breakout.getMyBreakoutRoom());
+      setShowBreakoutModal(false);
+      setIsBreakoutRoom(true);
+      setWarn(true);
+    },
+    [setShowBreakoutModal],
   );
 
-  const onBreakoutStarted = useCallback(() => {
-    setBreakoutSession(breakout.getBreakoutSession());
-    setMyRoom(breakout.getMyBreakoutRoom());
-    setShowBreakoutModal(false);
-    setIsBreakoutRoom(true);
-    setWarn(true);
-  }, [breakout, setShowBreakoutModal]);
-
-  const onBreakoutUpdated = useCallback(() => {
+  const onBreakoutUpdated = useCallback(breakout => {
     setBreakoutSession(breakout.getBreakoutSession());
     setMyRoom(breakout.getMyBreakoutRoom());
     setIsBreakoutRoom(true);
-  }, [breakout]);
+  }, []);
 
   const onBreakoutConcluded = useCallback(() => {
     setMyRoom(null);
@@ -138,34 +134,14 @@ export const BreakoutRoomProvider = ({
     setWarn(false);
   }, [setShowBreakoutModal]);
 
-  useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_BASE_URL as string, {
-      path: '/api/socketio',
-    });
+  const eventHandlers = useMemo(() => {
+    return { onBreakoutStarted, onBreakoutUpdated, onBreakoutConcluded };
+  }, [onBreakoutConcluded, onBreakoutStarted, onBreakoutUpdated]);
 
-    socket.on('DAILY_BREAKOUT_STARTED', data => {
-      breakout.onBreakoutSessionStarted(data).finally(onBreakoutStarted);
-    });
-    socket.on('DAILY_BREAKOUT_UPDATED', data => {
-      breakout.onBreakoutSessionUpdated(data).finally(onBreakoutUpdated);
-    });
-    socket.on('DAILY_BREAKOUT_CONCLUDED', () => {
-      breakout.onBreakoutSessionEnded();
-      onBreakoutConcluded();
-    });
-    socket.on('DAILY_BREAKOUT_REQUEST', breakout.onBreakoutSessionRequest);
-    socket.on('DAILY_BREAKOUT_SYNC', breakout.onBreakoutSessionSync);
-  }, [
-    breakout,
-    breakout.onBreakoutSessionEnded,
-    breakout.onBreakoutSessionRequest,
-    breakout.onBreakoutSessionStarted,
-    breakout.onBreakoutSessionSync,
-    breakout.onBreakoutSessionUpdated,
-    onBreakoutConcluded,
-    onBreakoutStarted,
-    onBreakoutUpdated,
-  ]);
+  const breakout: any = useMemo(
+    () => new BreakoutRoom(callFrame, joinCall, createToken, eventHandlers),
+    [callFrame, createToken, eventHandlers, joinCall],
+  );
 
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {

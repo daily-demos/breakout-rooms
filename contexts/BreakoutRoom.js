@@ -1,3 +1,5 @@
+import { io } from 'socket.io-client';
+
 const getSampleRooms = (arr, len) => {
   let chunks = [],
     i = 0,
@@ -8,32 +10,46 @@ const getSampleRooms = (arr, len) => {
   return chunks;
 };
 
-const isEqual = (a, b) =>
-  Object.entries(a).sort().toString() === Object.entries(b).sort().toString();
-
 export default class BreakoutRoom {
   breakoutSession;
   myBreakoutRoom;
   isBreakoutRoom = false;
+  socket = null;
 
-  constructor(callFrame, joinCall, createToken) {
+  constructor(callFrame, joinCall, createToken, eventHandlers = null) {
     this.daily = callFrame;
     this.breakoutSession = null;
     this.myBreakoutRoom = null;
     this.joinCall = joinCall;
     this.createToken = createToken;
     this.isBreakoutRoom = false;
+
+    if (eventHandlers) {
+      this.onBreakoutStarted = eventHandlers?.onBreakoutStarted;
+      this.onBreakoutUpdated = eventHandlers?.onBreakoutUpdated;
+      this.onBreakoutConcluded = eventHandlers?.onBreakoutConcluded;
+    }
+    this._initializeSocket();
   }
 
+  _initializeSocket = () => {
+    this.socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
+      path: '/api/socketio',
+    });
+
+    this.socket.on('DAILY_BREAKOUT_STARTED', this.onBreakoutSessionStarted);
+    this.socket.on('DAILY_BREAKOUT_UPDATED', this.onBreakoutSessionUpdated);
+    this.socket.on('DAILY_BREAKOUT_CONCLUDED', this.onBreakoutSessionConcluded);
+    this.socket.on('DAILY_BREAKOUT_REQUEST', this.onBreakoutSessionRequest);
+    this.socket.on('DAILY_BREAKOUT_SYNC', this.onBreakoutSessionSync);
+  };
+
   _updateMyBreakoutRoom = breakoutSession => {
-    if (
-      (breakoutSession && Object.values(breakoutSession).length === 0) ||
-      breakoutSession?.rooms?.length === 0
-    ) {
+    if (!breakoutSession) {
       this.myBreakoutRoom = null;
     } else {
       const localUser = this.daily?.participants()?.local;
-      this.myBreakoutRoom = breakoutSession.rooms.filter(room =>
+      this.myBreakoutRoom = breakoutSession?.rooms.filter(room =>
         room?.participantIds?.includes(localUser?.user_id),
       )[0];
     }
@@ -48,7 +64,7 @@ export default class BreakoutRoom {
       roomName,
     );
     if (this?.daily) await this?.daily?.leave();
-    await this.joinCall(roomName, token, isBreakoutRoom);
+    await this.joinCall(roomName, token, true);
   };
 
   _sendToSocket = async (event, sessionObject) => {
@@ -138,7 +154,7 @@ export default class BreakoutRoom {
   };
 
   endSession = () => {
-    this.breakoutSession = {};
+    this.breakoutSession = null;
     this._updateMyBreakoutRoom(this.breakoutSession);
 
     this._sendToSocket('DAILY_BREAKOUT_CONCLUDED', null);
@@ -183,6 +199,7 @@ export default class BreakoutRoom {
     if (!this.myBreakoutRoom?.roomName) return;
 
     await this._join(this.myBreakoutRoom.roomName, true);
+    if (this.onBreakoutStarted) this.onBreakoutStarted(this);
   };
 
   onBreakoutSessionUpdated = async data => {
@@ -192,11 +209,13 @@ export default class BreakoutRoom {
     if (this.getMyBreakoutRoom()?.roomName !== room?.name) {
       await this._join(this.myBreakoutRoom.roomName, true);
     }
+    if (this.onBreakoutUpdated) this.onBreakoutUpdated(this);
   };
 
-  onBreakoutSessionEnded = () => {
+  onBreakoutSessionConcluded = () => {
     this._syncSession(null);
-    this._join(null, false);
+    this._join(process.env.NEXT_PUBLIC_DAILY_ROOM_NAME, false);
+    if (this.onBreakoutConcluded) this.onBreakoutConcluded(this);
   };
 
   onBreakoutSessionRequest = () => {

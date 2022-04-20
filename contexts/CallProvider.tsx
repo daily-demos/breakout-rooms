@@ -85,14 +85,14 @@ export const CallProvider = ({ children }: CallProviderType) => {
     (
       name = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
       token = '',
-      breakout = false,
+      exists = false,
     ) => {
       let newCallFrame: DailyCall;
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
 
       const url: string = `https://${domain}.staging.daily.co/${name}`;
 
-      if (breakout) {
+      if (exists) {
         const url: string = `https://${domain}.staging.daily.co/${name}`;
         callFrame.join({ url, token });
         setCallFrame(callFrame);
