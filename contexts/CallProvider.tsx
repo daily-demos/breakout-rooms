@@ -94,7 +94,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
 
       if (exists) {
         const url: string = `https://${domain}.staging.daily.co/${name}`;
-        callFrame.join({ url, token });
+        callFrame?.join({ url, token });
         setCallFrame(callFrame);
       } else {
         newCallFrame = DailyIframe.createFrame(

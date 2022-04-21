@@ -10,6 +10,19 @@ const getSampleRooms = (arr, len) => {
   return chunks;
 };
 
+const shuffle = arr => {
+  let count = arr.length,
+    random,
+    temp;
+  while (count) {
+    random = (Math.random() * count--) | 0;
+    temp = arr[count];
+    arr[count] = arr[random];
+    arr[random] = temp;
+  }
+  return arr;
+};
+
 export default class BreakoutRoom {
   breakoutSession;
   myBreakoutRoom;
@@ -100,8 +113,9 @@ export default class BreakoutRoom {
     const rooms = [];
 
     const participants = Object.values(this.daily?.participants());
+    const shuffledParticipants = shuffle(participants);
     const r = getSampleRooms(
-      participants,
+      shuffledParticipants,
       Math.ceil(participants.length / totalRooms),
     );
     Array.from({ length: totalRooms }, (_, i) => {
