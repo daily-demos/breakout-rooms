@@ -5,6 +5,7 @@ export default function Document() {
     <Html>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" />
       </Head>
       <body>
         <Main />

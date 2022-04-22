@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client';
+const io = typeof window !== 'undefined' && window.io;
 
 const getSampleRooms = (arr, len) => {
   let chunks = [],
@@ -46,15 +46,17 @@ export default class BreakoutRoom {
   }
 
   _initializeSocket = () => {
-    this.socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
-      path: '/api/socketio',
-    });
+    if (io) {
+      this.socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
+        path: '/api/socketio',
+      });
 
-    this.socket.on('DAILY_BREAKOUT_STARTED', this.onBreakoutSessionStarted);
-    this.socket.on('DAILY_BREAKOUT_UPDATED', this.onBreakoutSessionUpdated);
-    this.socket.on('DAILY_BREAKOUT_CONCLUDED', this.onBreakoutSessionConcluded);
-    this.socket.on('DAILY_BREAKOUT_REQUEST', this.onBreakoutSessionRequest);
-    this.socket.on('DAILY_BREAKOUT_SYNC', this.onBreakoutSessionSync);
+      this.socket.on('DAILY_BREAKOUT_STARTED', this.onBreakoutSessionStarted);
+      this.socket.on('DAILY_BREAKOUT_UPDATED', this.onBreakoutSessionUpdated);
+      this.socket.on('DAILY_BREAKOUT_CONCLUDED', this.onBreakoutSessionConcluded);
+      this.socket.on('DAILY_BREAKOUT_REQUEST', this.onBreakoutSessionRequest);
+      this.socket.on('DAILY_BREAKOUT_SYNC', this.onBreakoutSessionSync);
+    }
   };
 
   _updateMyBreakoutRoom = breakoutSession => {
