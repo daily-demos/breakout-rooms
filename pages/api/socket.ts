@@ -1,5 +1,5 @@
 import type { NextApiRequest } from 'next';
-import { NextApiResponseServerIO } from '../../types/next';
+import { DailyBreakoutRoom, NextApiResponseServerIO } from '../../types/next';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,7 +10,7 @@ export default async function handler(
   if (req.method === 'POST') {
     if (event === 'DAILY_BREAKOUT_STARTED') {
       // create daily breakout rooms.
-      sessionObject.rooms.map(async (room: any) => {
+      sessionObject.rooms.map(async (room: DailyBreakoutRoom) => {
         // Basic, required room properties
         const roomProperties = {
           start_audio_off: true,
@@ -22,6 +22,8 @@ export default async function handler(
         let retCode = await createRoom(room.roomName, roomProperties, {
           enable_recording: 'cloud',
         });
+        await createGroup(room.roomName, room.name);
+
         // If something went wrong, early out with response code
         if (retCode !== 200) {
           return res.status(retCode);
@@ -32,6 +34,14 @@ export default async function handler(
     return res.status(200).json({ status: 'success' });
   }
   return res.status(500);
+}
+
+async function createGroup(guid: string, groupName: string) {
+  const options = {
+    method: 'POST',
+    body: JSON.stringify({ guid, groupName }),
+  };
+  await fetch('/api/createGroup', options);
 }
 
 // createRoom attempts to createa a Daily room.

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { CornerDialog } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/Modals/BreakoutModal';
@@ -14,12 +14,28 @@ import { DailyEventObject } from '@daily-co/daily-js';
 
 const Room = () => {
   const { callRef, callFrame, showChat, setShowChat, room } = useCall();
-  const { breakoutSession, myBreakoutRoom } = useBreakoutRoom();
+  const { breakoutSession, myBreakoutRoom, isBreakoutRoom } = useBreakoutRoom();
 
   const { warn, setWarn } = useSocket();
 
   useEffect(() => {
-    if (!callFrame) return;
+    // @ts-ignore
+    window.CometChatWidget.init({
+      appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
+      appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
+      authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
+    }).then(
+      () => {
+        console.log('Initialization completed successfully');
+      },
+      (error: string) => {
+        console.log('Initialization failed with error:', error);
+      },
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!callFrame || isBreakoutRoom) return;
 
     // @ts-ignore
     const CometChatWidget = window.CometChatWidget;
@@ -56,26 +72,13 @@ const Room = () => {
       });
     };
 
-    CometChatWidget.init({
-      appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
-      appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
-      authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
-    }).then(
-      () => {
-        console.log('Initialization completed successfully');
-      },
-      (error: string) => {
-        console.log('Initialization failed with error:', error);
-      },
-    );
-
     callFrame.on('joined-meeting', handleJoinedMeeting);
     callFrame.on('left-meeting', handleLeftMeeting);
     return () => {
       callFrame.off('joined-meeting', handleJoinedMeeting);
       callFrame.off('left-meeting', handleLeftMeeting);
     };
-  }, [callFrame, room, setShowChat]);
+  }, [callFrame, isBreakoutRoom, room, setShowChat]);
 
   return (
     <div>
