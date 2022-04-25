@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { CornerDialog, SideSheet } from 'evergreen-ui';
+import React, {useCallback, useEffect, useState} from 'react';
+import { CornerDialog } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/Modals/BreakoutModal';
 import BreakoutMenu from '../components/Modals/BreakoutMenu';
@@ -17,50 +17,63 @@ const Room = () => {
 
   const { warn, setWarn } = useSocket();
 
+  const [joined, setJoined] = useState(false);
+
   useEffect(() => {
-    if (!callFrame || !showChat) return;
+    if (!callFrame) return;
 
     // @ts-ignore
     const CometChatWidget = window.CometChatWidget;
 
-    CometChatWidget.init({
-      appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
-      appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
-      authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
-    }).then(
-      () => {
-        console.log('Initialization completed successfully');
+    const leaveCall = () => {
+      setShowChat(false);
+      CometChatWidget.logout().then((response: string) => {
+        console.log(response);
+      });
+    };
 
-        const localUser = callFrame.participants().local;
-        const uid = localUser.user_id;
-        const user = new CometChatWidget.CometChat.User(uid);
-        user.setName(localUser.user_name);
+    if (!joined) {
+      CometChatWidget.init({
+        appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
+        appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
+        authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
+      }).then(
+        () => {
+          console.log('Initialization completed successfully');
 
-        CometChatWidget.createOrUpdateUser(user).then(() => {
-          CometChatWidget.login({ uid }).then(
-            () => {
-              CometChatWidget.launch({
-                widgetID: '3e082756-a30e-47d3-a93e-4fb170fad19f',
-                target: '#cometchat',
-                height: '100vh',
-                width: '100%',
-                defaultID: 'supergroup', //default UID (user) or GUID (group) to show,
-                defaultType: 'group', //user or group
-              });
-            },
-            (error: string) => {
-              console.log('User login failed with error:', error);
-              //Check the reason for error and take appropriate action.
-            },
-          );
-        });
-      },
-      (error: string) => {
-        console.log('Initialization failed with error:', error);
-        //Check the reason for error and take appropriate action.
-      },
-    );
-  }, [callFrame, showChat]);
+          const localUser = callFrame.participants().local;
+          const uid = localUser?.user_id;
+          const user = new CometChatWidget.CometChat.User(uid);
+          user.setName(localUser.user_name);
+
+          CometChatWidget.createOrUpdateUser(user).then(() => {
+            CometChatWidget.login({ uid }).then(
+              () => {
+                setJoined(true);
+                CometChatWidget.launch({
+                  widgetID: '3e082756-a30e-47d3-a93e-4fb170fad19f',
+                  target: '#cometchat',
+                  roundedCorners: 'false',
+                  height: '100vh',
+                  defaultID: 'supergroup', //default UID (user) or GUID (group) to show,
+                  defaultType: 'group', //user or group
+                });
+              },
+              (error: string) => {
+                console.log('User login failed with error:', error);
+                //Check the reason for error and take appropriate action.
+              },
+            );
+          });
+        },
+        (error: string) => {
+          console.log('Initialization failed with error:', error);
+          //Check the reason for error and take appropriate action.
+        },
+      );
+    }
+    callFrame.on('left-meeting', leaveCall);
+  }, [callFrame, joined]);
 
   return (
     <div>
@@ -84,7 +97,14 @@ const Room = () => {
 
       {!callFrame && <Hero />}
 
-      <div ref={callRef} className="room" />
+      <div className="flex">
+        <div className="room">
+          <div ref={callRef} />
+        </div>
+        <div className="comet-chat">
+          <div id="cometchat" style={{ height: '100vh' }} />
+        </div>
+      </div>
 
       {breakoutSession ? <BreakoutMenu /> : <BreakoutModal />}
       {breakoutSession && <JoinBreakoutModal />}
@@ -101,14 +121,19 @@ const Room = () => {
         Video and audio are muted by default on joining the breakout rooms for
         the sake of privacy, you can always turn them on!
       </CornerDialog>
-      <SideSheet
-        isShown={showChat}
-        onCloseComplete={() => setShowChat(false)}
-        preventBodyScrolling
-      >
-        <div id="cometchat" />
-      </SideSheet>
       <style jsx>{`
+        .flex {
+          display: flex;
+          width: 100vw;
+          height: ${showChat ? '100vh' : '0'};
+        }
+        .room {
+          width: ${showChat ? '75vw' : '100vw'};
+        }
+        .comet-chat {
+          width: ${showChat ? '25vw' : '0'};
+          height: ${showChat ? '100vh' : '0'};
+        }
         .banner {
           text-align: center;
           height: 4vh;

@@ -16,7 +16,7 @@ const getCallConfig = (isBreakoutRoom: boolean) => {
     showLeaveButton: true,
     iframeStyle: {
       height: isBreakoutRoom ? '96vh' : '100vh',
-      width: '100vw',
+      width: '100%',
       aspectRatio: '16 / 9',
       border: '0',
     },
