@@ -25,7 +25,7 @@ import BreakoutConfigurations from '../BreakoutConfigurations';
 
 const BreakoutModal = () => {
   const { isOwner } = useSocket();
-  const { showBreakoutModal, setShowBreakoutModal } = useCall();
+  const { showBreakoutModal, setShowBreakoutModal, room } = useCall();
   const { rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
 
@@ -73,9 +73,7 @@ const BreakoutModal = () => {
     const assigned = rooms.assigned;
     assigned.push({
       name: `Breakout Room ${assigned.length + 1}`,
-      roomName: `${process.env.NEXT_PUBLIC_DAILY_ROOM_NAME}-${
-        assigned.length + 1
-      }`,
+      roomName: `${room}-${assigned.length + 1}`,
       created: new Date(),
       participants: [],
     });
@@ -107,7 +105,7 @@ const BreakoutModal = () => {
     // @ts-ignore
     if (status === 'success') {
       setShowBreakoutModal(false);
-      setRooms(getRoomsInitialValues(new Date()));
+      setRooms(getRoomsInitialValues(new Date(), room));
     }
   };
 

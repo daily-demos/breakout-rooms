@@ -20,11 +20,7 @@ export default async function handler(
   } = JSON.parse(req.body);
 
   if (req.method === 'POST') {
-    console.log(
-      `Getting token for room '${
-        roomName || process.env.NEXT_PUBLIC_DAILY_ROOM_NAME
-      }' as owner: ${isOwner}`,
-    );
+    console.log(`Getting token for room '${roomName}' as owner: ${isOwner}`);
 
     const options = {
       method: 'POST',
@@ -34,7 +30,7 @@ export default async function handler(
       },
       body: JSON.stringify({
         properties: {
-          room_name: roomName || process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
+          room_name: roomName,
           is_owner: isOwner,
           enable_recording: 'cloud',
           user_name: username,

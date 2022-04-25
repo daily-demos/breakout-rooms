@@ -60,7 +60,7 @@ type BreakoutRoomProviderType = {
 export const BreakoutRoomProvider = ({
   children,
 }: BreakoutRoomProviderType) => {
-  const { callFrame } = useCall();
+  const { callFrame, room } = useCall();
   const [join, setJoin] = useState<boolean>(false);
   const [manage, setManage] = useState(false);
 
@@ -68,7 +68,7 @@ export const BreakoutRoomProvider = ({
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
   const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>(
-    getRoomsInitialValues(new Date()),
+    getRoomsInitialValues(new Date(), room),
   );
 
   const [config, setConfig] = useState<DailyBreakoutConfig>({
@@ -279,7 +279,7 @@ export const BreakoutRoomProvider = ({
         event: 'DAILY_BREAKOUT_CONCLUDED',
       }),
     };
-    setRooms(getRoomsInitialValues(new Date()));
+    setRooms(getRoomsInitialValues(new Date(), room));
 
     const res = await fetch('/api/socket', options);
     const { status } = await res.json();

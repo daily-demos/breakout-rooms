@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -31,6 +32,7 @@ const getCallConfig = (isBreakoutRoom: boolean) => {
 
 type CallProviderType = {
   children: React.ReactNode;
+  roomName: string;
 };
 
 interface ContextValue {
@@ -40,15 +42,24 @@ interface ContextValue {
   joinCall: (name: string, token?: string, breakout?: boolean) => void;
   showBreakoutModal: boolean;
   setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
+  room: string;
 }
 
 // @ts-ignore
 export const CallContext = createContext<ContextValue>(null);
 
-export const CallProvider = ({ children }: CallProviderType) => {
+export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const callRef = useRef<HTMLDivElement>(null);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [showBreakoutModal, setShowBreakoutModal] = useState<boolean>(false);
+  const [room, setRoom] = useState(null);
+
+  useEffect(() => {
+    if (!roomName) return;
+
+    if (roomName.includes('-')) setRoom(roomName.split('-')[0]);
+    else setRoom(roomName);
+  }, [roomName]);
 
   const handleLeftMeeting = useCallback(() => {
     if (callFrame) callFrame.destroy();
@@ -73,11 +84,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
   }, []);
 
   const joinCall = useCallback(
-    (
-      name = process.env.NEXT_PUBLIC_DAILY_ROOM_NAME,
-      token = '',
-      breakout = false,
-    ) => {
+    (name = roomName, token = '', breakout = false) => {
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
       const callOptions = getCallConfig(breakout);
 
@@ -115,7 +122,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         newCallFrame.off('custom-button-click', handleCustomButtonClick);
       };
     },
-    [handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting],
+    [handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting, roomName],
   );
 
   return (
@@ -127,6 +134,7 @@ export const CallProvider = ({ children }: CallProviderType) => {
         joinCall,
         showBreakoutModal,
         setShowBreakoutModal,
+        room,
       }}
     >
       <DailyProvider callObject={callFrame}>{children}</DailyProvider>

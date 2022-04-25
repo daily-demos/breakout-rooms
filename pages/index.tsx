@@ -1,74 +1,41 @@
 import React from 'react';
-import { CornerDialog } from 'evergreen-ui';
 import Head from 'next/head';
-import BreakoutModal from '../components/Modals/BreakoutModal';
-import BreakoutMenu from '../components/Modals/BreakoutMenu';
-import Timer from '../components/Timer';
-import Hero from '../components/Hero';
-import { useCall } from '../contexts/CallProvider';
-import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
-import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
-import { useSocket } from '../contexts/SocketProvider';
-import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
+import Header from '../components/Header';
+import { Button, Pane } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 
-const Room = () => {
-  const { callRef, callFrame } = useCall();
-  const { breakoutSession, myBreakoutRoom } = useBreakoutRoom();
+const Index = () => {
+  const router = useRouter();
 
-  const { warn, setWarn } = useSocket();
+  const startCall = async () => {
+    const options = { method: 'POST' };
+    const res = await fetch('/api/createRoom', options);
+    const { name } = await res.json();
+    await router.push(`/${name}`);
+  };
 
   return (
-    <div>
+    <Pane>
       <Head>
         <title>Breakout Rooms</title>
         <meta name="description" content="Breakout Rooms" />
       </Head>
 
-      {callFrame && breakoutSession && myBreakoutRoom?.name && (
-        <div className="banner">
-          <b>{myBreakoutRoom?.name}</b>
-          {breakoutSession.config.exp && (
-            <span className="text-right">
-              <Timer
-                expiry={breakoutSession?.config.exp as unknown as number}
-              />
-            </span>
-          )}
-        </div>
-      )}
+      <Header />
+      <main className="main">
+        <h1 className="title">Breakout room demo</h1>
+        <p className="description">
+          Demo a breakout room UX built using Daily video APIs.
+        </p>
 
-      {!callFrame && <Hero />}
-
-      <div ref={callRef} className="room" />
-
-      {breakoutSession ? <BreakoutMenu /> : <BreakoutModal />}
-      {breakoutSession && <JoinBreakoutModal />}
-      {breakoutSession && <ManageBreakoutRooms />}
-
-      <CornerDialog
-        title="Muted video & audio"
-        isShown={warn}
-        onCloseComplete={() => setWarn(false)}
-        confirmLabel="Okay"
-        onConfirm={() => setWarn(false)}
-        hasCancel={false}
-      >
-        Video and audio are muted by default on joining the breakout rooms for
-        the sake of privacy, you can always turn them on!
-      </CornerDialog>
-      <style jsx>{`
-        .banner {
-          text-align: center;
-          height: 4vh;
-          padding: 0.5rem;
-          background: #eee;
-        }
-        .text-right {
-          float: right;
-        }
-      `}</style>
-    </div>
+        <Pane display="flex" padding={10}>
+          <Button appearance="primary" onClick={startCall}>
+            Start call
+          </Button>
+        </Pane>
+      </main>
+    </Pane>
   );
 };
 
-export default Room;
+export default Index;

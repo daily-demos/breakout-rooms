@@ -31,7 +31,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [warn, setWarn] = useState<boolean>(false);
 
-  const { callFrame, joinCall, setShowBreakoutModal } = useCall();
+  const { callFrame, joinCall, setShowBreakoutModal, room } = useCall();
   const { breakoutSession, setBreakoutSession, setIsBreakoutRoom } =
     useBreakoutRoom();
 
@@ -70,7 +70,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
   const joinAs = useCallback(
     async (owner: boolean = false, disablePrejoin: boolean = false) => {
       const body: { [key: string]: string | boolean } = {
-        roomName: process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string,
+        roomName: room as string,
         isOwner: owner,
         prejoinUI: !disablePrejoin,
       };
@@ -90,9 +90,9 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       setIsOwner(owner);
 
       if (disablePrejoin) await callFrame?.destroy();
-      await joinCall(process.env.NEXT_PUBLIC_DAILY_ROOM_NAME as string, token);
+      await joinCall(room as string, token);
     },
-    [callFrame, joinCall],
+    [callFrame, joinCall, room],
   );
 
   const handleBreakoutSessionStarted = useCallback(
