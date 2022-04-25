@@ -22,7 +22,7 @@ const getCallConfig = (isBreakoutRoom: boolean) => {
     },
     customTrayButtons: {
       chat: {
-        iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
+        iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/chat.svg`,
         label: 'Chat',
         tooltip: 'Chat',
       },
