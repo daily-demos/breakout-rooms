@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CornerDialog } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/Modals/BreakoutModal';
@@ -17,22 +17,20 @@ const Room = () => {
 
   const { warn, setWarn } = useSocket();
 
-  const [joined, setJoined] = useState(false);
-
   useEffect(() => {
     if (!callFrame) return;
 
     // @ts-ignore
     const CometChatWidget = window.CometChatWidget;
 
-    const leaveCall = () => {
+    const handleLeftMeeting = () => {
       setShowChat(false);
       CometChatWidget.logout().then((response: string) => {
         console.log(response);
       });
     };
 
-    if (!joined) {
+    const handleJoinedMeeting = () => {
       CometChatWidget.init({
         appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
         appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
@@ -49,12 +47,9 @@ const Room = () => {
           CometChatWidget.createOrUpdateUser(user).then(() => {
             CometChatWidget.login({ uid }).then(
               () => {
-                setJoined(true);
                 CometChatWidget.launch({
                   widgetID: '3e082756-a30e-47d3-a93e-4fb170fad19f',
                   target: '#cometchat',
-                  roundedCorners: 'false',
-                  height: '100vh',
                   defaultID: 'supergroup', //default UID (user) or GUID (group) to show,
                   defaultType: 'group', //user or group
                 });
@@ -71,9 +66,16 @@ const Room = () => {
           //Check the reason for error and take appropriate action.
         },
       );
-    }
-    callFrame.on('left-meeting', leaveCall);
-  }, [callFrame, joined]);
+    };
+
+    callFrame.on('joined-meeting', handleJoinedMeeting);
+    callFrame.on('left-meeting', handleLeftMeeting);
+
+    return () => {
+      callFrame.off('joined-meeting', handleJoinedMeeting);
+      callFrame.off('left-meeting', handleLeftMeeting);
+    };
+  }, [callFrame, setShowChat]);
 
   return (
     <div>
@@ -102,7 +104,7 @@ const Room = () => {
           <div ref={callRef} />
         </div>
         <div className="comet-chat">
-          <div id="cometchat" style={{ height: '100vh' }} />
+          <div id="cometchat" style={{ height: '100%' }} />
         </div>
       </div>
 
@@ -125,14 +127,13 @@ const Room = () => {
         .flex {
           display: flex;
           width: 100vw;
-          height: ${showChat ? '100vh' : '0'};
+          height: ${callFrame ? '100vh' : '0'};
         }
         .room {
           width: ${showChat ? '75vw' : '100vw'};
         }
         .comet-chat {
           width: ${showChat ? '25vw' : '0'};
-          height: ${showChat ? '100vh' : '0'};
         }
         .banner {
           text-align: center;
