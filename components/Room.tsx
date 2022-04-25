@@ -12,7 +12,7 @@ import { useSocket } from '../contexts/SocketProvider';
 import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
 
 const Room = () => {
-  const { callRef, callFrame, showChat, setShowChat } = useCall();
+  const { callRef, callFrame, showChat, setShowChat, room } = useCall();
   const { breakoutSession, myBreakoutRoom } = useBreakoutRoom();
 
   const { warn, setWarn } = useSocket();
@@ -31,51 +31,49 @@ const Room = () => {
     };
 
     const handleJoinedMeeting = () => {
-      CometChatWidget.init({
-        appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
-        appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
-        authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
-      }).then(
-        () => {
-          console.log('Initialization completed successfully');
+      const localUser = callFrame.participants().local;
+      const uid = localUser?.user_id;
+      const user = new CometChatWidget.CometChat.User(uid);
+      user.setName(localUser.user_name);
 
-          const localUser = callFrame.participants().local;
-          const uid = localUser?.user_id;
-          const user = new CometChatWidget.CometChat.User(uid);
-          user.setName(localUser.user_name);
-
-          CometChatWidget.createOrUpdateUser(user).then(() => {
-            CometChatWidget.login({ uid }).then(
-              () => {
-                CometChatWidget.launch({
-                  widgetID: '3e082756-a30e-47d3-a93e-4fb170fad19f',
-                  target: '#cometchat',
-                  defaultID: 'supergroup', //default UID (user) or GUID (group) to show,
-                  defaultType: 'group', //user or group
-                });
-              },
-              (error: string) => {
-                console.log('User login failed with error:', error);
-                //Check the reason for error and take appropriate action.
-              },
-            );
-          });
-        },
-        (error: string) => {
-          console.log('Initialization failed with error:', error);
-          //Check the reason for error and take appropriate action.
-        },
-      );
+      CometChatWidget.createOrUpdateUser(user).then(() => {
+        CometChatWidget.login({ uid }).then(
+          () => {
+            CometChatWidget.launch({
+              widgetID: 'fc448e59-d420-4053-ba66-2b76cf524db7',
+              target: '#cometchat',
+              defaultID: room,
+              defaultType: 'group',
+            });
+          },
+          (error: string) => {
+            console.log('User login failed with error:', error);
+            //Check the reason for error and take appropriate action.
+          },
+        );
+      });
     };
+
+    CometChatWidget.init({
+      appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
+      appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
+      authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
+    }).then(
+      () => {
+        console.log('Initialization completed successfully');
+      },
+      (error: string) => {
+        console.log('Initialization failed with error:', error);
+      },
+    );
 
     callFrame.on('joined-meeting', handleJoinedMeeting);
     callFrame.on('left-meeting', handleLeftMeeting);
-
     return () => {
       callFrame.off('joined-meeting', handleJoinedMeeting);
       callFrame.off('left-meeting', handleLeftMeeting);
     };
-  }, [callFrame, setShowChat]);
+  }, [callFrame, room, setShowChat]);
 
   return (
     <div>

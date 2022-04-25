@@ -8,9 +8,15 @@ const Index = () => {
   const router = useRouter();
 
   const startCall = async () => {
-    const options = { method: 'POST' };
+    let options: any = { method: 'POST' };
     const res = await fetch('/api/createRoom', options);
     const { name } = await res.json();
+
+    options.body = JSON.stringify({
+      guid: name,
+      groupName: 'Lobby',
+    });
+    await fetch('/api/createGroup', options);
     await router.push(`/${name}`);
   };
 
