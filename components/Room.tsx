@@ -10,6 +10,7 @@ import { useBreakoutRoom } from '../contexts/BreakoutRoomProvider';
 import JoinBreakoutModal from '../components/Modals/JoinBreakoutModal';
 import { useSocket } from '../contexts/SocketProvider';
 import ManageBreakoutRooms from '../components/ManageBreakoutRooms';
+import { DailyEventObject } from '@daily-co/daily-js';
 
 const Room = () => {
   const { callRef, callFrame, showChat, setShowChat, room } = useCall();
@@ -30,9 +31,10 @@ const Room = () => {
       });
     };
 
-    const handleJoinedMeeting = () => {
-      const localUser = callFrame.participants().local;
-      const uid = localUser?.user_id;
+    const handleJoinedMeeting = (event: DailyEventObject) => {
+      const localUser = event.participants.local;
+
+      const uid = localUser.user_id;
       const user = new CometChatWidget.CometChat.User(uid);
       user.setName(localUser.user_name);
 
