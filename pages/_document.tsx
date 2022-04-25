@@ -5,6 +5,10 @@ export default function Document() {
     <Html>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <script
+          defer
+          src="https://widget-js.cometchat.io/v3/cometchatwidget.js"
+        />
       </Head>
       <body>
         <Main />

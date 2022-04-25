@@ -24,7 +24,7 @@ export default async function handler(
           enable_people_ui: true,
           enable_network_ui: true,
           enable_screenshare: true,
-          enable_chat: true,
+          enable_chat: false,
         },
       }),
     };

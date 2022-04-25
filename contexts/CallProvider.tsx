@@ -21,6 +21,11 @@ const getCallConfig = (isBreakoutRoom: boolean) => {
       border: '0',
     },
     customTrayButtons: {
+      chat: {
+        iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
+        label: 'Chat',
+        tooltip: 'Chat',
+      },
       breakout: {
         iconPath: `${process.env.NEXT_PUBLIC_BASE_URL}assets/breakout.svg`,
         label: 'Breakout',
@@ -43,6 +48,8 @@ interface ContextValue {
   showBreakoutModal: boolean;
   setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
   room: string;
+  showChat: boolean;
+  setShowChat: Dispatch<SetStateAction<boolean>>;
 }
 
 // @ts-ignore
@@ -52,6 +59,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const callRef = useRef<HTMLDivElement>(null);
   const [callFrame, setCallFrame] = useState<DailyCall | null>(null);
   const [showBreakoutModal, setShowBreakoutModal] = useState<boolean>(false);
+  const [showChat, setShowChat] = useState(false);
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
@@ -78,8 +86,15 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   }, []);
 
   const handleCustomButtonClick = useCallback(event => {
-    if (event.button_id === 'breakout') {
-      setShowBreakoutModal(button => !button);
+    switch (event.button_id) {
+      case 'breakout':
+        setShowBreakoutModal(button => !button);
+        break;
+      case 'chat':
+        setShowChat(chat => !chat);
+        break;
+      default:
+        break;
     }
   }, []);
 
@@ -135,6 +150,8 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
         showBreakoutModal,
         setShowBreakoutModal,
         room,
+        showChat,
+        setShowChat,
       }}
     >
       <DailyProvider callObject={callFrame}>{children}</DailyProvider>
