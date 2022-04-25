@@ -20,7 +20,10 @@ const Room = () => {
   useEffect(() => {
     if (!callFrame || !showChat) return;
 
-    window.CometChatWidget.init({
+    // @ts-ignore
+    const CometChatWidget = window.CometChatWidget;
+
+    CometChatWidget.init({
       appID: process.env.NEXT_PUBLIC_COMET_CHAT_APP_ID,
       appRegion: process.env.NEXT_PUBLIC_COMET_CHAT_APP_REGION,
       authKey: process.env.NEXT_PUBLIC_COMET_CHAT_APP_AUTH_KEY,
@@ -30,13 +33,13 @@ const Room = () => {
 
         const localUser = callFrame.participants().local;
         const uid = localUser.user_id;
-        const user = new window.CometChatWidget.CometChat.User(uid);
+        const user = new CometChatWidget.CometChat.User(uid);
         user.setName(localUser.user_name);
 
-        window.CometChatWidget.createOrUpdateUser(user).then(() => {
-          window.CometChatWidget.login({ uid }).then(
+        CometChatWidget.createOrUpdateUser(user).then(() => {
+          CometChatWidget.login({ uid }).then(
             () => {
-              window.CometChatWidget.launch({
+              CometChatWidget.launch({
                 widgetID: '3e082756-a30e-47d3-a93e-4fb170fad19f',
                 target: '#cometchat',
                 height: '100vh',
