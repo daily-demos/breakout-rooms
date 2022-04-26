@@ -67,9 +67,7 @@ export const BreakoutRoomProvider = ({
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
-  const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>(
-    getRoomsInitialValues(new Date(), room),
-  );
+  const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>();
 
   const [config, setConfig] = useState<DailyBreakoutConfig>({
     auto_join: true,
@@ -78,6 +76,8 @@ export const BreakoutRoomProvider = ({
     exp: true,
     expiryTime: 15,
   });
+
+  useEffect(() => setRooms(getRoomsInitialValues(new Date(), room)), [room]);
 
   const myBreakoutRoom = useMemo(() => {
     if (!breakoutSession) return null;
