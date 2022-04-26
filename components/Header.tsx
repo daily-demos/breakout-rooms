@@ -16,7 +16,7 @@ const Header = () => {
           <Link href="https://daily.co" target="_blank">
             <Image src="/daily-logo.svg" alt="Daily Logo" />
           </Link>
-          <Strong marginLeft={20}>Breakout Room demo</Strong>
+          <Strong marginLeft={20}>Breakout Rooms + Comet Chat demo</Strong>
         </Pane>
         <Pane>
           <Link href="https://docs.daily.co" target="_blank">

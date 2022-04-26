@@ -20,7 +20,7 @@ const Hero = () => {
 
       <Header />
       <main className="main">
-        <h1 className="title">Breakout room demo</h1>
+        <h1 className="title">Breakout rooms + Comet chat demo</h1>
         <p className="description">
           Demo a breakout room UX built using Daily video APIs.
         </p>
