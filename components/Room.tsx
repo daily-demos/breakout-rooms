@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { CornerDialog } from 'evergreen-ui';
+import { CornerDialog, Position } from 'evergreen-ui';
 import Head from 'next/head';
 import BreakoutModal from '../components/Modals/BreakoutModal';
 import BreakoutMenu from '../components/Modals/BreakoutMenu';
@@ -122,15 +122,16 @@ const Room = () => {
         confirmLabel="Okay"
         onConfirm={() => setWarn(false)}
         hasCancel={false}
+        position={Position.BOTTOM_LEFT}
       >
         Video and audio are muted by default on joining the breakout rooms for
         the sake of privacy, you can always turn them on!
       </CornerDialog>
       <style jsx>{`
         .flex {
-          display: flex;
+          display: ${callFrame ? 'flex' : 'hidden'};
           width: 100vw;
-          height: ${callFrame ? '100vh' : '0'};
+          height: 100%;
         }
         .room {
           width: ${showChat ? '75vw' : '100vw'};
