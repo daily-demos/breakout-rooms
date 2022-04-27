@@ -22,7 +22,6 @@ export default async function handler(
         let retCode = await createRoom(room.roomName, roomProperties, {
           enable_recording: 'cloud',
         });
-        await createGroup(room.roomName, room.name);
 
         // If something went wrong, early out with response code
         if (retCode !== 200) {
