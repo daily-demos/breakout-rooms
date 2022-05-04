@@ -53,6 +53,8 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
               recordBreakoutRooms:
                 sessionObject.config.record_breakout_sessions,
               prejoinUI: false,
+              startVideoOff: true,
+              startAudioOff: true,
             }),
           };
 
