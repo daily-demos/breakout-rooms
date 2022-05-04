@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Header from '../components/Header';
 import { Button, Pane } from 'evergreen-ui';
@@ -6,8 +6,10 @@ import { useRouter } from 'next/router';
 
 const Index = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const startCall = async () => {
+    setLoading(true);
     let options: any = { method: 'POST' };
     const res = await fetch('/api/createRoom', options);
     const { name } = await res.json();
@@ -18,6 +20,7 @@ const Index = () => {
     });
     await fetch('/api/createGroup', options);
     await router.push(`/${name}`);
+    setLoading(false);
   };
 
   return (
@@ -35,8 +38,8 @@ const Index = () => {
         </p>
 
         <Pane display="flex" padding={10}>
-          <Button appearance="primary" onClick={startCall}>
-            Start call
+          <Button appearance="primary" onClick={startCall} isLoading={loading}>
+            {loading ? 'Creating...' : 'Start call'}
           </Button>
         </Pane>
       </main>

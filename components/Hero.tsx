@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import { Button, Card, Pane } from 'evergreen-ui';
 import { ReactComponent as IconOne } from './icons/1-sm.svg';
@@ -8,8 +8,14 @@ import { useSocket } from '../contexts/SocketProvider';
 import { useWindowSize } from '../hooks/useWindowSize';
 
 const Hero = () => {
+  const [loading, setLoading] = useState('');
   const { joinAs } = useSocket();
   const { width } = useWindowSize();
+
+  const handleJoinClick = (owner: boolean = false) => {
+    setLoading(owner ? 'owner' : 'participant');
+    joinAs(owner);
+  };
 
   return (
     <Pane>
@@ -44,8 +50,12 @@ const Hero = () => {
               breakout rooms, and manage settings.
             </p>
             <div className="join-footer">
-              <Button appearance="primary" onClick={() => joinAs(true)}>
-                Join as owner
+              <Button
+                appearance="primary"
+                onClick={() => handleJoinClick(true)}
+                isLoading={loading === 'owner'}
+              >
+                {loading === 'owner' ? 'Joining...' : 'Join as owner'}
               </Button>
             </div>
           </Card>
@@ -71,7 +81,14 @@ const Hero = () => {
               Select this option to join from the perspective of a participant.
             </p>
             <div className="join-footer">
-              <Button onClick={() => joinAs()}>Join as participant</Button>
+              <Button
+                onClick={() => handleJoinClick()}
+                isLoading={loading === 'participant'}
+              >
+                {loading === 'participant'
+                  ? 'Joining...'
+                  : 'Join as participant'}
+              </Button>
             </div>
           </Card>
         </Pane>
