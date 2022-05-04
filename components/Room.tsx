@@ -131,7 +131,8 @@ const Room = () => {
         .flex {
           display: ${callFrame ? 'flex' : 'hidden'};
           width: 100vw;
-          height: 100%;
+          height: ${myBreakoutRoom?.name ? '96vh': '100vh'};
+          overflow: hidden;
         }
         .room {
           width: ${showChat ? '75vw' : '100vw'};
