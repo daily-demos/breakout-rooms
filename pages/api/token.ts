@@ -17,6 +17,8 @@ export default async function handler(
     userId,
     prejoinUI,
     recordBreakoutRooms,
+    startVideoOff,
+    startAudioOff,
   } = JSON.parse(req.body);
 
   if (req.method === 'POST') {
@@ -37,6 +39,8 @@ export default async function handler(
           user_id: userId,
           start_cloud_recording: recordBreakoutRooms,
           enable_prejoin_ui: prejoinUI,
+          start_video_off: startVideoOff || false,
+          start_audio_off: startAudioOff || false,
         },
       }),
     };
