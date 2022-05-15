@@ -15,7 +15,8 @@
     "evergreen-ui": "^6.9.10",
     "next": "12.1.0",
     "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react-beautiful-dnd": "^13.1.0",
+    "react-dom": "^17.0.2",
     "recoil": "^0.7.3-alpha.2",
     "socket.io": "^4.5.0",
     "socket.io-client": "^4.5.0"
@@ -25,6 +26,8 @@
     "@babel/preset-typescript": "^7.16.7",
     "@types/node": "17.0.18",
     "@types/react": "17.0.39",
+    "@types/react-beautiful-dnd": "^13.1.2",
+    "@types/react-dom": "^17.0.13",
     "babel-plugin-inline-react-svg": "^2.0.1",
     "eslint": "8.9.0",
     "eslint-config-next": "12.1.0",

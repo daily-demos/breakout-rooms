@@ -73,9 +73,15 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   useEffect(() => {
     if (!roomName) return;
 
-    if (roomName.includes('-')) setRoom(roomName.split('-')[0] as string);
-    else setRoom(roomName);
-  }, [roomName]);
+    if (roomName.includes('-')) {
+      const splitRoomName = roomName.split('-')[0];
+      if (splitRoomName === room) return;
+      setRoom(splitRoomName as string);
+    } else {
+      if (room === roomName) return;
+      setRoom(roomName);
+    }
+  }, [room, roomName]);
 
   const handleLeftMeeting = useCallback(() => {
     if (callFrame) callFrame.destroy();

@@ -16,7 +16,7 @@ const Index: NextPage = () => {
   };
 
   return (
-    <Pane>
+    <Pane border="muted">
       <Head>
         <title>Breakout Rooms</title>
         <meta name="description" content="Breakout Rooms" />
@@ -26,8 +26,7 @@ const Index: NextPage = () => {
         <Header />
         <Pane
           display="flex"
-          width="100%"
-          height="90%"
+          height="90vh"
           justifyContent="center"
           alignItems="center"
           flexDirection="column"

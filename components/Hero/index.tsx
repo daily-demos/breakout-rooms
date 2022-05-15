@@ -59,7 +59,7 @@ const Hero = () => {
                 <IconOne style={{ marginRight: '10px' }} />
                 <Heading>Enter as owner</Heading>
               </Pane>
-              <Text size={10} lineHeight={1.5}>
+              <Text lineHeight={1.5}>
                 Join call in new tab as a meeting owner. You can configure
                 breakout rooms, and manage settings.
               </Text>
@@ -95,7 +95,7 @@ const Hero = () => {
                   prior to adding additional participants.
                 </Text>
               </Pane>
-              <Text size={10} lineHeight={1.5}>
+              <Text lineHeight={1.5}>
                 Select this option to join from the perspective of a
                 participant.
               </Text>

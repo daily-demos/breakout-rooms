@@ -5,7 +5,7 @@ import { ReactComponent as IconGithub } from '../../icons/github-sm.svg';
 
 const Header = () => {
   return (
-    <header>
+    <Pane width="100vw" height="10vh">
       <Pane
         display="flex"
         padding={15}
@@ -40,7 +40,7 @@ const Header = () => {
           </Link>
         </Pane>
       </Pane>
-    </header>
+    </Pane>
   );
 };
 

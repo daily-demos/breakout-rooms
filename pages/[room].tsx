@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { CallProvider } from '../contexts/CallProvider';
 import { NextPage } from 'next';
 import Room from '../components/Room';
+import { BreakoutProvider } from '../contexts/BreakoutRoomProvider';
 
 const RoomPage: NextPage = () => {
   const router = useRouter();
@@ -10,7 +11,9 @@ const RoomPage: NextPage = () => {
 
   return (
     <CallProvider roomName={room as string}>
-      <Room />
+      <BreakoutProvider>
+        <Room />
+      </BreakoutProvider>
     </CallProvider>
   );
 };
