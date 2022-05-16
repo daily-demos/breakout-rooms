@@ -18,8 +18,11 @@ import {
 } from '../types/next';
 import { getRoomsInitialValues } from '../lib/room';
 import { getDateTimeAfter } from '../lib/date';
-import { DailyParticipant } from '@daily-co/daily-js';
-import { useDailyEvent } from '@daily-co/daily-react-hooks';
+import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import {
+  useDailyEvent,
+  useLocalParticipant,
+} from '@daily-co/daily-react-hooks';
 import { io } from 'socket.io-client';
 
 type BreakoutRoomProviderType = {
@@ -75,6 +78,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const [manage, setManage] = useState(false);
   const [breakout, setBreakout] = useState(null);
   const [warn, setWarn] = useState(false);
+  const localParticipant = useLocalParticipant();
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
@@ -122,7 +126,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     setIsBreakoutRoom(true);
   }, []);
 
-  const onBreakoutConcluded = useCallback(() => {
+  const onBreakoutConcluded = useCallback(async () => {
     setIsBreakoutRoom(false);
     setMyRoom(null);
     setBreakoutSession(null);
@@ -150,83 +154,88 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     }
   }, [breakout, callFrame, createToken, eventHandlers, joinCall, room]);
 
-  const handleNewParticipantsState = useCallback((event = null) => {
-    switch (event?.action) {
-      case 'joined-meeting':
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          return {
-            ...rooms,
-            unassignedParticipants: Array.from(
-              new Set(rooms.unassignedParticipants).add(
-                event.participants.local,
+  const handleNewParticipantsState = useCallback(
+    (event: DailyEventObject) => {
+      if (!localParticipant?.owner) return;
+
+      switch (event?.action) {
+        case 'joined-meeting':
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            return {
+              ...rooms,
+              unassignedParticipants: Array.from(
+                new Set(rooms.unassignedParticipants).add(
+                  event.participants.local,
+                ),
               ),
-            ),
-          };
-        });
-        break;
-      case 'participant-joined':
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          return {
-            ...rooms,
-            unassignedParticipants: Array.from(
-              new Set(rooms.unassignedParticipants).add(event.participant),
-            ),
-          };
-        });
-        break;
-      case 'participant-updated':
-        const participant = event.participant;
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          const r = rooms;
-          const idx = r.unassignedParticipants?.findIndex(
-            (p: DailyParticipant) => p.user_id === participant.user_id,
-          );
-          if (idx >= 0) {
-            r.unassignedParticipants[idx] = participant;
-          } else {
-            r.assigned.map((room: DailyBreakoutRoom, index: number) => {
-              const idx = room.participants?.findIndex(
-                (p: DailyParticipant) => p.user_id === participant.user_id,
-              );
-              if (idx >= 0) {
-                r.assigned[index].participants[idx] = participant;
-              }
+            };
+          });
+          break;
+        case 'participant-joined':
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            return {
+              ...rooms,
+              unassignedParticipants: Array.from(
+                new Set(rooms.unassignedParticipants).add(event.participant),
+              ),
+            };
+          });
+          break;
+        case 'participant-updated':
+          const participant = event.participant;
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            const r = rooms;
+            const idx = r.unassignedParticipants?.findIndex(
+              (p: DailyParticipant) => p.user_id === participant.user_id,
+            );
+            if (idx >= 0) {
+              r.unassignedParticipants[idx] = participant;
+            } else {
+              r.assigned.map((room: DailyBreakoutRoom, index: number) => {
+                const idx = room.participants?.findIndex(
+                  (p: DailyParticipant) => p.user_id === participant.user_id,
+                );
+                if (idx >= 0) {
+                  r.assigned[index].participants[idx] = participant;
+                }
+              });
+            }
+            return {
+              ...r,
+            };
+          });
+          break;
+        case 'participant-left':
+          const idx = event.participant.user_id;
+          setRooms((rooms: DailyBreakoutProviderRooms) => {
+            const assigned = rooms.assigned;
+            assigned.map((room: DailyBreakoutRoom, index: number) => {
+              assigned[index] = {
+                ...rooms.assigned[index],
+                participants: [
+                  ...room?.participants?.filter(
+                    (p: DailyParticipant) => p.user_id !== idx,
+                  ),
+                ],
+              };
             });
-          }
-          return {
-            ...r,
-          };
-        });
-        break;
-      case 'participant-left':
-        const idx = event.participant.user_id;
-        setRooms((rooms: DailyBreakoutProviderRooms) => {
-          const assigned = rooms.assigned;
-          assigned.map((room: DailyBreakoutRoom, index: number) => {
-            assigned[index] = {
-              ...rooms.assigned[index],
-              participants: [
-                ...room?.participants?.filter(
+            return {
+              ...rooms,
+              assigned,
+              unassignedParticipants: [
+                ...rooms.unassignedParticipants.filter(
                   (p: DailyParticipant) => p.user_id !== idx,
                 ),
               ],
             };
           });
-          return {
-            ...rooms,
-            assigned,
-            unassignedParticipants: [
-              ...rooms.unassignedParticipants.filter(
-                (p: DailyParticipant) => p.user_id !== idx,
-              ),
-            ],
-          };
-        });
-        break;
-      default:
-        break;
-    }
-  }, []);
+          break;
+        default:
+          break;
+      }
+    },
+    [localParticipant?.owner],
+  );
 
   useDailyEvent('joined-meeting', handleNewParticipantsState);
   useDailyEvent('participant-joined', handleNewParticipantsState);
@@ -261,10 +270,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     [breakout],
   );
 
-  const endSession = useCallback(() => {
-    breakout?.endSession();
-    setRooms(getRoomsInitialValues(room, new Date()));
-  }, [breakout, room]);
+  const endSession = useCallback(() => breakout?.endSession(), [breakout]);
 
   return (
     <BreakoutContext.Provider
