@@ -263,11 +263,11 @@ const BreakoutModal = () => {
         ) : (
           <Pane width="auto" height="auto">
             <EmptyState
-              title="You need permission to create breakout session"
+              title="You need to be a meeting owner to create breakout sessions"
               orientation="vertical"
               icon={<LockIcon color="#EBAC91" />}
               iconBgColor="#F8E3DA"
-              description="To see these sources, you need to join as owner, participants can not create breakout sessions"
+              description="Participants cannot create or manage breakout sessions."
             />
           </Pane>
         )}

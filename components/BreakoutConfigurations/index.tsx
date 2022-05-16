@@ -26,7 +26,7 @@ const BreakoutConfigurations = ({
     <Pane>
       <Checkbox
         name="auto_join"
-        label="Let participant join after breakout room started"
+        label="Let participant join after breakout room starts"
         checked={config.auto_join}
         onChange={handleChange}
       />

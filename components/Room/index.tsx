@@ -35,15 +35,14 @@ const Room = () => {
       {breakoutSession && isBreakoutRoom && <ManageBreakoutRooms />}
 
       <CornerDialog
-        title="Muted video & audio"
+        title="You are muted"
         isShown={warn}
         onCloseComplete={() => setWarn(false)}
         confirmLabel="Okay"
         onConfirm={() => setWarn(false)}
         hasCancel={false}
       >
-        Video and audio are muted by default on joining the breakout rooms for
-        the sake of privacy, you can always turn them on!
+        On joining a breakout session, your video and audio are muted by default - you can always unmute yourself.
       </CornerDialog>
     </div>
   );
