@@ -20,6 +20,7 @@ import { getRoomsInitialValues } from '../lib/room';
 import { getDateTimeAfter } from '../lib/date';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { useDailyEvent } from '@daily-co/daily-react-hooks';
+import { io } from 'socket.io-client';
 
 type BreakoutRoomProviderType = {
   children: React.ReactNode;
@@ -67,11 +68,20 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     expiryTime: 15,
   });
   const [join, setJoin] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
     setRooms({ ...rooms });
   }, [room]);
+
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
+      path: '/api/socketio',
+      forceNew: false,
+    });
+    setSocket(socket);
+  }, []);
 
   const createToken = useCallback(
     async (recordBreakoutRooms, roomName = room) => {
@@ -126,9 +136,10 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const breakout: any = useMemo(
     // @ts-ignore
     () => {
-      if (callFrame && room) {
+      if (callFrame && room && socket) {
         if (breakout) breakout?.destroy();
         return new BreakoutRoom(
+          socket,
           callFrame,
           joinCall,
           room,
@@ -137,7 +148,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         );
       } else return null;
     },
-    [callFrame, createToken, eventHandlers, joinCall, room],
+    [callFrame, createToken, eventHandlers, joinCall, room, socket],
   );
 
   const handleNewParticipantsState = useCallback((event = null) => {
