@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -37,10 +38,7 @@ interface ContextValue {
   myBreakoutRoom: DailyBreakoutRoom;
   config: DailyBreakoutConfig;
   setConfig: Dispatch<SetStateAction<DailyBreakoutConfig>>;
-  createSession: (
-    rooms: DailyBreakoutRoom[],
-    config: DailyBreakoutConfig,
-  ) => {};
+  createSession: () => void;
   updateSession: (breakoutSession: DailyBreakoutSession) => {};
   endSession: () => void;
   assignRoomToNewParticipant: (
@@ -59,9 +57,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
-  const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>(
-    getRoomsInitialValues(new Date()),
-  );
+  const [rooms, setRooms] = useState<DailyBreakoutProviderRooms>();
   const [myRoom, setMyRoom] = useState(null);
   const [config, setConfig] = useState<DailyBreakoutConfig>({
     auto_join: true,
@@ -71,6 +67,11 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     expiryTime: 15,
   });
   const [join, setJoin] = useState(false);
+
+  useEffect(() => {
+    const rooms = getRoomsInitialValues(room, new Date());
+    setRooms({ ...rooms });
+  }, [room]);
 
   const createToken = useCallback(
     async (recordBreakoutRooms, roomName = room) => {
@@ -125,7 +126,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const breakout: any = useMemo(
     // @ts-ignore
     () => {
-      if (callFrame && room)
+      if (callFrame && room) {
+        if (breakout) breakout?.destroy();
         return new BreakoutRoom(
           callFrame,
           joinCall,
@@ -133,7 +135,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
           createToken,
           eventHandlers,
         );
-      else return null;
+      } else return null;
     },
     [callFrame, createToken, eventHandlers, joinCall, room],
   );
@@ -228,23 +230,18 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
   }, [callFrame, breakoutSession, isBreakoutRoom]);
 
-  const createSession = useCallback(
-    async (rooms: DailyBreakoutRoom[], config: DailyBreakoutConfig) => {
-      const properties = {
-        rooms,
-        config: {
-          auto_join: config.auto_join,
-          allow_user_exit: config.allow_user_exit,
-          exp: config.exp
-            ? getDateTimeAfter(config?.expiryTime as number)
-            : null,
-          record_breakout_sessions: config.record_breakout_sessions,
-        },
-      };
-      breakout?.startSession(properties);
-    },
-    [breakout],
-  );
+  const createSession = useCallback(() => {
+    const properties = {
+      rooms: rooms?.assigned,
+      config: {
+        auto_join: config.auto_join,
+        allow_user_exit: config.allow_user_exit,
+        exp: config.exp ? getDateTimeAfter(config?.expiryTime as number) : null,
+        record_breakout_sessions: config.record_breakout_sessions,
+      },
+    };
+    breakout?.startSession(properties);
+  }, [breakout, config, rooms]);
 
   const updateSession = useCallback(() => breakout?.updateSession, [breakout]);
 
@@ -256,8 +253,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
 
   const endSession = useCallback(() => {
     breakout?.endSession();
-    setRooms(getRoomsInitialValues(new Date()));
-  }, [breakout]);
+    setRooms(getRoomsInitialValues(room, new Date()));
+  }, [breakout, room]);
 
   return (
     <BreakoutContext.Provider
