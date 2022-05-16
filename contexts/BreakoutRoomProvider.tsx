@@ -261,7 +261,11 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     breakout?.startSession(properties);
   }, [breakout, config, rooms]);
 
-  const updateSession = useCallback(() => breakout?.updateSession, [breakout]);
+  const updateSession = useCallback(
+    (breakoutSession: DailyBreakoutSession) =>
+      breakout?.updateSession(breakoutSession),
+    [breakout],
+  );
 
   const assignRoomToNewParticipant = useCallback(
     (participant: DailyParticipant, roomName: string) =>
