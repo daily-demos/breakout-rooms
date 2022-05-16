@@ -241,6 +241,20 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   useDailyEvent('participant-updated', handleNewParticipantsState);
   useDailyEvent('participant-left', handleNewParticipantsState);
 
+  useEffect(() => {
+    if (!callFrame) return;
+
+    const handleJoinedMeeting = async () => {
+      const participants = await callFrame.participants();
+      const rooms = getRoomsInitialValues(room, new Date());
+      setRooms({
+        ...rooms,
+        unassignedParticipants: Object.values(participants),
+      });
+    };
+    callFrame.on('joined-meeting', handleJoinedMeeting);
+  }, [callFrame, room]);
+
   const joinModalStatus = useMemo(() => {
     if (!callFrame) return false;
 

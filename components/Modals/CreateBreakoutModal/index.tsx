@@ -97,195 +97,175 @@ const BreakoutModal = () => {
     setRooms({ assigned: autoAssignRooms, unassignedParticipants: [] });
   };
 
-  return useMemo(
-    () => (
-      <Dialog
-        isShown={showBreakoutModal}
-        title="Create breakout session"
-        onCloseComplete={() => setShowBreakoutModal(false)}
-        preventBodyScrolling
-        hasFooter={false}
-      >
-        {localParticipant?.owner ? (
-          <>
-            <div style={{ overflow: 'auto' }}>
-              <DragDropContext onDragEnd={handleOnDragEnd}>
-                <Pane display="flex">
-                  <Pane flex={1} alignItems="center" display="flex">
-                    <Heading is="h3">Participants</Heading>
-                  </Pane>
-                  <Pane>
-                    <Text>({rooms.unassignedParticipants.length} people)</Text>
-                  </Pane>
+  return (
+    <Dialog
+      isShown={showBreakoutModal}
+      title="Create breakout session"
+      onCloseComplete={() => setShowBreakoutModal(false)}
+      preventBodyScrolling
+      hasFooter={false}
+    >
+      {localParticipant?.owner ? (
+        <>
+          <div style={{ overflow: 'auto' }}>
+            <DragDropContext onDragEnd={handleOnDragEnd}>
+              <Pane display="flex">
+                <Pane flex={1} alignItems="center" display="flex">
+                  <Heading is="h3">Participants</Heading>
                 </Pane>
-                <Droppable droppableId="unassigned" direction="horizontal">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      style={getListStyle(
-                        snapshot.isDraggingOver,
-                        rooms.unassignedParticipants.length,
-                      )}
-                    >
-                      {rooms.unassignedParticipants.length < 1 && (
-                        <Pane
-                          width="100%"
-                          height="100%"
-                          display="flex"
-                          textAlign="center"
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <Text color="muted">All in breakout rooms</Text>
-                        </Pane>
-                      )}
-                      {rooms.unassignedParticipants.map(
-                        (participant: DailyParticipant, index: number) => (
-                          <Draggable
-                            key={participant.user_id}
-                            draggableId={participant.user_id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <DraggableParticipant
-                                provided={provided}
-                                snapshot={snapshot}
-                                participant={participant}
-                              />
-                            )}
-                          </Draggable>
-                        ),
-                      )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-                <Pane
-                  display="grid"
-                  gridTemplateColumns="repeat(2, 1fr)"
-                  gridGap={10}
-                  marginTop={20}
-                >
-                  {rooms.assigned.map(
-                    (room: DailyBreakoutRoom, index: number) => (
-                      <div key={index}>
-                        <Pane display="flex">
-                          <Heading is="h3">{room.name}</Heading>
-                          <Text marginLeft={5}>
-                            {room.participants?.length > 0 &&
-                              `(${room.participants?.length} people)`}
-                          </Text>
-                        </Pane>
-                        <Droppable
-                          droppableId={index.toString()}
-                          direction="horizontal"
+                <Pane>
+                  <Text>({rooms.unassignedParticipants.length} people)</Text>
+                </Pane>
+              </Pane>
+              <Droppable droppableId="unassigned" direction="horizontal">
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    style={getListStyle(
+                      snapshot.isDraggingOver,
+                      rooms.unassignedParticipants.length,
+                    )}
+                  >
+                    {rooms.unassignedParticipants.length < 1 && (
+                      <Pane
+                        width="100%"
+                        height="100%"
+                        display="flex"
+                        textAlign="center"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <Text color="muted">All in breakout rooms</Text>
+                      </Pane>
+                    )}
+                    {rooms.unassignedParticipants.map(
+                      (participant: DailyParticipant, index: number) => (
+                        <Draggable
+                          key={participant.user_id}
+                          draggableId={participant.user_id}
+                          index={index}
                         >
                           {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                              style={getListStyle(
-                                snapshot.isDraggingOver,
-                                room?.participants?.length,
-                              )}
-                            >
-                              {room?.participants?.length < 1 && (
-                                <Pane
-                                  width="100%"
-                                  height="100%"
-                                  display="flex"
-                                  textAlign="center"
-                                  justifyContent="center"
-                                  alignItems="center"
-                                >
-                                  {snapshot.isDraggingOver ? (
-                                    <Text color="muted">
-                                      Drop to add to room
-                                    </Text>
-                                  ) : (
-                                    <Text color="muted">Drag people here</Text>
-                                  )}
-                                </Pane>
-                              )}
-                              {room?.participants?.map(
-                                (
-                                  participant: DailyParticipant,
-                                  index: number,
-                                ) => (
-                                  <Draggable
-                                    key={participant.user_id}
-                                    draggableId={participant.user_id}
-                                    index={index}
-                                  >
-                                    {(provided, snapshot) => (
-                                      <DraggableParticipant
-                                        provided={provided}
-                                        snapshot={snapshot}
-                                        participant={participant}
-                                      />
-                                    )}
-                                  </Draggable>
-                                ),
-                              )}
-                              {provided.placeholder}
-                            </div>
+                            <DraggableParticipant
+                              provided={provided}
+                              snapshot={snapshot}
+                              participant={participant}
+                            />
                           )}
-                        </Droppable>
-                      </div>
-                    ),
-                  )}
-                </Pane>
-                <Button onClick={handleAddRoom}>Add room</Button>
-                <Pane marginTop={20}>
-                  <Heading is="h3">Configurations</Heading>
-                  <BreakoutConfigurations
-                    config={config}
-                    setConfig={setConfig}
-                  />
-                </Pane>
-              </DragDropContext>
-            </div>
-            <Pane display="flex" marginY={20}>
-              <Button
-                marginRight={10}
-                appearance="primary"
-                disabled={rooms.unassignedParticipants.length > 0}
-                onClick={() => createSession()}
+                        </Draggable>
+                      ),
+                    )}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+              <Pane
+                display="grid"
+                gridTemplateColumns="repeat(2, 1fr)"
+                gridGap={10}
+                marginTop={20}
               >
-                Create Rooms
-              </Button>
-              <Button onClick={handleAssignEvenly}>
-                Assign participants evenly
-              </Button>
-            </Pane>
-          </>
-        ) : (
-          <Pane width="auto" height="auto">
-            <EmptyState
-              title="You need to be a meeting owner to create breakout sessions"
-              orientation="vertical"
-              icon={<LockIcon color="#EBAC91" />}
-              iconBgColor="#F8E3DA"
-              description="Participants cannot create or manage breakout sessions."
-            />
+                {rooms.assigned.map(
+                  (room: DailyBreakoutRoom, index: number) => (
+                    <div key={index}>
+                      <Pane display="flex">
+                        <Heading is="h3">{room.name}</Heading>
+                        <Text marginLeft={5}>
+                          {room.participants?.length > 0 &&
+                            `(${room.participants?.length} people)`}
+                        </Text>
+                      </Pane>
+                      <Droppable
+                        droppableId={index.toString()}
+                        direction="horizontal"
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            style={getListStyle(
+                              snapshot.isDraggingOver,
+                              room?.participants?.length,
+                            )}
+                          >
+                            {room?.participants?.length < 1 && (
+                              <Pane
+                                width="100%"
+                                height="100%"
+                                display="flex"
+                                textAlign="center"
+                                justifyContent="center"
+                                alignItems="center"
+                              >
+                                {snapshot.isDraggingOver ? (
+                                  <Text color="muted">Drop to add to room</Text>
+                                ) : (
+                                  <Text color="muted">Drag people here</Text>
+                                )}
+                              </Pane>
+                            )}
+                            {room?.participants?.map(
+                              (
+                                participant: DailyParticipant,
+                                index: number,
+                              ) => (
+                                <Draggable
+                                  key={participant.user_id}
+                                  draggableId={participant.user_id}
+                                  index={index}
+                                >
+                                  {(provided, snapshot) => (
+                                    <DraggableParticipant
+                                      provided={provided}
+                                      snapshot={snapshot}
+                                      participant={participant}
+                                    />
+                                  )}
+                                </Draggable>
+                              ),
+                            )}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  ),
+                )}
+              </Pane>
+              <Button onClick={handleAddRoom}>Add room</Button>
+              <Pane marginTop={20}>
+                <Heading is="h3">Configurations</Heading>
+                <BreakoutConfigurations config={config} setConfig={setConfig} />
+              </Pane>
+            </DragDropContext>
+          </div>
+          <Pane display="flex" marginY={20}>
+            <Button
+              marginRight={10}
+              appearance="primary"
+              disabled={rooms.unassignedParticipants.length > 0}
+              onClick={() => createSession()}
+            >
+              Create Rooms
+            </Button>
+            <Button onClick={handleAssignEvenly}>
+              Assign participants evenly
+            </Button>
           </Pane>
-        )}
-      </Dialog>
-    ),
-    [
-      config,
-      createSession,
-      handleAddRoom,
-      handleAssignEvenly,
-      handleOnDragEnd,
-      localParticipant?.owner,
-      rooms?.assigned,
-      rooms?.unassignedParticipants,
-      setConfig,
-      setShowBreakoutModal,
-      showBreakoutModal,
-    ],
+        </>
+      ) : (
+        <Pane width="auto" height="auto">
+          <EmptyState
+            title="You need to be a meeting owner to create breakout sessions"
+            orientation="vertical"
+            icon={<LockIcon color="#EBAC91" />}
+            iconBgColor="#F8E3DA"
+            description="Participants cannot create or manage breakout sessions."
+          />
+        </Pane>
+      )}
+    </Dialog>
   );
 };
 
