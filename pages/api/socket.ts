@@ -16,6 +16,7 @@ export default async function handler(
           start_audio_off: true,
           start_video_off: true,
           enable_prejoin_ui: false,
+          enable_chat: true,
           exp: sessionObject.config.exp,
         };
 

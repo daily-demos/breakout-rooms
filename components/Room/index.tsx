@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import { useCall } from '../../contexts/CallProvider';
 import Hero from '../Hero';
@@ -42,7 +42,8 @@ const Room = () => {
         onConfirm={() => setWarn(false)}
         hasCancel={false}
       >
-        On joining a breakout session, your video and audio are muted by default - you can always unmute yourself.
+        On joining a breakout session, your video and audio are muted by default
+        - you can always unmute yourself.
       </CornerDialog>
     </div>
   );
