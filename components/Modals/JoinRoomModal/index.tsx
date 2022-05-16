@@ -17,8 +17,8 @@ const JoinBreakoutModal = () => {
   const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
   const localParticipant = useLocalParticipant();
 
-  const handleClick = async (index: number) => {
-    assignRoomToNewParticipant(localParticipant as DailyParticipant, index);
+  const handleClick = async (roomName: string) => {
+    assignRoomToNewParticipant(localParticipant as DailyParticipant, roomName);
     setShow(false);
   };
 
@@ -39,36 +39,33 @@ const JoinBreakoutModal = () => {
       hasFooter={false}
     >
       <Pane marginBottom={10}>
-        {breakoutSession?.rooms.map(
-          (room: DailyBreakoutRoom, index: number) => (
-            <>
-              {myBreakoutRoom?.name !== room.name && (
-                <Pane
-                  display="flex"
-                  padding={16}
-                  background="tint2"
-                  borderRadius={3}
-                  key={index}
-                  marginY={10}
-                  alignItems="center"
-                >
-                  <Pane flex={1}>
-                    <Heading size={600}>{room.name}</Heading>
-                    <Avatars participants={presence[room.roomName]} />
-                  </Pane>
-                  <Pane>
-                    <Button
-                      appearance="primary"
-                      onClick={() => handleClick(index)}
-                    >
-                      Join
-                    </Button>
-                  </Pane>
+        {breakoutSession?.rooms.map((room: DailyBreakoutRoom) => (
+          <Pane key={room.roomName}>
+            {myBreakoutRoom?.name !== room.name && (
+              <Pane
+                display="flex"
+                padding={16}
+                background="tint2"
+                borderRadius={3}
+                marginY={10}
+                alignItems="center"
+              >
+                <Pane flex={1}>
+                  <Heading size={600}>{room.name}</Heading>
+                  <Avatars participants={presence[room.roomName]} />
                 </Pane>
-              )}
-            </>
-          ),
-        )}
+                <Pane>
+                  <Button
+                    appearance="primary"
+                    onClick={() => handleClick(room.roomName)}
+                  >
+                    Join
+                  </Button>
+                </Pane>
+              </Pane>
+            )}
+          </Pane>
+        ))}
       </Pane>
     </Dialog>
   );

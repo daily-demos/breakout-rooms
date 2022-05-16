@@ -51,7 +51,7 @@ interface ContextValue {
   endSession: () => void;
   assignRoomToNewParticipant: (
     participant: DailyParticipant,
-    roomIndex?: number,
+    roomName?: string,
   ) => {};
   joinModalStatus: boolean;
 }
@@ -86,15 +86,14 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   }, [room]);
 
   const createToken = useCallback(
-    async (recordBreakoutRooms, roomName = room) => {
-      const localUser = callFrame?.participants().local;
+    async (recordBreakoutRooms, roomName = room, localParticipant) => {
       const options = {
         method: 'POST',
         body: JSON.stringify({
           roomName,
-          isOwner: localUser?.owner,
-          username: localUser?.user_name,
-          userId: localUser?.user_id,
+          isOwner: localParticipant?.owner,
+          username: localParticipant?.user_name,
+          userId: localParticipant?.user_id,
           recordBreakoutRooms,
           prejoinUI: false,
           startVideoOff: true,
@@ -106,7 +105,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
       const { token } = await res.json();
       return token;
     },
-    [callFrame, room],
+    [room],
   );
 
   const onBreakoutStarted = useCallback(
@@ -265,8 +264,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const updateSession = useCallback(() => breakout?.updateSession, [breakout]);
 
   const assignRoomToNewParticipant = useCallback(
-    (participant: DailyParticipant, roomIndex?: number) =>
-      breakout?.assignRoomToNewParticipant(participant, roomIndex),
+    (participant: DailyParticipant, roomName: string) =>
+      breakout?.assignRoomToNewParticipant(participant, roomName),
     [breakout],
   );
 
