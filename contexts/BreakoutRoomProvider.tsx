@@ -68,20 +68,12 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     expiryTime: 15,
   });
   const [join, setJoin] = useState(false);
-  const [socket, setSocket] = useState(null);
+  const [breakout, setBreakout] = useState(null);
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
     setRooms({ ...rooms });
   }, [room]);
-
-  useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
-      path: '/api/socketio',
-      forceNew: false,
-    });
-    setSocket(socket);
-  }, []);
 
   const createToken = useCallback(
     async (recordBreakoutRooms, roomName = room) => {
@@ -133,23 +125,23 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     return { onBreakoutStarted, onBreakoutUpdated, onBreakoutConcluded };
   }, [onBreakoutConcluded, onBreakoutStarted, onBreakoutUpdated]);
 
-  const breakout: any = useMemo(
-    // @ts-ignore
-    () => {
-      if (callFrame && room && socket) {
-        if (breakout) breakout?.destroy();
-        return new BreakoutRoom(
-          socket,
-          callFrame,
-          joinCall,
-          room,
-          createToken,
-          eventHandlers,
-        );
-      } else return null;
-    },
-    [callFrame, createToken, eventHandlers, joinCall, room, socket],
-  );
+  useEffect(() => {
+    if (breakout) {
+      setBreakout(breakout.updateCallFrame(callFrame));
+      return;
+    }
+
+    if (callFrame && room) {
+      const b = new BreakoutRoom(
+        callFrame,
+        joinCall,
+        room,
+        createToken,
+        eventHandlers,
+      );
+      setBreakout(b);
+    }
+  }, [breakout, callFrame, createToken, eventHandlers, joinCall, room]);
 
   const handleNewParticipantsState = useCallback((event = null) => {
     switch (event?.action) {
