@@ -26,6 +26,7 @@ const BreakoutMenu = () => {
     endSession,
     joinModalStatus,
     setJoin,
+    setManage,
   } = useBreakoutRoom();
 
   const localParticipant = useLocalParticipant();
@@ -53,7 +54,10 @@ const BreakoutMenu = () => {
     setShowBreakoutModal,
   ]);
 
-  const handleManage = () => {};
+  const handleManage = () => {
+    setShowBreakoutModal(false);
+    setManage(manage => !manage);
+  };
 
   const endBreakoutSession = useCallback(() => {
     setShowBreakoutModal(false);

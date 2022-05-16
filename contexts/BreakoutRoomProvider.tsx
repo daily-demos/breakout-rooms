@@ -32,6 +32,10 @@ interface ContextValue {
   setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
   join: boolean;
   setJoin: Dispatch<SetStateAction<boolean>>;
+  manage: boolean;
+  setManage: Dispatch<SetStateAction<boolean>>;
+  warn: boolean;
+  setWarn: Dispatch<SetStateAction<boolean>>;
   breakoutSession: DailyBreakoutSession;
   setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession>>;
   rooms: DailyBreakoutProviderRooms;
@@ -68,7 +72,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     expiryTime: 15,
   });
   const [join, setJoin] = useState(false);
+  const [manage, setManage] = useState(false);
   const [breakout, setBreakout] = useState(null);
+  const [warn, setWarn] = useState(false);
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
@@ -105,6 +111,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
       setBreakoutSession(breakout.getBreakoutSession());
       setMyRoom(breakout.getMyBreakoutRoom());
       setIsBreakoutRoom(true);
+      setWarn(true);
     },
     [setShowBreakoutModal],
   );
@@ -267,6 +274,10 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         setIsBreakoutRoom,
         join,
         setJoin,
+        manage,
+        setManage,
+        warn,
+        setWarn,
         breakoutSession: breakoutSession as DailyBreakoutSession,
         setBreakoutSession,
         myBreakoutRoom: myRoom as unknown as DailyBreakoutRoom,
