@@ -5,7 +5,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponseServerIO,
 ) {
-  const { sessionObject, event, newParticipantIds } = JSON.parse(req.body);
+  const { sessionObject, event, newParticipantIds, room } = JSON.parse(
+    req.body,
+  );
 
   if (req.method === 'POST') {
     if (event === 'DAILY_BREAKOUT_STARTED') {
@@ -30,7 +32,11 @@ export default async function handler(
         }
       });
     }
-    res?.socket?.server?.io?.emit(event, { sessionObject, newParticipantIds });
+    res?.socket?.server?.io?.emit(event, {
+      room,
+      sessionObject,
+      newParticipantIds,
+    });
     return res.status(200).json({ status: 'success' });
   }
   return res.status(500);
