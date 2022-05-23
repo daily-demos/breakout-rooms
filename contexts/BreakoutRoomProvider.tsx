@@ -155,7 +155,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
 
   const handleNewParticipantsState = useCallback(
     (event: DailyEventObject) => {
-      if (!localParticipant?.owner) return;
+      if (!localParticipant?.owner || isBreakoutRoom) return;
 
       switch (event?.action) {
         case 'joined-meeting':
@@ -233,7 +233,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
           break;
       }
     },
-    [localParticipant?.owner],
+    [localParticipant?.owner, isBreakoutRoom],
   );
 
   useDailyEvent('joined-meeting', handleNewParticipantsState);
@@ -244,13 +244,15 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   useEffect(() => {
     if (!callFrame) return;
 
-    const handleJoinedMeeting = async () => {
-      const participants = await callFrame.participants();
-      const rooms = getRoomsInitialValues(room, new Date());
-      setRooms({
-        ...rooms,
-        unassignedParticipants: Object.values(participants),
-      });
+    const handleJoinedMeeting = () => {
+      setTimeout(async () => {
+        const participants = await callFrame.participants();
+        const rooms = getRoomsInitialValues(room, new Date());
+        setRooms({
+          ...rooms,
+          unassignedParticipants: Object.values(participants),
+        });
+      }, 1000);
     };
     callFrame.on('joined-meeting', handleJoinedMeeting);
   }, [callFrame, room]);
