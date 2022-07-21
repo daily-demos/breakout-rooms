@@ -23,14 +23,13 @@ import {
   useDailyEvent,
   useLocalParticipant,
 } from '@daily-co/daily-react-hooks';
-import { io } from 'socket.io-client';
 
 type BreakoutRoomProviderType = {
   children: React.ReactNode;
 };
 
 interface ContextValue {
-  breakout: any;
+  breakout: typeof BreakoutRoom;
   isBreakoutRoom: boolean;
   setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
   join: boolean;
@@ -56,7 +55,6 @@ interface ContextValue {
   joinModalStatus: boolean;
 }
 
-// @ts-ignore
 export const BreakoutContext = createContext<ContextValue>(null);
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
