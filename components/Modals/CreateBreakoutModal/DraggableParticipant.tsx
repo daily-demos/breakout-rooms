@@ -29,14 +29,12 @@ const DraggableParticipant = ({
       paddingY={4}
       paddingX={6}
       border="1px solid #C8D1DC"
-      textTransform="initial"
-    >
+      textTransform="initial">
       {participant.user_name}
     </Badge>
   );
 
   if (!usePortal) return child;
-  // @ts-ignore
   return createPortal(child, document.querySelector('#myportal'));
 };
 

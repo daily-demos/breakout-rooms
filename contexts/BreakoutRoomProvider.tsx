@@ -29,7 +29,7 @@ type BreakoutRoomProviderType = {
 };
 
 interface ContextValue {
-  breakout: typeof BreakoutRoom;
+  breakout: any;
   isBreakoutRoom: boolean;
   setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
   join: boolean;
@@ -313,8 +313,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         endSession,
         assignRoomToNewParticipant,
         joinModalStatus,
-      }}
-    >
+      }}>
       {children}
     </BreakoutContext.Provider>
   );

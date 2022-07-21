@@ -7,12 +7,10 @@ const Timer = () => {
   const { breakoutSession, endSession } = useBreakoutRoom();
 
   // If room has an expiry time, we'll calculate how many seconds until expiry
-  // @ts-ignore
   useEffect(() => {
-    if (!breakoutSession.config.exp) {
-      return false;
-    }
-    const i = setInterval(async () => {
+    if (!breakoutSession.config.exp) return;
+
+    const i = setInterval(() => {
       const timeNow = Math.round(new Date().getTime() / 1000);
       let timeLeft =
         (breakoutSession.config.exp as unknown as number) - timeNow;

@@ -60,7 +60,6 @@ interface ContextValue {
   isOwner: boolean;
 }
 
-// @ts-ignore
 export const CallContext = createContext<ContextValue>(null);
 
 export const CallProvider = ({ children, roomName }: CallProviderType) => {
@@ -170,8 +169,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
         setShowBreakoutModal,
         room: room as string,
         isOwner,
-      }}
-    >
+      }}>
       <DailyProvider callObject={callFrame as DailyCall}>
         {children}
       </DailyProvider>

@@ -6,12 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint && npm run lint:tsc",
+    "lint:tsc": "tsc --noEmit",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "dependencies": {
-    "@daily-co/daily-js": "^0.25.0",
-    "@daily-co/daily-react-hooks": "^0.2.3",
+    "@daily-co/daily-js": "^0.28.0",
+    "@daily-co/daily-react-hooks": "^0.2.6",
     "evergreen-ui": "^6.9.10",
     "next": "12.1.0",
     "react": "17.0.2",
@@ -32,6 +33,6 @@
     "eslint": "8.9.0",
     "eslint-config-next": "12.1.0",
     "prettier": "^2.6.2",
-    "typescript": "4.5.5"
+    "typescript": "4.7.4"
   }
 }
