@@ -27,8 +27,6 @@ You will need the room information when setting up environment variables below.
 1. Installing the dependencies
 
 ```bash
-npm install
-# or
 yarn install
 ```
 
@@ -43,8 +41,6 @@ Now, you can update your variables accordingly in `.env.local` file.
 3. Running the development server
 
 ```bash
-npm run dev
-# or
 yarn dev
 ```
 
@@ -71,7 +67,7 @@ Owners are identified by the `is_owner` value on the Daily [meeting token](https
    - The total number of breakout rooms participants can be split into.
    - Auto-joining: if participants should automatically join a breakout room when the breakout session becomes active, or if they can choose when to join.
    - Letting users leave the breakout rooms to return to the lobby room, or making them stay until the breakout session is complete.
-   - Breakout room expiration time: when a breakout room expires and all the participants are moved back to the main lobby room
+   - Breakout room expiration time: when a breakout room expires and all the participants are moved back to the main lobby room.
 
 ## Technical implementation
 
