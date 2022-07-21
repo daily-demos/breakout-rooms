@@ -49,18 +49,28 @@ type CallProviderType = {
 };
 
 interface ContextValue {
-  callRef: RefObject<HTMLDivElement>;
   callFrame: DailyCall | null;
-  setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
-  joinCall: (name: string, token?: string, breakout?: boolean) => void;
-  joinAs: (name: string, isOwner?: boolean, disablePrejoin?: boolean) => void;
-  showBreakoutModal: boolean;
-  setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
-  room: string;
+  callRef: RefObject<HTMLDivElement> | null;
   isOwner: boolean;
+  joinAs: (name: string, isOwner?: boolean, disablePrejoin?: boolean) => void;
+  joinCall: (name: string, token?: string, breakout?: boolean) => void;
+  room: string;
+  setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
+  setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
+  showBreakoutModal: boolean;
 }
 
-export const CallContext = createContext<ContextValue>(null);
+export const CallContext = createContext<ContextValue>({
+  callFrame: null,
+  callRef: null,
+  isOwner: false,
+  joinAs: () => {},
+  joinCall: () => {},
+  room: '',
+  setCallFrame: () => {},
+  setShowBreakoutModal: () => {},
+  showBreakoutModal: false,
+});
 
 export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const callRef = useRef<HTMLDivElement>(null);

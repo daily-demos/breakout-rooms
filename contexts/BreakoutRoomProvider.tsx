@@ -29,33 +29,90 @@ type BreakoutRoomProviderType = {
 };
 
 interface ContextValue {
-  breakout: any;
-  isBreakoutRoom: boolean;
-  setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
-  join: boolean;
-  setJoin: Dispatch<SetStateAction<boolean>>;
-  manage: boolean;
-  setManage: Dispatch<SetStateAction<boolean>>;
-  warn: boolean;
-  setWarn: Dispatch<SetStateAction<boolean>>;
-  breakoutSession: DailyBreakoutSession;
-  setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession>>;
-  rooms: DailyBreakoutProviderRooms;
-  setRooms: Dispatch<SetStateAction<DailyBreakoutProviderRooms>>;
-  myBreakoutRoom: DailyBreakoutRoom;
-  config: DailyBreakoutConfig;
-  setConfig: Dispatch<SetStateAction<DailyBreakoutConfig>>;
-  createSession: () => void;
-  updateSession: (breakoutSession: DailyBreakoutSession) => {};
-  endSession: () => void;
   assignRoomToNewParticipant: (
     participant: DailyParticipant,
     roomName?: string,
-  ) => {};
+  ) => void;
+
+  breakout: any;
+  breakoutSession: DailyBreakoutSession;
+  config: DailyBreakoutConfig;
+  createSession: () => void;
+  endSession: () => void;
+  isBreakoutRoom: boolean;
+  join: boolean;
   joinModalStatus: boolean;
+  manage: boolean;
+  myBreakoutRoom: DailyBreakoutRoom;
+  rooms: DailyBreakoutProviderRooms;
+  setBreakoutSession: Dispatch<SetStateAction<DailyBreakoutSession>>;
+  setConfig: Dispatch<SetStateAction<DailyBreakoutConfig>>;
+  setIsBreakoutRoom: Dispatch<SetStateAction<boolean>>;
+  setJoin: Dispatch<SetStateAction<boolean>>;
+  setManage: Dispatch<SetStateAction<boolean>>;
+  setRooms: Dispatch<SetStateAction<DailyBreakoutProviderRooms>>;
+  setWarn: Dispatch<SetStateAction<boolean>>;
+  updateSession: (breakoutSession: DailyBreakoutSession) => void;
+  warn: boolean;
 }
 
-export const BreakoutContext = createContext<ContextValue>(null);
+export const BreakoutContext = createContext<ContextValue>({
+  assignRoomToNewParticipant: () => {},
+  breakout: {},
+  breakoutSession: {
+    rooms: [],
+    config: {
+      auto_join: false,
+      allow_user_exit: false,
+      record_breakout_sessions: false,
+      exp: false,
+    },
+  },
+  config: {
+    auto_join: false,
+    allow_user_exit: false,
+    record_breakout_sessions: false,
+    exp: false,
+  },
+  createSession: () => {},
+  endSession: () => {},
+  isBreakoutRoom: false,
+  join: false,
+  joinModalStatus: false,
+  manage: false,
+  myBreakoutRoom: {
+    name: '',
+    roomName: '',
+    created: new Date(),
+    participants: [],
+  },
+  rooms: {
+    assigned: [
+      {
+        name: 'Breakout Room 1',
+        roomName: `1`,
+        created: new Date(),
+        participants: [],
+      },
+      {
+        name: 'Breakout Room 2',
+        roomName: `2`,
+        created: new Date(),
+        participants: [],
+      },
+    ],
+    unassignedParticipants: [],
+  },
+  setBreakoutSession: () => {},
+  setConfig: () => {},
+  setIsBreakoutRoom: () => {},
+  setJoin: () => {},
+  setManage: () => {},
+  setRooms: () => {},
+  setWarn: () => {},
+  updateSession: () => {},
+  warn: false,
+});
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const { callFrame, joinCall, room, setShowBreakoutModal } = useCall();
