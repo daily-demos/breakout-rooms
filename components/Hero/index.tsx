@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Head from 'next/head';
 import { Button, Card, Heading, Pane, Text } from 'evergreen-ui';
 import { ReactComponent as IconOne } from '../../icons/1-sm.svg';
@@ -14,7 +14,10 @@ const Hero = () => {
   const { width } = useWindowSize();
   const { joinAs } = useCall();
 
-  const join = (owner: boolean = false) => joinAs(room as string, owner);
+  const join = useCallback(
+    (owner: boolean = false) => joinAs(room as string, owner),
+    [joinAs, room],
+  );
 
   return (
     <Pane>

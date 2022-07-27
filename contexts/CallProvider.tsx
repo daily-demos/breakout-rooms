@@ -58,6 +58,7 @@ interface ContextValue {
   setCallFrame: Dispatch<SetStateAction<DailyCall | null>>;
   setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
   showBreakoutModal: boolean;
+  isInRoom: boolean;
 }
 
 export const CallContext = createContext<ContextValue>({
@@ -70,6 +71,7 @@ export const CallContext = createContext<ContextValue>({
   setCallFrame: () => {},
   setShowBreakoutModal: () => {},
   showBreakoutModal: false,
+  isInRoom: false,
 });
 
 export const CallProvider = ({ children, roomName }: CallProviderType) => {
@@ -78,6 +80,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const [showBreakoutModal, setShowBreakoutModal] = useState<boolean>(false);
   const [room, setRoom] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isInRoom, setIsInRoom] = useState<boolean>(false);
 
   useEffect(() => {
     if (!roomName) return;
@@ -141,6 +144,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
 
   const joinAs = useCallback(
     async (name, owner: boolean = false, disablePrejoin: boolean = false) => {
+      setIsInRoom(true);
       const body: { [key: string]: string | boolean } = {
         roomName: name,
         isOwner: owner,
@@ -162,9 +166,9 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
       setIsOwner(owner);
 
       if (disablePrejoin) await callFrame?.destroy();
-      await joinCall(room as string, token);
+      await joinCall(name, token);
     },
-    [callFrame, joinCall, room],
+    [callFrame, joinCall],
   );
 
   return (
@@ -179,7 +183,9 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
         setShowBreakoutModal,
         room: room as string,
         isOwner,
-      }}>
+        isInRoom,
+      }}
+    >
       <DailyProvider callObject={callFrame as DailyCall}>
         {children}
       </DailyProvider>

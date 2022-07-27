@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { useCall } from '../../contexts/CallProvider';
 import Hero from '../Hero';
@@ -9,11 +9,21 @@ import BreakoutMenu from '../Modals/BreakoutMenu';
 import JoinBreakoutModal from '../Modals/JoinRoomModal';
 import ManageBreakoutRooms from '../Modals/ManageBreakout';
 import { CornerDialog } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 
 const Room = () => {
-  const { callRef, callFrame } = useCall();
+  const router = useRouter();
+  const { room, owner, participant } = router.query;
+  const { callRef, callFrame, joinAs, isInRoom } = useCall();
   const { breakoutSession, join, isBreakoutRoom, warn, setWarn } =
     useBreakoutRoom();
+
+  useEffect(() => {
+    const showCall = owner === 'true' || participant === 'true';
+    if (!router.isReady || isInRoom || !showCall) return;
+
+    joinAs(room as string, owner === 'true');
+  }, [room, owner, router.isReady, participant, joinAs, isInRoom]);
 
   return (
     <div>

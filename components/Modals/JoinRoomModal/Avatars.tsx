@@ -8,10 +8,10 @@ type PresenceParticipantType = {
   joinTime: Date;
   duration: number;
   room: string;
-}
+};
 
 type AvatarItemProps = {
-  participant: PresenceParticipantType
+  participant: PresenceParticipantType;
 };
 
 type AvatarsType = {

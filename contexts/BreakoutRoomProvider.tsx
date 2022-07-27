@@ -370,7 +370,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         endSession,
         assignRoomToNewParticipant,
         joinModalStatus,
-      }}>
+      }}
+    >
       {children}
     </BreakoutContext.Provider>
   );

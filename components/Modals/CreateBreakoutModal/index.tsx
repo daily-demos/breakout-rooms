@@ -103,7 +103,8 @@ const BreakoutModal = () => {
       title="Create breakout session"
       onCloseComplete={() => setShowBreakoutModal(false)}
       preventBodyScrolling
-      hasFooter={false}>
+      hasFooter={false}
+    >
       {localParticipant?.owner ? (
         <>
           <div style={{ overflow: 'auto' }}>
@@ -124,7 +125,8 @@ const BreakoutModal = () => {
                     style={getListStyle(
                       snapshot.isDraggingOver,
                       rooms.unassignedParticipants.length,
-                    )}>
+                    )}
+                  >
                     {rooms.unassignedParticipants.length < 1 && (
                       <Pane
                         width="100%"
@@ -132,7 +134,8 @@ const BreakoutModal = () => {
                         display="flex"
                         textAlign="center"
                         justifyContent="center"
-                        alignItems="center">
+                        alignItems="center"
+                      >
                         <Text color="muted">All in breakout rooms</Text>
                       </Pane>
                     )}
@@ -141,7 +144,8 @@ const BreakoutModal = () => {
                         <Draggable
                           key={participant.user_id}
                           draggableId={participant.user_id}
-                          index={index}>
+                          index={index}
+                        >
                           {(provided, snapshot) => (
                             <DraggableParticipant
                               provided={provided}
@@ -160,7 +164,8 @@ const BreakoutModal = () => {
                 display="grid"
                 gridTemplateColumns="repeat(2, 1fr)"
                 gridGap={10}
-                marginTop={20}>
+                marginTop={20}
+              >
                 {rooms.assigned.map(
                   (room: DailyBreakoutRoom, index: number) => (
                     <div key={index}>
@@ -173,7 +178,8 @@ const BreakoutModal = () => {
                       </Pane>
                       <Droppable
                         droppableId={index.toString()}
-                        direction="horizontal">
+                        direction="horizontal"
+                      >
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
@@ -181,7 +187,8 @@ const BreakoutModal = () => {
                             style={getListStyle(
                               snapshot.isDraggingOver,
                               room?.participants?.length,
-                            )}>
+                            )}
+                          >
                             {room?.participants?.length < 1 && (
                               <Pane
                                 width="100%"
@@ -189,7 +196,8 @@ const BreakoutModal = () => {
                                 display="flex"
                                 textAlign="center"
                                 justifyContent="center"
-                                alignItems="center">
+                                alignItems="center"
+                              >
                                 {snapshot.isDraggingOver ? (
                                   <Text color="muted">Drop to add to room</Text>
                                 ) : (
@@ -205,7 +213,8 @@ const BreakoutModal = () => {
                                 <Draggable
                                   key={participant.user_id}
                                   draggableId={participant.user_id}
-                                  index={index}>
+                                  index={index}
+                                >
                                   {(provided, snapshot) => (
                                     <DraggableParticipant
                                       provided={provided}
@@ -236,7 +245,8 @@ const BreakoutModal = () => {
               marginRight={10}
               appearance="primary"
               disabled={rooms.unassignedParticipants.length > 0}
-              onClick={() => createSession()}>
+              onClick={() => createSession()}
+            >
               Create Rooms
             </Button>
             <Button onClick={handleAssignEvenly}>
