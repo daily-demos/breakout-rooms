@@ -111,7 +111,8 @@ export const BreakoutContext = createContext<ContextValue>({
 });
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
-  const { callFrame, joinCall, room, setShowBreakoutModal } = useCall();
+  const { callFrame, joinCall, room, setShowBreakoutModal, isInRoom } =
+    useCall();
 
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
@@ -208,9 +209,24 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     setBreakoutSession(null);
   }, []);
 
+  const onBreakoutSync = useCallback(breakout => {
+    setBreakoutSession(breakout.getBreakoutSession());
+    setMyRoom(breakout.getMyBreakoutRoom());
+  }, []);
+
   const eventHandlers = useMemo(() => {
-    return { onBreakoutStarted, onBreakoutUpdated, onBreakoutConcluded };
-  }, [onBreakoutConcluded, onBreakoutStarted, onBreakoutUpdated]);
+    return {
+      onBreakoutStarted,
+      onBreakoutUpdated,
+      onBreakoutConcluded,
+      onBreakoutSync,
+    };
+  }, [
+    onBreakoutConcluded,
+    onBreakoutStarted,
+    onBreakoutUpdated,
+    onBreakoutSync,
+  ]);
 
   useEffect(() => {
     if (breakout) {
@@ -342,8 +358,11 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     if (!callFrame) return false;
 
     if (!breakoutSession) return false;
-    if (!isBreakoutRoom) return !breakoutSession.config.auto_join;
-  }, [callFrame, breakoutSession, isBreakoutRoom]);
+    if (!isBreakoutRoom) {
+      if (isInRoom) setJoin(breakoutSession.config.auto_join);
+      return breakoutSession.config.auto_join;
+    }
+  }, [callFrame, breakoutSession, isBreakoutRoom, isInRoom]);
 
   const createSession = useCallback(() => {
     const properties = {
