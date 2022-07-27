@@ -25,6 +25,29 @@ const BreakoutConfigurations = ({
   return (
     <Pane>
       <Checkbox
+        name="max_participants"
+        label={
+          <>
+            Assign max participants of
+            <input
+              name="max_participants_count"
+              type="number"
+              min={0}
+              value={config.max_participants_count ?? ''}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleChange(e, 'number')
+              }
+              style={{ margin: '0 5px', width: '40px' }}
+              disabled={manage}
+            />
+            per each room
+          </>
+        }
+        checked={config.max_participants}
+        onChange={handleChange}
+        disabled={manage}
+      />
+      <Checkbox
         name="auto_join"
         label="Let participant join after breakout room starts"
         checked={config.auto_join}

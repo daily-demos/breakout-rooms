@@ -30,6 +30,8 @@ export type DailyBreakoutConfig = {
   record_breakout_sessions: boolean;
   exp: boolean;
   expiryTime?: number | null;
+  max_participants?: boolean;
+  max_participants_count?: number;
 };
 
 export type DailyBreakoutSession = {

@@ -1,24 +1,27 @@
-import { DailyBreakoutProviderRooms } from '../types/next';
+import { DailyBreakoutProviderRooms, DailyBreakoutRoom } from '../types/next';
+
+const roomInitialValue = (
+  room: string,
+  date: Date,
+  index: number,
+): DailyBreakoutRoom => {
+  return {
+    name: `Breakout Room ${index}`,
+    roomName: `${room}-${index}`,
+    created: date,
+    participants: [],
+  };
+};
 
 export const getRoomsInitialValues = (
   room: string,
   date: Date,
+  maxRooms: number = 2,
 ): DailyBreakoutProviderRooms => {
   return {
-    assigned: [
-      {
-        name: 'Breakout Room 1',
-        roomName: `${room}-1`,
-        created: date,
-        participants: [],
-      },
-      {
-        name: 'Breakout Room 2',
-        roomName: `${room}-2`,
-        created: date,
-        participants: [],
-      },
-    ],
+    assigned: Array.from({ length: maxRooms }, (_, idx) =>
+      roomInitialValue(room, date, idx + 1),
+    ),
     unassignedParticipants: [],
   };
 };

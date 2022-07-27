@@ -124,6 +124,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     record_breakout_sessions: false,
     exp: true,
     expiryTime: 15,
+    max_participants: false,
+    max_participants_count: 5,
   });
   const [join, setJoin] = useState(false);
   const [manage, setManage] = useState(false);
@@ -135,6 +137,30 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     const rooms = getRoomsInitialValues(room, new Date());
     setRooms({ ...rooms });
   }, [room]);
+
+  useEffect(() => {
+    if (config.max_participants) {
+      const maxParticipants = config.max_participants_count;
+      const totalParticipants = callFrame?.participantCounts().present;
+      const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
+      const rooms = getRoomsInitialValues(room, new Date(), maxNumberOfRooms);
+      setRooms(r => {
+        return { ...rooms, unassignedParticipants: r.unassignedParticipants };
+      });
+      if (breakout) {
+        const autoAssignRooms: DailyBreakoutRoom[] = breakout.autoAssign(
+          rooms.assigned.length,
+        );
+        setRooms({ assigned: autoAssignRooms, unassignedParticipants: [] });
+      }
+    }
+  }, [
+    breakout,
+    callFrame,
+    config.max_participants,
+    config.max_participants_count,
+    room,
+  ]);
 
   const createToken = useCallback(
     async (recordBreakoutRooms, roomName = room, localParticipant) => {
