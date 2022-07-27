@@ -19,10 +19,6 @@ import {
 import { getRoomsInitialValues } from '../lib/room';
 import { getDateTimeAfter } from '../lib/date';
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
-import {
-  useDailyEvent,
-  useLocalParticipant,
-} from '@daily-co/daily-react-hooks';
 
 type BreakoutRoomProviderType = {
   children: React.ReactNode;
@@ -133,7 +129,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const [manage, setManage] = useState(false);
   const [breakout, setBreakout] = useState(null);
   const [warn, setWarn] = useState(false);
-  const localParticipant = useLocalParticipant();
+  const localParticipant = callFrame?.participants().local;
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
@@ -291,10 +287,14 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     [localParticipant?.owner, isBreakoutRoom],
   );
 
-  useDailyEvent('joined-meeting', handleNewParticipantsState);
-  useDailyEvent('participant-joined', handleNewParticipantsState);
-  useDailyEvent('participant-updated', handleNewParticipantsState);
-  useDailyEvent('participant-left', handleNewParticipantsState);
+  useEffect(() => {
+    if (!callFrame) return;
+
+    callFrame.on('joined-meeting', handleNewParticipantsState);
+    callFrame.on('participant-joined', handleNewParticipantsState);
+    callFrame.on('participant-updated', handleNewParticipantsState);
+    callFrame.on('participant-left', handleNewParticipantsState);
+  }, [callFrame, handleNewParticipantsState]);
 
   useEffect(() => {
     if (!callFrame) return;

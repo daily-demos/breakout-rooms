@@ -25,13 +25,13 @@ import { getListStyle } from '../../../lib/listStyle';
 import DraggableParticipant from './DraggableParticipant';
 import { useCall } from '../../../contexts/CallProvider';
 import BreakoutConfigurations from '../../BreakoutConfigurations';
-import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const BreakoutModal = () => {
-  const localParticipant = useLocalParticipant();
-  const { showBreakoutModal, setShowBreakoutModal, room } = useCall();
+  const { callFrame, showBreakoutModal, setShowBreakoutModal, room } =
+    useCall();
   const { breakout, rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
+  const localParticipant = callFrame?.participants().local;
 
   // whenever we drag and drop the participants in the breakout room modal,
   // we will be returned the source index, so we need to get the value of the dragged item,

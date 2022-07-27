@@ -4,7 +4,7 @@ import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom } from '../../../types/next';
 import Avatars from './Avatars';
-import { useLocalParticipant } from '@daily-co/daily-react-hooks';
+import { useCall } from '../../../contexts/CallProvider';
 
 const JoinBreakoutModal = () => {
   const {
@@ -13,9 +13,10 @@ const JoinBreakoutModal = () => {
     myBreakoutRoom,
     isBreakoutRoom,
   } = useBreakoutRoom();
+  const { callFrame } = useCall();
   const [presence, setPresence] = useState<any>({});
   const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
-  const localParticipant = useLocalParticipant();
+  const localParticipant = callFrame?.participants().local;
 
   const handleClick = async (roomName: string) => {
     assignRoomToNewParticipant(localParticipant as DailyParticipant, roomName);

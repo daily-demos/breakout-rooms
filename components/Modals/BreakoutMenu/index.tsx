@@ -11,13 +11,13 @@ import {
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../../contexts/CallProvider';
-import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 // whenever the breakout session is active we will be showing the following menu to all the participants.
 // - it shows the time left, allows you to change and leave room and for owners it will also allow managing rooms.
 
 const BreakoutMenu = () => {
-  const { showBreakoutModal, setShowBreakoutModal, room, joinAs } = useCall();
+  const { callFrame, showBreakoutModal, setShowBreakoutModal, room, joinAs } =
+    useCall();
   const {
     breakoutSession,
     setBreakoutSession,
@@ -29,7 +29,7 @@ const BreakoutMenu = () => {
     setManage,
   } = useBreakoutRoom();
 
-  const localParticipant = useLocalParticipant();
+  const localParticipant = callFrame?.participants().local;
   const isOwner = useMemo(
     () => localParticipant?.owner,
     [localParticipant?.owner],
