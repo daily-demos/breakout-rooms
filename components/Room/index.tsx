@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { useCall } from '../../contexts/CallProvider';
 import Hero from '../Hero';
@@ -8,7 +8,7 @@ import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
 import BreakoutMenu from '../Modals/BreakoutMenu';
 import JoinBreakoutModal from '../Modals/JoinRoomModal';
 import ManageBreakoutRooms from '../Modals/ManageBreakout';
-import { CornerDialog } from 'evergreen-ui';
+import { CornerDialog, Pane, Spinner } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 
 const Room = () => {
@@ -17,6 +17,11 @@ const Room = () => {
   const { callRef, callFrame, joinAs, isInRoom } = useCall();
   const { breakoutSession, join, isBreakoutRoom, warn, setWarn } =
     useBreakoutRoom();
+
+  const showingCall = useMemo(
+    () => owner === 'true' || participant === 'true',
+    [owner, participant],
+  );
 
   useEffect(() => {
     const showCall = owner === 'true' || participant === 'true';
@@ -32,7 +37,23 @@ const Room = () => {
         <meta name="description" content="Breakout Rooms" />
       </Head>
 
-      {!callFrame ? <Hero /> : <Banner />}
+      {!callFrame ? (
+        showingCall ? (
+          <Pane
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            width="100vw"
+            height="100vh"
+          >
+            <Spinner />
+          </Pane>
+        ) : (
+          <Hero />
+        )
+      ) : (
+        <Banner />
+      )}
 
       <div ref={callRef} className="room" />
 
