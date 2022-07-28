@@ -98,6 +98,7 @@ const ManageBreakoutRooms = () => {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
+                        // @ts-ignore
                         style={getListStyle(snapshot.isDraggingOver)}
                       >
                         {room?.participants?.map(
