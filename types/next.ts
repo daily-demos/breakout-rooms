@@ -1,7 +1,6 @@
 import { Server as NetServer, Socket } from 'net';
 import { NextApiResponse } from 'next';
 import { Server as SocketIOServer } from 'socket.io';
-import { DailyParticipant } from '@daily-co/daily-js';
 
 export type NextApiResponseServerIO = NextApiResponse & {
   socket: Socket & {
@@ -15,13 +14,12 @@ export type DailyBreakoutRoom = {
   name: string;
   roomName: string;
   created: Date;
-  participants: DailyParticipant[];
-  participantIds?: String[];
+  participantIds: string[];
 };
 
 export type DailyBreakoutProviderRooms = {
   assigned: DailyBreakoutRoom[];
-  unassignedParticipants: DailyParticipant[];
+  unassignedParticipants: string[];
 };
 
 export type DailyBreakoutConfig = {

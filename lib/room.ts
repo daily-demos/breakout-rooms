@@ -9,7 +9,7 @@ const roomInitialValue = (
     name: `Breakout Room ${index}`,
     roomName: `${room}-${index}`,
     created: date,
-    participants: [],
+    participantIds: [],
   };
 };
 

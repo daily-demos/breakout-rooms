@@ -83,7 +83,7 @@ export const BreakoutContext = createContext<ContextValue>({
     name: '',
     roomName: '',
     created: new Date(),
-    participants: [],
+    participantIds: [],
   },
   rooms: {
     assigned: [
@@ -91,13 +91,13 @@ export const BreakoutContext = createContext<ContextValue>({
         name: 'Breakout Room 1',
         roomName: `1`,
         created: new Date(),
-        participants: [],
+        participantIds: [],
       },
       {
         name: 'Breakout Room 2',
         roomName: `2`,
         created: new Date(),
-        participants: [],
+        participantIds: [],
       },
     ],
     unassignedParticipants: [],
@@ -263,7 +263,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
               ...rooms,
               unassignedParticipants: Array.from(
                 new Set(rooms.unassignedParticipants).add(
-                  event.participants.local,
+                  event.participants.local.user_id,
                 ),
               ),
             };
@@ -274,7 +274,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
             return {
               ...rooms,
               unassignedParticipants: Array.from(
-                new Set(rooms.unassignedParticipants).add(event.participant),
+                new Set(rooms.unassignedParticipants).add(
+                  event.participant.user_id,
+                ),
               ),
             };
           });
@@ -284,17 +286,17 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
           setRooms((rooms: DailyBreakoutProviderRooms) => {
             const r = rooms;
             const idx = r.unassignedParticipants?.findIndex(
-              (p: DailyParticipant) => p.user_id === participant.user_id,
+              (p: string) => p === participant.user_id,
             );
             if (idx >= 0) {
-              r.unassignedParticipants[idx] = participant;
+              r.unassignedParticipants[idx] = participant.user_id;
             } else {
               r.assigned.map((room: DailyBreakoutRoom, index: number) => {
-                const idx = room.participants?.findIndex(
-                  (p: DailyParticipant) => p.user_id === participant.user_id,
+                const idx = room.participantIds?.findIndex(
+                  (p: string) => p === participant.user_id,
                 );
                 if (idx >= 0) {
-                  r.assigned[index].participants[idx] = participant;
+                  r.assigned[index].participantIds[idx] = participant.user_id;
                 }
               });
             }
@@ -310,10 +312,8 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
             assigned.map((room: DailyBreakoutRoom, index: number) => {
               assigned[index] = {
                 ...rooms.assigned[index],
-                participants: [
-                  ...room?.participants?.filter(
-                    (p: DailyParticipant) => p.user_id !== idx,
-                  ),
+                participantIds: [
+                  ...room.participantIds.filter((p: string) => p !== idx),
                 ],
               };
             });
@@ -322,7 +322,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
               assigned,
               unassignedParticipants: [
                 ...rooms.unassignedParticipants.filter(
-                  (p: DailyParticipant) => p.user_id !== idx,
+                  (p: string) => p !== idx,
                 ),
               ],
             };
@@ -353,7 +353,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         const rooms = getRoomsInitialValues(room, new Date());
         setRooms({
           ...rooms,
-          unassignedParticipants: Object.values(participants),
+          unassignedParticipants: Object.values(participants).map(
+            p => p.user_id,
+          ),
         });
       }, 1000);
     };

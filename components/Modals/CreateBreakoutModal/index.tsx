@@ -8,7 +8,6 @@ import {
   EmptyState,
   LockIcon,
 } from 'evergreen-ui';
-import { DailyParticipant } from '@daily-co/daily-js';
 import {
   DragDropContext,
   Draggable,
@@ -31,7 +30,8 @@ const BreakoutModal = () => {
     useCall();
   const { breakout, rooms, setRooms, config, setConfig, createSession } =
     useBreakoutRoom();
-  const localParticipant = callFrame?.participants().local;
+  const participants = callFrame?.participants();
+  const localParticipant = participants?.local;
 
   // whenever we drag and drop the participants in the breakout room modal,
   // we will be returned the source index, so we need to get the value of the dragged item,
@@ -47,12 +47,11 @@ const BreakoutModal = () => {
         // we have to cast the type to unknown as it's default string, but we need it to be
         // number to get the particular index.
         r =
-          rooms.assigned[source.droppableId as unknown as number].participants[
-            source.index
-          ];
+          rooms.assigned[source.droppableId as unknown as number]
+            .participantIds[source.index];
         duplicateRooms.assigned[
           source.droppableId as unknown as number
-        ].participants.splice(source.index, 1);
+        ].participantIds.splice(source.index, 1);
       }
       setRooms(duplicateRooms);
       return r;
@@ -66,7 +65,7 @@ const BreakoutModal = () => {
 
       const r = rooms;
       if (result.destination.droppableId !== 'unassigned') {
-        r.assigned[Number(result.destination.droppableId)].participants.push(
+        r.assigned[Number(result.destination.droppableId)].participantIds.push(
           sourceValue(result.source),
         );
       } else r.unassignedParticipants.push(sourceValue(result.source));
@@ -81,7 +80,7 @@ const BreakoutModal = () => {
       name: `Breakout Room ${assigned.length + 1}`,
       roomName: `${room}-${assigned.length + 1}`,
       created: new Date(),
-      participants: [],
+      participantIds: [],
     });
     setRooms((rooms: DailyBreakoutProviderRooms) => {
       return { ...rooms, assigned };
@@ -141,17 +140,21 @@ const BreakoutModal = () => {
                       </Pane>
                     )}
                     {rooms.unassignedParticipants.map(
-                      (participant: DailyParticipant, index: number) => (
+                      (userId: string, index: number) => (
                         <Draggable
-                          key={participant.user_id}
-                          draggableId={participant.user_id}
+                          key={userId}
+                          draggableId={userId}
                           index={index}
                         >
                           {(provided, snapshot) => (
                             <DraggableParticipant
                               provided={provided}
                               snapshot={snapshot}
-                              participant={participant}
+                              participant={
+                                localParticipant.user_id === userId
+                                  ? localParticipant
+                                  : participants?.[userId]
+                              }
                             />
                           )}
                         </Draggable>
@@ -174,8 +177,8 @@ const BreakoutModal = () => {
                         <Pane display="flex">
                           <Heading is="h3">{room.name}</Heading>
                           <Text marginLeft={5}>
-                            {room.participants?.length > 0 &&
-                              `(${room.participants?.length} people)`}
+                            {room.participantIds?.length > 0 &&
+                              `(${room.participantIds?.length} people)`}
                           </Text>
                         </Pane>
                         <Droppable
@@ -189,10 +192,10 @@ const BreakoutModal = () => {
                               // @ts-ignore
                               style={getListStyle(
                                 snapshot.isDraggingOver,
-                                room?.participants?.length,
+                                room?.participantIds?.length,
                               )}
                             >
-                              {room?.participants?.length < 1 && (
+                              {room?.participantIds?.length < 1 && (
                                 <Pane
                                   width="100%"
                                   height="100%"
@@ -210,21 +213,22 @@ const BreakoutModal = () => {
                                   )}
                                 </Pane>
                               )}
-                              {room?.participants?.map(
-                                (
-                                  participant: DailyParticipant,
-                                  index: number,
-                                ) => (
+                              {room?.participantIds?.map(
+                                (userId: string, index: number) => (
                                   <Draggable
-                                    key={participant.user_id}
-                                    draggableId={participant.user_id}
+                                    key={userId}
+                                    draggableId={userId}
                                     index={index}
                                   >
                                     {(provided, snapshot) => (
                                       <DraggableParticipant
                                         provided={provided}
                                         snapshot={snapshot}
-                                        participant={participant}
+                                        participant={
+                                          localParticipant.user_id === userId
+                                            ? localParticipant
+                                            : participants?.[userId]
+                                        }
                                       />
                                     )}
                                   </Draggable>

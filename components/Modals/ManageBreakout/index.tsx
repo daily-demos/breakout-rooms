@@ -19,8 +19,10 @@ import { DailyBreakoutRoom, DailyBreakoutSession } from '../../../types/next';
 import { getListStyle } from '../../../lib/listStyle';
 import DraggableParticipant from '../CreateBreakoutModal/DraggableParticipant';
 import BreakoutConfigurations from '../../BreakoutConfigurations';
+import { useCall } from '../../../contexts/CallProvider';
 
 const ManageBreakoutRooms = () => {
+  const { callFrame } = useCall();
   const { breakoutSession, updateSession, manage, setManage } =
     useBreakoutRoom();
   const [newBreakoutSession, setNewBreakoutSession] =
@@ -28,6 +30,9 @@ const ManageBreakoutRooms = () => {
       breakoutSession as unknown as DailyBreakoutSession,
     );
   const [config, setConfig] = useState(breakoutSession?.config);
+
+  const participants = callFrame.participants();
+  const localParticipant = participants?.local;
 
   const handleOnDragEnd = useCallback(
     async (result: DropResult) => {
@@ -39,14 +44,10 @@ const ManageBreakoutRooms = () => {
       const destinationDroppableId = Number(destination.droppableId);
       const sourceDroppableId = Number(source.droppableId);
 
-      r[destinationDroppableId].participants.push(
-        r[sourceDroppableId].participants[source.index],
-      );
-      r[destinationDroppableId].participantIds?.push(
+      r[destinationDroppableId].participantIds.push(
         r[sourceDroppableId].participantIds[source.index],
       );
-      r[sourceDroppableId].participants.splice(source.index, 1);
-      r[sourceDroppableId].participantIds?.splice(source.index, 1);
+      r[sourceDroppableId].participantIds.splice(source.index, 1);
       setNewBreakoutSession((newBreakoutSession: DailyBreakoutSession) => {
         return {
           ...newBreakoutSession,
@@ -101,18 +102,22 @@ const ManageBreakoutRooms = () => {
                         // @ts-ignore
                         style={getListStyle(snapshot.isDraggingOver)}
                       >
-                        {room?.participants?.map(
-                          (participant: DailyParticipant, index: number) => (
+                        {room?.participantIds?.map(
+                          (userId: string, index: number) => (
                             <Draggable
-                              key={participant.user_id}
-                              draggableId={participant.user_id}
+                              key={userId}
+                              draggableId={userId}
                               index={index}
                             >
                               {(provided, snapshot) => (
                                 <DraggableParticipant
                                   provided={provided}
                                   snapshot={snapshot}
-                                  participant={participant}
+                                  participant={
+                                    localParticipant?.user_id === userId
+                                      ? localParticipant
+                                      : participants?.[userId]
+                                  }
                                 />
                               )}
                             </Draggable>
