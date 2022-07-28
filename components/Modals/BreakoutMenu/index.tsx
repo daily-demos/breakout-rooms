@@ -8,6 +8,8 @@ import {
   Card,
   Pane,
   Text,
+  EmptyState,
+  LockIcon,
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../../contexts/CallProvider';
@@ -138,6 +140,17 @@ const BreakoutMenu = () => {
           </Card>
         )}
       </Pane>
+      {!joinModalStatus && !isBreakoutRoom && (
+        <Pane width="auto" height="auto">
+          <EmptyState
+            title="Breakout session already started"
+            orientation="vertical"
+            icon={<LockIcon color="#EBAC91" />}
+            iconBgColor="#F8E3DA"
+            description="You cannot join after the session is started, owner has disabled joining after the session started."
+          />
+        </Pane>
+      )}
     </Dialog>
   );
 };

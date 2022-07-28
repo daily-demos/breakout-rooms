@@ -78,7 +78,7 @@ const BreakoutConfigurations = ({
             minutes
           </>
         }
-        checked={config.exp}
+        checked={!!config.exp}
         onChange={handleChange}
         disabled={manage}
       />

@@ -43,7 +43,7 @@ const ManageBreakoutRooms = () => {
         r[sourceDroppableId].participants[source.index],
       );
       r[destinationDroppableId].participantIds?.push(
-        r[sourceDroppableId].participants[source.index].user_id,
+        r[sourceDroppableId].participantIds[source.index],
       );
       r[sourceDroppableId].participants.splice(source.index, 1);
       r[sourceDroppableId].participantIds?.splice(source.index, 1);
@@ -85,7 +85,7 @@ const ManageBreakoutRooms = () => {
           </Pane>
         </Pane>
         <Pane flex="1" overflowY="scroll" background="tint1" padding={16}>
-          {breakoutSession.rooms.map(
+          {newBreakoutSession.rooms.map(
             (room: DailyBreakoutRoom, index: number) => (
               <Pane key={index} marginBottom={20}>
                 <Card backgroundColor="white" elevation={0} padding={20}>

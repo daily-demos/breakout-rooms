@@ -200,7 +200,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const onBreakoutUpdated = useCallback(breakout => {
     setBreakoutSession(breakout.getBreakoutSession());
     setMyRoom(breakout.getMyBreakoutRoom());
-    setIsBreakoutRoom(true);
+    setIsBreakoutRoom(!!breakout.getMyBreakoutRoom()?.roomName);
   }, []);
 
   const onBreakoutConcluded = useCallback(async () => {
