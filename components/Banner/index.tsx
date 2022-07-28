@@ -6,7 +6,7 @@ import Timer from '../Timer';
 const Banner = () => {
   const { isBreakoutRoom, myBreakoutRoom, breakoutSession } = useBreakoutRoom();
 
-  if (!myBreakoutRoom) return null;
+  if (!myBreakoutRoom || !isBreakoutRoom) return null;
 
   return (
     <Pane
