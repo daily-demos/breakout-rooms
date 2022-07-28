@@ -62,6 +62,7 @@ export const BreakoutContext = createContext<ContextValue>({
       allow_user_exit: false,
       record_breakout_sessions: false,
       exp: false,
+      allow_user_switch_room: true,
     },
   },
   config: {
@@ -69,6 +70,7 @@ export const BreakoutContext = createContext<ContextValue>({
     allow_user_exit: false,
     record_breakout_sessions: false,
     exp: false,
+    allow_user_switch_room: true,
   },
   createSession: () => {},
   endSession: () => {},
@@ -127,6 +129,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     expiryTime: 15,
     max_participants: false,
     max_participants_count: 5,
+    allow_user_switch_room: true,
   });
   const [join, setJoin] = useState(false);
   const [manage, setManage] = useState(false);

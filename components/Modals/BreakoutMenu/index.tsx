@@ -80,8 +80,7 @@ const BreakoutMenu = () => {
         justifyContent="center"
         paddingBottom={20}
       >
-        {(joinModalStatus ||
-          (isBreakoutRoom && breakoutSession?.rooms.length > 1)) && (
+        {joinModalStatus && (
           <Card
             elevation={1}
             border="muted"
@@ -92,11 +91,25 @@ const BreakoutMenu = () => {
             onClick={handleJoinRoom}
           >
             <LogInIcon size={24} marginY={10} />
-            <Text display="grid">
-              {joinModalStatus ? 'Join breakout' : 'Change room'}
-            </Text>
+            <Text display="grid">Join Breakout</Text>
           </Card>
         )}
+        {isBreakoutRoom &&
+          breakoutSession?.rooms.length > 1 &&
+          breakoutSession?.config.allow_user_switch_room && (
+            <Card
+              elevation={1}
+              border="muted"
+              padding={10}
+              flexGrow={1}
+              width={150}
+              cursor="pointer"
+              onClick={handleJoinRoom}
+            >
+              <LogInIcon size={24} marginY={10} />
+              <Text display="grid">Change room</Text>
+            </Card>
+          )}
         {isBreakoutRoom && isOwner && (
           <Card
             elevation={1}

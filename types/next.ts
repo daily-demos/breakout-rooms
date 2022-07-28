@@ -32,6 +32,7 @@ export type DailyBreakoutConfig = {
   expiryTime?: number | null;
   max_participants?: boolean;
   max_participants_count?: number;
+  allow_user_switch_room: boolean;
 };
 
 export type DailyBreakoutSession = {

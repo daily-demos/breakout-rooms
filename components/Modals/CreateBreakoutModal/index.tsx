@@ -161,7 +161,7 @@ const BreakoutModal = () => {
                   </div>
                 )}
               </Droppable>
-              <div style={{ height: '20vh', overflow: 'auto' }}>
+              <div style={{ maxHeight: '20vh', overflow: 'auto' }}>
                 <Pane
                   display="grid"
                   gridTemplateColumns="repeat(2, 1fr)"

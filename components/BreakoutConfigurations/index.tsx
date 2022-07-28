@@ -48,6 +48,12 @@ const BreakoutConfigurations = ({
         disabled={manage}
       />
       <Checkbox
+        name="allow_user_switch_room"
+        label="Let participant switch between rooms"
+        checked={config.allow_user_switch_room}
+        onChange={handleChange}
+      />
+      <Checkbox
         name="auto_join"
         label="Let participant join after breakout room starts"
         checked={config.auto_join}
