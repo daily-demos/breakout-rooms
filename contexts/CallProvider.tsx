@@ -170,6 +170,11 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
     [callFrame, joinCall],
   );
 
+  useEffect(() => {
+    // @ts-ignore
+    window['callFrame'] = callFrame;
+  }, [callFrame]);
+
   return (
     <CallContext.Provider
       value={{

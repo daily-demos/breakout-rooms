@@ -9,6 +9,7 @@ export const getListStyle = (
     : '#EFF3F5',
   margin: '8px 0',
   display: 'flex',
+  flexWrap: 'wrap',
   padding: participantsLength > 0 ? 8 : 0,
   overflow: 'auto',
   height: 68,

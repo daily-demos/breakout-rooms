@@ -107,7 +107,7 @@ const BreakoutModal = () => {
     >
       {localParticipant?.owner ? (
         <>
-          <div style={{ overflow: 'auto' }}>
+          <div>
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Pane display="flex">
                 <Pane flex={1} alignItems="center" display="flex">
@@ -122,6 +122,7 @@ const BreakoutModal = () => {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
+                    // @ts-ignore
                     style={getListStyle(
                       snapshot.isDraggingOver,
                       rooms.unassignedParticipants.length,
@@ -160,79 +161,84 @@ const BreakoutModal = () => {
                   </div>
                 )}
               </Droppable>
-              <Pane
-                display="grid"
-                gridTemplateColumns="repeat(2, 1fr)"
-                gridGap={10}
-                marginTop={20}
-              >
-                {rooms.assigned.map(
-                  (room: DailyBreakoutRoom, index: number) => (
-                    <div key={index}>
-                      <Pane display="flex">
-                        <Heading is="h3">{room.name}</Heading>
-                        <Text marginLeft={5}>
-                          {room.participants?.length > 0 &&
-                            `(${room.participants?.length} people)`}
-                        </Text>
-                      </Pane>
-                      <Droppable
-                        droppableId={index.toString()}
-                        direction="horizontal"
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            style={getListStyle(
-                              snapshot.isDraggingOver,
-                              room?.participants?.length,
-                            )}
-                          >
-                            {room?.participants?.length < 1 && (
-                              <Pane
-                                width="100%"
-                                height="100%"
-                                display="flex"
-                                textAlign="center"
-                                justifyContent="center"
-                                alignItems="center"
-                              >
-                                {snapshot.isDraggingOver ? (
-                                  <Text color="muted">Drop to add to room</Text>
-                                ) : (
-                                  <Text color="muted">Drag people here</Text>
-                                )}
-                              </Pane>
-                            )}
-                            {room?.participants?.map(
-                              (
-                                participant: DailyParticipant,
-                                index: number,
-                              ) => (
-                                <Draggable
-                                  key={participant.user_id}
-                                  draggableId={participant.user_id}
-                                  index={index}
+              <div style={{ height: '20vh', overflow: 'auto' }}>
+                <Pane
+                  display="grid"
+                  gridTemplateColumns="repeat(2, 1fr)"
+                  gridGap={10}
+                  marginTop={20}
+                >
+                  {rooms.assigned.map(
+                    (room: DailyBreakoutRoom, index: number) => (
+                      <div key={index}>
+                        <Pane display="flex">
+                          <Heading is="h3">{room.name}</Heading>
+                          <Text marginLeft={5}>
+                            {room.participants?.length > 0 &&
+                              `(${room.participants?.length} people)`}
+                          </Text>
+                        </Pane>
+                        <Droppable
+                          droppableId={index.toString()}
+                          direction="horizontal"
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              // @ts-ignore
+                              style={getListStyle(
+                                snapshot.isDraggingOver,
+                                room?.participants?.length,
+                              )}
+                            >
+                              {room?.participants?.length < 1 && (
+                                <Pane
+                                  width="100%"
+                                  height="100%"
+                                  display="flex"
+                                  textAlign="center"
+                                  justifyContent="center"
+                                  alignItems="center"
                                 >
-                                  {(provided, snapshot) => (
-                                    <DraggableParticipant
-                                      provided={provided}
-                                      snapshot={snapshot}
-                                      participant={participant}
-                                    />
+                                  {snapshot.isDraggingOver ? (
+                                    <Text color="muted">
+                                      Drop to add to room
+                                    </Text>
+                                  ) : (
+                                    <Text color="muted">Drag people here</Text>
                                   )}
-                                </Draggable>
-                              ),
-                            )}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </div>
-                  ),
-                )}
-              </Pane>
+                                </Pane>
+                              )}
+                              {room?.participants?.map(
+                                (
+                                  participant: DailyParticipant,
+                                  index: number,
+                                ) => (
+                                  <Draggable
+                                    key={participant.user_id}
+                                    draggableId={participant.user_id}
+                                    index={index}
+                                  >
+                                    {(provided, snapshot) => (
+                                      <DraggableParticipant
+                                        provided={provided}
+                                        snapshot={snapshot}
+                                        participant={participant}
+                                      />
+                                    )}
+                                  </Draggable>
+                                ),
+                              )}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </div>
+                    ),
+                  )}
+                </Pane>
+              </div>
               <Button onClick={handleAddRoom}>Add room</Button>
               <Pane marginTop={20}>
                 <Heading is="h3">Configurations</Heading>
