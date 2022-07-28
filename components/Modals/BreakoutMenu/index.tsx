@@ -21,13 +21,13 @@ const BreakoutMenu = () => {
   const { callFrame, showBreakoutModal, setShowBreakoutModal, room, joinAs } =
     useCall();
   const {
-    breakout,
     breakoutSession,
     isBreakoutRoom,
     endSession,
     joinModalStatus,
     setJoin,
     setManage,
+    returnToLobby,
   } = useBreakoutRoom();
 
   const localParticipant = callFrame?.participants().local;
@@ -40,11 +40,6 @@ const BreakoutMenu = () => {
     setShowBreakoutModal(false);
     setJoin(join => !join);
   }, [setJoin, setShowBreakoutModal]);
-
-  const returnToLobby = useCallback(() => {
-    joinAs(room, isOwner, true);
-    breakout.leaveSession();
-  }, [breakout, isOwner, joinAs, room]);
 
   const handleManage = () => {
     setShowBreakoutModal(false);

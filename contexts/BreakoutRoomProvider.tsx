@@ -50,6 +50,7 @@ interface ContextValue {
   setWarn: Dispatch<SetStateAction<boolean>>;
   updateSession: (breakoutSession: DailyBreakoutSession) => void;
   warn: boolean;
+  returnToLobby: () => void;
 }
 
 export const BreakoutContext = createContext<ContextValue>({
@@ -110,10 +111,11 @@ export const BreakoutContext = createContext<ContextValue>({
   setWarn: () => {},
   updateSession: () => {},
   warn: false,
+  returnToLobby: () => {},
 });
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
-  const { callFrame, joinCall, room, setShowBreakoutModal, isInRoom } =
+  const { callFrame, joinCall, room, setShowBreakoutModal, isInRoom, joinAs } =
     useCall();
 
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
@@ -135,6 +137,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const [manage, setManage] = useState(false);
   const [breakout, setBreakout] = useState(null);
   const [warn, setWarn] = useState(false);
+  const [returnedToLobby, setReturnedToLobby] = useState(false);
   const localParticipant = callFrame?.participants().local;
 
   useEffect(() => {
@@ -358,14 +361,13 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   }, [callFrame, room]);
 
   const joinModalStatus = useMemo(() => {
-    if (!callFrame) return false;
+    if (!callFrame || !breakoutSession || returnedToLobby) return false;
 
-    if (!breakoutSession) return false;
     if (!isBreakoutRoom) {
       if (isInRoom) setJoin(breakoutSession.config.auto_join);
       return breakoutSession.config.auto_join;
     }
-  }, [callFrame, breakoutSession, isBreakoutRoom, isInRoom]);
+  }, [callFrame, breakoutSession, returnedToLobby, isBreakoutRoom, isInRoom]);
 
   const createSession = useCallback(() => {
     const properties = {
@@ -397,6 +399,14 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
 
   const endSession = useCallback(() => breakout?.endSession(), [breakout]);
 
+  const returnToLobby = useCallback(() => {
+    setReturnedToLobby(true);
+    setShowBreakoutModal(false);
+    setJoin(false);
+    breakout?.leaveSession();
+    joinAs(room, localParticipant?.owner, true);
+  }, [breakout, joinAs, localParticipant?.owner, room, setShowBreakoutModal]);
+
   return (
     <BreakoutContext.Provider
       value={{
@@ -421,6 +431,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         endSession,
         assignRoomToNewParticipant,
         joinModalStatus,
+        returnToLobby,
       }}
     >
       {children}
