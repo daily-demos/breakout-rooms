@@ -39,7 +39,7 @@ const JoinBreakoutModal = () => {
       onCloseComplete={() => setShow(false)}
       hasFooter={false}
     >
-      <Pane marginBottom={10} maxHeight="20vh" overflowY="auto">
+      <Pane marginBottom={10} maxHeight="50vh" overflowY="auto">
         {breakoutSession?.rooms.map((room: DailyBreakoutRoom) => (
           <Pane key={room.roomName}>
             {myBreakoutRoom?.name !== room.name && (

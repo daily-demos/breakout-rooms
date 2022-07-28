@@ -58,7 +58,10 @@ const Room = () => {
       <div
         ref={callRef}
         className="room"
-        style={{ width: '100vw', height: isBreakoutRoom ? '96vh' : '100vh' }}
+        style={{
+          width: '100vw',
+          height: isBreakoutRoom ? 'calc(100vh - 35px)' : '100vh',
+        }}
       />
 
       {callFrame && breakoutSession ? (

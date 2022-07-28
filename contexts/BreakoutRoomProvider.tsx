@@ -375,6 +375,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         allow_user_exit: config.allow_user_exit,
         exp: config.exp ? getDateTimeAfter(config?.expiryTime as number) : null,
         record_breakout_sessions: config.record_breakout_sessions,
+        allow_user_switch_room: config.allow_user_switch_room,
+        max_participants: config.max_participants,
+        max_participants_count: config.max_participants_count,
       },
     };
     breakout?.startSession(properties);

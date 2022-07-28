@@ -11,7 +11,7 @@ const Banner = () => {
   return (
     <Pane
       background="tint1"
-      height="3.5vh"
+      height="35px"
       display="flex"
       justifyContent="center"
       alignItems="center"
