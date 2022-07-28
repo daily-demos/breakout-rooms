@@ -14,8 +14,8 @@ import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 const CALL_OPTIONS = {
   showLeaveButton: true,
   iframeStyle: {
-    height: '96vh',
-    width: '100vw',
+    height: '100%',
+    width: '100%',
     aspectRatio: '16 / 9',
     border: '0',
   },

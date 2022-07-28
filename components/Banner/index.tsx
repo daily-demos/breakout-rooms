@@ -5,6 +5,9 @@ import Timer from '../Timer';
 
 const Banner = () => {
   const { isBreakoutRoom, myBreakoutRoom, breakoutSession } = useBreakoutRoom();
+
+  if (!myBreakoutRoom) return null;
+
   return (
     <Pane
       background="tint1"
@@ -15,7 +18,7 @@ const Banner = () => {
       borderBottom="muted"
     >
       <Heading justifyContent="center">
-        {isBreakoutRoom ? myBreakoutRoom?.name : 'Daily Breakout Rooms'}
+        {isBreakoutRoom && myBreakoutRoom?.name}
       </Heading>
       {breakoutSession && breakoutSession.config.exp && (
         <Pane position="absolute" right={5}>

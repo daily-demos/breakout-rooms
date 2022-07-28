@@ -55,7 +55,11 @@ const Room = () => {
         <Banner />
       )}
 
-      <div ref={callRef} className="room" />
+      <div
+        ref={callRef}
+        className="room"
+        style={{ width: '100vw', height: isBreakoutRoom ? '96vh' : '100vh' }}
+      />
 
       {callFrame && breakoutSession ? (
         <BreakoutMenu />
