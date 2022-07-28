@@ -16,7 +16,7 @@ export default async function handler(
         // Basic, required room properties
         const roomProperties = {
           start_audio_off: true,
-          start_video_off: true,
+          start_video_off: false,
           enable_prejoin_ui: false,
           enable_chat: true,
           enable_network_ui: true,

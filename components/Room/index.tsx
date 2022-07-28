@@ -80,8 +80,8 @@ const Room = () => {
         onConfirm={() => setWarn(false)}
         hasCancel={false}
       >
-        On joining a breakout session, your video and audio are muted by default
-        - you can always unmute yourself.
+        On joining a breakout session, your audio is muted by default - you can
+        always unmute yourself.
       </CornerDialog>
     </div>
   );

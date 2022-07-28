@@ -177,7 +177,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
           userId: localParticipant?.user_id,
           recordBreakoutRooms,
           prejoinUI: false,
-          startVideoOff: true,
+          startVideoOff: false,
           startAudioOff: true,
         }),
       };
