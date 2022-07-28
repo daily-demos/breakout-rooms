@@ -38,7 +38,7 @@ const Room = () => {
       </Head>
 
       {!callFrame ? (
-        showingCall ? (
+        showingCall || !router.isReady ? (
           <Pane
             display="flex"
             alignItems="center"
