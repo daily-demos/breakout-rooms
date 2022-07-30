@@ -31,7 +31,7 @@ const DraggableParticipant = ({
       border="1px solid #C8D1DC"
       textTransform="initial"
     >
-      {participant.user_name}
+      {participant?.user_name}
     </Badge>
   );
 

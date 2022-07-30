@@ -64,7 +64,7 @@ const Room = () => {
         }}
       />
 
-      {callFrame && breakoutSession ? (
+      {callFrame && isInRoom && breakoutSession ? (
         <BreakoutMenu />
       ) : (
         <CreateBreakoutModal />

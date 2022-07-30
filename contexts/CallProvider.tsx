@@ -128,18 +128,22 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
 
       const url: string = `https://${domain}.daily.co/${name}`;
       newCallFrame.join({ url, token });
-
-      newCallFrame.on('joined-meeting', handleJoinedMeeting);
-      newCallFrame.on('left-meeting', handleLeftMeeting);
-      newCallFrame.on('custom-button-click', handleCustomButtonClick);
-      return () => {
-        newCallFrame.off('joined-meeting', handleJoinedMeeting);
-        newCallFrame.off('left-meeting', handleLeftMeeting);
-        newCallFrame.off('custom-button-click', handleCustomButtonClick);
-      };
     },
-    [handleCustomButtonClick, handleJoinedMeeting, handleLeftMeeting, roomName],
+    [roomName],
   );
+
+  useEffect(() => {
+    if (!callFrame) return;
+
+    callFrame.on('joined-meeting', handleJoinedMeeting);
+    callFrame.on('left-meeting', handleLeftMeeting);
+    callFrame.on('custom-button-click', handleCustomButtonClick);
+  }, [
+    callFrame,
+    handleCustomButtonClick,
+    handleJoinedMeeting,
+    handleLeftMeeting,
+  ]);
 
   const joinAs = useCallback(
     async (name, owner: boolean = false, disablePrejoin: boolean = false) => {

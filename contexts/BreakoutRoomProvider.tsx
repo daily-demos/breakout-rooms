@@ -363,10 +363,11 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   }, [callFrame, room]);
 
   const joinModalStatus = useMemo(() => {
-    if (!callFrame || !breakoutSession || returnedToLobby) return false;
+    if (!callFrame || !breakoutSession) return false;
 
     if (!isBreakoutRoom) {
-      if (isInRoom) setJoin(breakoutSession.config.auto_join);
+      if (isInRoom && !returnedToLobby)
+        setJoin(breakoutSession.config.auto_join);
       return breakoutSession.config.auto_join;
     }
   }, [callFrame, breakoutSession, returnedToLobby, isBreakoutRoom, isInRoom]);
