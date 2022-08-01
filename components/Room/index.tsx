@@ -10,6 +10,7 @@ import JoinBreakoutModal from '../Modals/JoinRoomModal';
 import ManageBreakoutRooms from '../Modals/ManageBreakout';
 import { CornerDialog, Pane, Spinner } from 'evergreen-ui';
 import { useRouter } from 'next/router';
+import { useDaily } from '@daily-co/daily-react-hooks';
 
 const Room = () => {
   const router = useRouter();

@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { DailyProvider } from '@daily-co/daily-react-hooks';
 
 const CALL_OPTIONS = {
   showLeaveButton: true,
@@ -94,11 +95,6 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
     }
   }, [room, roomName]);
 
-  const handleLeftMeeting = useCallback(() => {
-    if (callFrame) callFrame.destroy();
-    setCallFrame(null);
-  }, [callFrame]);
-
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
       method: 'POST',
@@ -118,6 +114,11 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
 
   const joinCall = useCallback(
     (name = roomName, token = '') => {
+      if (callFrame) {
+        callFrame.destroy();
+        setCallFrame(null);
+      }
+
       const domain = process.env.NEXT_PUBLIC_DAILY_DOMAIN;
 
       const newCallFrame: DailyCall = DailyIframe.createFrame(
@@ -129,21 +130,15 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
       const url: string = `https://${domain}.daily.co/${name}`;
       newCallFrame.join({ url, token });
     },
-    [roomName],
+    [callFrame, roomName],
   );
 
   useEffect(() => {
     if (!callFrame) return;
 
     callFrame.on('joined-meeting', handleJoinedMeeting);
-    callFrame.on('left-meeting', handleLeftMeeting);
     callFrame.on('custom-button-click', handleCustomButtonClick);
-  }, [
-    callFrame,
-    handleCustomButtonClick,
-    handleJoinedMeeting,
-    handleLeftMeeting,
-  ]);
+  }, [callFrame, handleCustomButtonClick, handleJoinedMeeting]);
 
   const joinAs = useCallback(
     async (name, owner: boolean = false, disablePrejoin: boolean = false) => {
@@ -168,7 +163,6 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
       const { token } = await res.json();
       setIsOwner(owner);
 
-      if (disablePrejoin) await callFrame?.destroy();
       await joinCall(name, token);
     },
     [callFrame, joinCall],
@@ -180,22 +174,24 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   }, [callFrame]);
 
   return (
-    <CallContext.Provider
-      value={{
-        callRef,
-        callFrame,
-        setCallFrame,
-        joinCall,
-        joinAs,
-        showBreakoutModal,
-        setShowBreakoutModal,
-        room: room as string,
-        isOwner,
-        isInRoom,
-      }}
-    >
-      {children}
-    </CallContext.Provider>
+    <DailyProvider callObject={callFrame}>
+      <CallContext.Provider
+        value={{
+          callRef,
+          callFrame,
+          setCallFrame,
+          joinCall,
+          joinAs,
+          showBreakoutModal,
+          setShowBreakoutModal,
+          room: room as string,
+          isOwner,
+          isInRoom,
+        }}
+      >
+        {children}
+      </CallContext.Provider>
+    </DailyProvider>
   );
 };
 

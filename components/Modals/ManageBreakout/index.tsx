@@ -7,7 +7,6 @@ import {
   Paragraph,
   Button,
 } from 'evergreen-ui';
-import { DailyParticipant } from '@daily-co/daily-js';
 import {
   DragDropContext,
   Draggable,
@@ -19,10 +18,8 @@ import { DailyBreakoutRoom, DailyBreakoutSession } from '../../../types/next';
 import { getListStyle } from '../../../lib/listStyle';
 import DraggableParticipant from '../CreateBreakoutModal/DraggableParticipant';
 import BreakoutConfigurations from '../../BreakoutConfigurations';
-import { useCall } from '../../../contexts/CallProvider';
 
 const ManageBreakoutRooms = () => {
-  const { callFrame } = useCall();
   const { breakoutSession, updateSession, manage, setManage } =
     useBreakoutRoom();
   const [newBreakoutSession, setNewBreakoutSession] =
@@ -30,9 +27,6 @@ const ManageBreakoutRooms = () => {
       breakoutSession as unknown as DailyBreakoutSession,
     );
   const [config, setConfig] = useState(breakoutSession?.config);
-
-  const participants = callFrame.participants();
-  const localParticipant = participants?.local;
 
   const handleOnDragEnd = useCallback(
     async (result: DropResult) => {
@@ -113,11 +107,7 @@ const ManageBreakoutRooms = () => {
                                 <DraggableParticipant
                                   provided={provided}
                                   snapshot={snapshot}
-                                  participant={
-                                    localParticipant?.user_id === userId
-                                      ? localParticipant
-                                      : participants?.[userId]
-                                  }
+                                  userId={userId}
                                 />
                               )}
                             </Draggable>

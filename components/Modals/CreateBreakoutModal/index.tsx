@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Dialog,
@@ -24,14 +24,13 @@ import { getListStyle } from '../../../lib/listStyle';
 import DraggableParticipant from './DraggableParticipant';
 import { useCall } from '../../../contexts/CallProvider';
 import BreakoutConfigurations from '../../BreakoutConfigurations';
+import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const BreakoutModal = () => {
-  const { callFrame, showBreakoutModal, setShowBreakoutModal, room } =
-    useCall();
-  const { breakout, rooms, setRooms, config, setConfig, createSession } =
+  const { showBreakoutModal, setShowBreakoutModal, room } = useCall();
+  const { rooms, setRooms, config, setConfig, createSession, autoAssign } =
     useBreakoutRoom();
-  const participants = callFrame?.participants();
-  const localParticipant = participants?.local;
+  const localParticipant = useLocalParticipant();
 
   // whenever we drag and drop the participants in the breakout room modal,
   // we will be returned the source index, so we need to get the value of the dragged item,
@@ -87,14 +86,7 @@ const BreakoutModal = () => {
     });
   };
 
-  const handleAssignEvenly = () => {
-    const r: DailyBreakoutProviderRooms = rooms;
-
-    const autoAssignRooms: DailyBreakoutRoom[] = breakout.autoAssign(
-      r.assigned.length,
-    );
-    setRooms({ assigned: autoAssignRooms, unassignedParticipants: [] });
-  };
+  const handleAssignEvenly = () => autoAssign(rooms.assigned.length);
 
   return (
     <Dialog
@@ -150,11 +142,7 @@ const BreakoutModal = () => {
                             <DraggableParticipant
                               provided={provided}
                               snapshot={snapshot}
-                              participant={
-                                localParticipant.user_id === userId
-                                  ? localParticipant
-                                  : participants?.[userId]
-                              }
+                              userId={userId}
                             />
                           )}
                         </Draggable>
@@ -224,11 +212,7 @@ const BreakoutModal = () => {
                                       <DraggableParticipant
                                         provided={provided}
                                         snapshot={snapshot}
-                                        participant={
-                                          localParticipant.user_id === userId
-                                            ? localParticipant
-                                            : participants?.[userId]
-                                        }
+                                        userId={userId}
                                       />
                                     )}
                                   </Draggable>

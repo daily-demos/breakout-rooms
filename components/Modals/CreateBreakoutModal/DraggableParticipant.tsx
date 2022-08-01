@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import { Badge } from 'evergreen-ui';
 import { createPortal } from 'react-dom';
 import { DailyParticipant } from '@daily-co/daily-js';
+import {
+  useParticipantIds,
+  useParticipantProperty,
+} from '@daily-co/daily-react-hooks';
 
 type DraggableParticipantType = {
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
-  participant: DailyParticipant;
+  userId: string;
 };
 
 const DraggableParticipant = ({
   provided,
   snapshot,
-  participant,
+  userId,
 }: DraggableParticipantType) => {
+  const participantsId = useParticipantIds({
+    filter: useCallback(
+      (participant: DailyParticipant) => {
+        return participant.user_id === userId;
+      },
+      [userId],
+    ),
+  });
+  const userName = useParticipantProperty(participantsId?.[0], 'user_name');
   const usePortal: boolean = snapshot.isDragging;
 
   const child = (
@@ -31,7 +44,7 @@ const DraggableParticipant = ({
       border="1px solid #C8D1DC"
       textTransform="initial"
     >
-      {participant?.user_name}
+      {userName}
     </Badge>
   );
 

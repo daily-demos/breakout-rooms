@@ -4,6 +4,7 @@ import { CallProvider } from '../contexts/CallProvider';
 import { NextPage } from 'next';
 import Room from '../components/Room';
 import { BreakoutProvider } from '../contexts/BreakoutRoomProvider';
+import { SocketProvider } from '../contexts/SocketProvider';
 
 const RoomPage: NextPage = () => {
   const router = useRouter();
@@ -12,7 +13,9 @@ const RoomPage: NextPage = () => {
   return (
     <CallProvider roomName={room as string}>
       <BreakoutProvider>
-        <Room />
+        <SocketProvider>
+          <Room />
+        </SocketProvider>
       </BreakoutProvider>
     </CallProvider>
   );
