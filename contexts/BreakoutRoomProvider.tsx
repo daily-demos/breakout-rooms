@@ -19,6 +19,7 @@ import {
 import { getRoomsInitialValues } from '../lib/room';
 import { getDateTimeAfter } from '../lib/date';
 import { DailyEventObject, DailyParticipant } from '@daily-co/daily-js';
+import { useDaily, useDailyEvent } from '@daily-co/daily-react-hooks';
 
 type BreakoutRoomProviderType = {
   children: React.ReactNode;
@@ -254,7 +255,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
 
   const handleNewParticipantsState = useCallback(
     (event: DailyEventObject) => {
-      if (!localParticipant?.owner || isBreakoutRoom) return;
+      if (isBreakoutRoom) return;
 
       switch (event?.action) {
         case 'joined-meeting':
@@ -332,35 +333,22 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
           break;
       }
     },
-    [localParticipant?.owner, isBreakoutRoom],
+    [isBreakoutRoom],
   );
 
-  useEffect(() => {
-    if (!callFrame) return;
+  // useEffect(() => {
+  //   if (!callFrame) return;
+  //
+  //   callFrame.on('joined-meeting', handleNewParticipantsState);
+  //   callFrame.on('participant-joined', handleNewParticipantsState);
+  //   callFrame.on('participant-updated', handleNewParticipantsState);
+  //   callFrame.on('participant-left', handleNewParticipantsState);
+  // }, [callFrame, handleNewParticipantsState]);
 
-    callFrame.on('joined-meeting', handleNewParticipantsState);
-    callFrame.on('participant-joined', handleNewParticipantsState);
-    callFrame.on('participant-updated', handleNewParticipantsState);
-    callFrame.on('participant-left', handleNewParticipantsState);
-  }, [callFrame, handleNewParticipantsState]);
-
-  useEffect(() => {
-    if (!callFrame) return;
-
-    const handleJoinedMeeting = () => {
-      setTimeout(async () => {
-        const participants = await callFrame.participants();
-        const rooms = getRoomsInitialValues(room, new Date());
-        setRooms({
-          ...rooms,
-          unassignedParticipants: Object.values(participants).map(
-            p => p.user_id,
-          ),
-        });
-      }, 1000);
-    };
-    callFrame.on('joined-meeting', handleJoinedMeeting);
-  }, [callFrame, room]);
+  useDailyEvent('joined-meeting', handleNewParticipantsState);
+  useDailyEvent('participant-joined', handleNewParticipantsState);
+  useDailyEvent('participant-updated', handleNewParticipantsState);
+  useDailyEvent('participant-left', handleNewParticipantsState);
 
   const joinModalStatus = useMemo(() => {
     if (!callFrame || !breakoutSession) return false;

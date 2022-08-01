@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { DailyProvider, useDailyEvent } from '@daily-co/daily-react-hooks';
 
 const CALL_OPTIONS = {
   showLeaveButton: true,
@@ -194,7 +195,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
         isInRoom,
       }}
     >
-      {children}
+      <DailyProvider callObject={callFrame}>{children}</DailyProvider>
     </CallContext.Provider>
   );
 };
