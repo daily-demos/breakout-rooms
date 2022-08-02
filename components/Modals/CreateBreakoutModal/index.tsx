@@ -36,7 +36,7 @@ const BreakoutModal = () => {
   // we will be returned the source index, so we need to get the value of the dragged item,
   // this function allows us to get the value of it.
   const sourceValue = useCallback(
-    (source: DraggableLocation) => {
+    (source: DraggableLocation): string => {
       let r,
         duplicateRooms = rooms;
       if (source.droppableId === 'unassigned') {
@@ -47,13 +47,13 @@ const BreakoutModal = () => {
         // number to get the particular index.
         r =
           rooms.assigned[source.droppableId as unknown as number]
-            .participantIds[source.index];
+            ?.participantIds[source.index];
         duplicateRooms.assigned[
           source.droppableId as unknown as number
-        ].participantIds.splice(source.index, 1);
+        ]?.participantIds.splice(source.index, 1);
       }
       setRooms(duplicateRooms);
-      return r;
+      return r as string;
     },
     [rooms, setRooms],
   );
@@ -64,10 +64,10 @@ const BreakoutModal = () => {
 
       const r = rooms;
       if (result.destination.droppableId !== 'unassigned') {
-        r.assigned[Number(result.destination.droppableId)].participantIds.push(
+        r.assigned[Number(result.destination.droppableId)]?.participantIds.push(
           sourceValue(result.source),
         );
-      } else r.unassignedParticipants.push(sourceValue(result.source));
+      } else r.unassignedParticipants.push(sourceValue(result?.source));
       setRooms({ ...r });
     },
     [rooms, sourceValue, setRooms],

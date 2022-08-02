@@ -39,13 +39,13 @@ const ManageBreakoutRooms = () => {
 
       if (!r) return;
 
-      const destinationDroppableId = Number(destination.droppableId);
+      const destinationDroppableId = Number(destination?.droppableId);
       const sourceDroppableId = Number(source.droppableId);
 
-      r[destinationDroppableId].participantIds.push(
-        r[sourceDroppableId].participantIds[source.index],
+      r[destinationDroppableId]?.participantIds.push(
+        r[sourceDroppableId]?.participantIds[source.index] as string,
       );
-      r[sourceDroppableId].participantIds.splice(source.index, 1);
+      r[sourceDroppableId]?.participantIds.splice(source.index, 1);
       setNewBreakoutSession((newBreakoutSession: DailyBreakoutSession) => {
         return {
           ...newBreakoutSession,

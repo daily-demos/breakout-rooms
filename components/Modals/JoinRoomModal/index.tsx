@@ -20,7 +20,7 @@ const JoinBreakoutModal = () => {
 
   const handleClick = async (roomName: string) => {
     setShow(false);
-    assignRoomToNewParticipant(localParticipant, roomName);
+    assignRoomToNewParticipant(localParticipant as DailyParticipant, roomName);
   };
 
   return (

@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import DailyIframe, { DailyCall, DailyEventObject } from '@daily-co/daily-js';
 import { DailyProvider } from '@daily-co/daily-react-hooks';
 
 const CALL_OPTIONS = {
@@ -125,7 +125,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
     return status;
   }, [room]);
 
-  const handleCustomButtonClick = useCallback(event => {
+  const handleCustomButtonClick = useCallback((event: DailyEventObject) => {
     if (event.button_id === 'breakout') {
       setShowBreakoutModal(button => !button);
     }
@@ -160,7 +160,11 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   }, [callFrame, handleCustomButtonClick, handleJoinedMeeting]);
 
   const joinAs = useCallback(
-    async (name, owner: boolean = false, disablePrejoin: boolean = false) => {
+    async (
+      name: string,
+      owner: boolean = false,
+      disablePrejoin: boolean = false,
+    ) => {
       setIsInRoom(true);
       const body: { [key: string]: string | boolean } = {
         roomName: name,
@@ -193,7 +197,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   }, [callFrame]);
 
   return (
-    <DailyProvider callObject={callFrame}>
+    <DailyProvider callObject={callFrame as DailyCall}>
       <CallContext.Provider
         value={{
           callRef,

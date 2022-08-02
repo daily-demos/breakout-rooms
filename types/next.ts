@@ -26,7 +26,7 @@ export type DailyBreakoutConfig = {
   auto_join: boolean;
   allow_user_exit: boolean;
   record_breakout_sessions: boolean;
-  exp: boolean;
+  exp: boolean | number | null;
   expiryTime?: number | null;
   max_participants?: boolean;
   max_participants_count?: number;

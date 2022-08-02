@@ -39,16 +39,16 @@ const DraggableParticipant = ({
 
   const participant = participants.find(p => p.userId === userId);
 
-  const participantsId = useParticipantIds({
+  const participantId = useParticipantIds({
     filter: useCallback(
       (participant: DailyParticipant) => {
         return participant.user_id === userId;
       },
       [userId],
     ),
-  });
+  })?.[0];
   const participantUserName = useParticipantProperty(
-    participantsId?.[0],
+    participantId as string,
     'user_name',
   );
   const userName = usePresence ? participant?.userName : participantUserName;
@@ -73,7 +73,7 @@ const DraggableParticipant = ({
   );
 
   if (!usePortal) return child;
-  return createPortal(child, document.querySelector('#myportal'));
+  return createPortal(child, document.querySelector('#myportal') as Element);
 };
 
 export default DraggableParticipant;
