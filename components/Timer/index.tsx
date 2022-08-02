@@ -3,7 +3,7 @@ import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
 import { Text } from 'evergreen-ui';
 
 const Timer = () => {
-  const [secs, setSecs] = useState<any>('--:--');
+  const [secs, setSecs] = useState<string | null>('--:--');
   const { breakoutSession, endSession } = useBreakoutRoom();
 
   // If room has an expiry time, we'll calculate how many seconds until expiry
