@@ -157,7 +157,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     [room, setBreakoutSession],
   );
 
-  useEffect((): any => {
+  useEffect(() => {
     const socket = io(`${process.env.NEXT_PUBLIC_BASE_URL}`, {
       path: '/api/socketio',
       forceNew: false,
@@ -168,7 +168,11 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     socket.on('DAILY_BREAKOUT_CONCLUDED', handleBreakoutSessionEnded);
     socket.on('DAILY_BREAKOUT_REQUEST', handleBreakoutSessionRequest);
     socket.on('DAILY_BREAKOUT_SYNC', handleBreakoutSessionSync);
-    if (socket) return () => socket.disconnect();
+    if (socket) {
+      return () => {
+        socket.disconnect();
+      };
+    }
   }, [
     callFrame,
     handleBreakoutSessionEnded,
