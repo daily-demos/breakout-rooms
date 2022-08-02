@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Dialog, Heading, Pane, Button } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { DailyBreakoutRoom } from '../../../types/next';
 import Avatars from './Avatars';
 import { useCall } from '../../../contexts/CallProvider';
+import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const JoinBreakoutModal = () => {
   const {
@@ -13,24 +14,14 @@ const JoinBreakoutModal = () => {
     myBreakoutRoom,
     isBreakoutRoom,
   } = useBreakoutRoom();
-  const { callFrame } = useCall();
-  const [presence, setPresence] = useState<any>({});
+  const { presence } = useCall();
   const { breakoutSession, assignRoomToNewParticipant } = useBreakoutRoom();
-  const localParticipant = callFrame?.participants().local;
+  const localParticipant = useLocalParticipant();
 
   const handleClick = async (roomName: string) => {
-    assignRoomToNewParticipant(localParticipant as DailyParticipant, roomName);
     setShow(false);
+    assignRoomToNewParticipant(localParticipant, roomName);
   };
-
-  useEffect(() => {
-    const fetchPresenceData = async () => {
-      const res = await fetch('/api/presence');
-      const resData = await res.json();
-      setPresence(resData);
-    };
-    fetchPresenceData();
-  }, []);
 
   return (
     <Dialog

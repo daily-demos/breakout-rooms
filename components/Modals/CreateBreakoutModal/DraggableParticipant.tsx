@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import { Badge } from 'evergreen-ui';
 import { createPortal } from 'react-dom';
@@ -7,18 +7,38 @@ import {
   useParticipantIds,
   useParticipantProperty,
 } from '@daily-co/daily-react-hooks';
+import { useCall } from '../../../contexts/CallProvider';
 
 type DraggableParticipantType = {
   provided: DraggableProvided;
   snapshot: DraggableStateSnapshot;
   userId: string;
+  usePresence?: boolean;
+};
+
+type PresenceParticipantType = {
+  id: string;
+  userId: string;
+  userName: string;
+  joinTime: Date;
+  duration: number;
+  room: string;
 };
 
 const DraggableParticipant = ({
   provided,
   snapshot,
   userId,
+  usePresence = false,
 }: DraggableParticipantType) => {
+  const { presence } = useCall();
+
+  const participants: PresenceParticipantType[] = useMemo(() => {
+    return Object.values(presence).flat(1) as PresenceParticipantType[];
+  }, [presence]);
+
+  const participant = participants.find(p => p.userId === userId);
+
   const participantsId = useParticipantIds({
     filter: useCallback(
       (participant: DailyParticipant) => {
@@ -27,7 +47,11 @@ const DraggableParticipant = ({
       [userId],
     ),
   });
-  const userName = useParticipantProperty(participantsId?.[0], 'user_name');
+  const participantUserName = useParticipantProperty(
+    participantsId?.[0],
+    'user_name',
+  );
+  const userName = usePresence ? participant?.userName : participantUserName;
   const usePortal: boolean = snapshot.isDragging;
 
   const child = (

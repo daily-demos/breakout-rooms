@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   SideSheet,
   Pane,
@@ -23,10 +23,14 @@ const ManageBreakoutRooms = () => {
   const { breakoutSession, updateSession, manage, setManage } =
     useBreakoutRoom();
   const [newBreakoutSession, setNewBreakoutSession] =
-    useState<DailyBreakoutSession>(
-      breakoutSession as unknown as DailyBreakoutSession,
-    );
+    useState<DailyBreakoutSession>(breakoutSession);
   const [config, setConfig] = useState(breakoutSession?.config);
+
+  useEffect(() => {
+    if (breakoutSession === newBreakoutSession) return;
+
+    setNewBreakoutSession(breakoutSession);
+  }, [breakoutSession, newBreakoutSession]);
 
   const handleOnDragEnd = useCallback(
     async (result: DropResult) => {
@@ -108,6 +112,7 @@ const ManageBreakoutRooms = () => {
                                   provided={provided}
                                   snapshot={snapshot}
                                   userId={userId}
+                                  usePresence
                                 />
                               )}
                             </Draggable>

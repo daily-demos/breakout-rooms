@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useBreakoutRoom } from './BreakoutRoomProvider';
 import { useCall } from './CallProvider';
-import { useLocalParticipant } from '@daily-co/daily-react-hooks';
+import { useDaily, useLocalParticipant } from '@daily-co/daily-react-hooks';
 import { DailyBreakoutRoom, DailyBreakoutSession } from '../types/next';
 import { DailyRoomInfo } from '@daily-co/daily-js';
 
@@ -15,7 +15,8 @@ interface ContextValue {}
 export const SocketContext = createContext<ContextValue>(null);
 
 export const SocketProvider = ({ children }: SocketProviderType) => {
-  const { callFrame, room, joinCall, setShowBreakoutModal } = useCall();
+  const { room, joinCall, setShowBreakoutModal } = useCall();
+  const daily = useDaily();
   const {
     breakoutSession,
     setBreakoutSession,
@@ -106,10 +107,10 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       if (room !== data.room) return;
 
       setBreakoutSession(data.sessionObject);
-      const roomInfo = (await callFrame?.room()) as DailyRoomInfo;
+      const roomInfo = (await daily?.room()) as DailyRoomInfo;
       const myBreakoutRoom = getMyBreakoutRoom(data.sessionObject);
       if (
-        !myBreakoutRoom?.roomName &&
+        myBreakoutRoom?.roomName &&
         myBreakoutRoom?.roomName !== roomInfo?.name
       ) {
         await joinRoom(myBreakoutRoom?.roomName, true);
@@ -119,7 +120,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     [
       room,
       setBreakoutSession,
-      callFrame,
+      daily,
       getMyBreakoutRoom,
       setIsBreakoutRoom,
       joinRoom,
@@ -141,11 +142,11 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     data => {
       if (room !== data.room) return;
 
-      if (breakoutSession && callFrame) {
+      if (breakoutSession && daily) {
         sendToSocket('DAILY_BREAKOUT_SYNC', breakoutSession);
       }
     },
-    [breakoutSession, callFrame, room, sendToSocket],
+    [breakoutSession, daily, room, sendToSocket],
   );
 
   const handleBreakoutSessionSync = useCallback(
@@ -174,7 +175,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       };
     }
   }, [
-    callFrame,
+    daily,
     handleBreakoutSessionEnded,
     handleBreakoutSessionRequest,
     handleBreakoutSessionStarted,

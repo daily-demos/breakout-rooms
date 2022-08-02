@@ -59,6 +59,7 @@ interface ContextValue {
   setShowBreakoutModal: Dispatch<SetStateAction<boolean>>;
   showBreakoutModal: boolean;
   isInRoom: boolean;
+  presence: any;
 }
 
 export const CallContext = createContext<ContextValue>({
@@ -72,6 +73,7 @@ export const CallContext = createContext<ContextValue>({
   setShowBreakoutModal: () => {},
   showBreakoutModal: false,
   isInRoom: false,
+  presence: {},
 });
 
 export const CallProvider = ({ children, roomName }: CallProviderType) => {
@@ -81,6 +83,20 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const [room, setRoom] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isInRoom, setIsInRoom] = useState<boolean>(false);
+
+  const [presence, setPresence] = useState<any>({});
+
+  useEffect(() => {
+    const fetchPresenceData = async () => {
+      const res = await fetch('/api/presence');
+      const resData = await res.json();
+      if (presence !== resData) setPresence(resData);
+    };
+    const interval = setInterval(() => fetchPresenceData(), 15000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!roomName) return;
@@ -99,12 +115,15 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
     const options = {
       method: 'POST',
       body: JSON.stringify({
+        room,
         event: 'DAILY_BREAKOUT_REQUEST',
       }),
     };
 
-    await fetch('/api/socket', options);
-  }, []);
+    const res = await fetch('/api/socket', options);
+    const { status } = await res.json();
+    return status;
+  }, [room]);
 
   const handleCustomButtonClick = useCallback(event => {
     if (event.button_id === 'breakout') {
@@ -187,6 +206,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
           room: room as string,
           isOwner,
           isInRoom,
+          presence,
         }}
       >
         {children}
