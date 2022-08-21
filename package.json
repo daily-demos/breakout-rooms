@@ -14,7 +14,7 @@
     "@daily-co/daily-js": "^0.29.0",
     "@daily-co/daily-react-hooks": "^0.3.0",
     "evergreen-ui": "^6.10.3",
-    "next": "^12.2.3",
+    "next": "^12.2.5",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^18.2.0",
