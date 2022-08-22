@@ -1,6 +1,10 @@
 import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { Checkbox, Pane } from 'evergreen-ui';
 import { DailyBreakoutConfig } from '../../types/next';
+import {getRoomsInitialValues} from "../../lib/room";
+import {useBreakoutRoom} from "../../contexts/BreakoutRoomProvider";
+import {useCall} from "../../contexts/CallProvider";
+import {useDaily} from "@daily-co/daily-react-hooks";
 
 type Props = {
   config: DailyBreakoutConfig;
@@ -13,6 +17,43 @@ const BreakoutConfigurations = ({
   setConfig,
   manage = false,
 }: Props) => {
+  const daily = useDaily();
+  const { room } = useCall();
+  const { setRooms, autoAssign } = useBreakoutRoom();
+
+  const handleParticipantsConfigChange = (config: DailyBreakoutConfig) => {
+    if (config.max_participants) {
+      const maxParticipants = config.max_participants_count as number;
+      const totalParticipants = daily?.participantCounts().present as number;
+      const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
+      const rooms = getRoomsInitialValues(room, new Date(), maxNumberOfRooms);
+      setRooms(r => {
+        return { ...rooms, unassignedParticipants: r.unassignedParticipants };
+      });
+      autoAssign(rooms.assigned.length);
+    }
+  }
+
+  const handleMaxParticipantsCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfig(config => {
+      const newConfig = config;
+      newConfig.max_participants_count = e.target.valueAsNumber;
+      handleParticipantsConfigChange(newConfig);
+
+      return { ...newConfig };
+    });
+  };
+
+  const handleMaxParticipantsChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfig(config => {
+      const newConfig = config;
+      newConfig.max_participants = e.target.checked;
+      handleParticipantsConfigChange(newConfig);
+
+      return { ...newConfig };
+    });
+  };
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement>,
     type = 'checkbox',
@@ -34,9 +75,7 @@ const BreakoutConfigurations = ({
               type="number"
               min={0}
               value={config.max_participants_count ?? ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleChange(e, 'number')
-              }
+              onChange={handleMaxParticipantsCountChange}
               style={{ margin: '0 5px', width: '40px' }}
               disabled={manage}
             />
@@ -44,7 +83,7 @@ const BreakoutConfigurations = ({
           </>
         }
         checked={config.max_participants}
-        onChange={handleChange}
+        onChange={handleMaxParticipantsChange}
         disabled={manage}
       />
       <Checkbox

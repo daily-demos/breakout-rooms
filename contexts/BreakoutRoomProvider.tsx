@@ -415,25 +415,6 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     defaultRoom,
   ]);
 
-  useEffect(() => {
-    if (config.max_participants) {
-      const maxParticipants = config.max_participants_count as number;
-      const totalParticipants = daily?.participantCounts().present as number;
-      const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
-      const rooms = getRoomsInitialValues(room, new Date(), maxNumberOfRooms);
-      setRooms(r => {
-        return { ...rooms, unassignedParticipants: r.unassignedParticipants };
-      });
-      autoAssign(rooms.assigned.length);
-    }
-  }, [
-    autoAssign,
-    daily,
-    config.max_participants,
-    config.max_participants_count,
-    room,
-  ]);
-
   return (
     <BreakoutContext.Provider
       value={{
