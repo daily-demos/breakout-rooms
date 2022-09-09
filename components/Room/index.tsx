@@ -14,22 +14,21 @@ import { useDaily } from '@daily-co/daily-react-hooks';
 
 const Room = () => {
   const router = useRouter();
-  const { room, owner, participant } = router.query;
+  const { room, owner, participant, robot } = router.query;
   const { callRef, callFrame, joinAs, isInRoom } = useCall();
   const { breakoutSession, join, isBreakoutRoom, warn, setWarn } =
     useBreakoutRoom();
 
   const showingCall = useMemo(
-    () => owner === 'true' || participant === 'true',
-    [owner, participant],
+    () => owner === 'true' || participant === 'true' || robot === 'true',
+    [owner, participant, robot],
   );
 
   useEffect(() => {
-    const showCall = owner === 'true' || participant === 'true';
-    if (!router.isReady || isInRoom || !showCall) return;
+    if (!router.isReady || isInRoom || !showingCall) return;
 
-    joinAs(room as string, owner === 'true');
-  }, [room, owner, router.isReady, participant, joinAs, isInRoom]);
+    joinAs(room as string, owner === 'true', robot === 'true');
+  }, [room, owner, router.isReady, joinAs, isInRoom, showingCall, robot]);
 
   return (
     <div>
