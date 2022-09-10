@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   LogOutIcon,
   SettingsIcon,
@@ -13,13 +13,16 @@ import {
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../../contexts/CallProvider';
+import {
+  useLocalSessionId,
+  useParticipantProperty,
+} from '@daily-co/daily-react-hooks';
 
 // whenever the breakout session is active we will be showing the following menu to all the participants.
 // - it shows the time left, allows you to change and leave room and for owners it will also allow managing rooms.
 
 const BreakoutMenu = () => {
-  const { callFrame, showBreakoutModal, setShowBreakoutModal, room, joinAs } =
-    useCall();
+  const { showBreakoutModal, setShowBreakoutModal } = useCall();
   const {
     breakoutSession,
     isBreakoutRoom,
@@ -30,11 +33,8 @@ const BreakoutMenu = () => {
     returnToLobby,
   } = useBreakoutRoom();
 
-  const localParticipant = callFrame?.participants().local;
-  const isOwner = useMemo(
-    () => localParticipant?.owner,
-    [localParticipant?.owner],
-  );
+  const localSessionId = useLocalSessionId();
+  const isOwner = useParticipantProperty(localSessionId as string, 'owner');
 
   const handleJoinRoom = useCallback(() => {
     setShowBreakoutModal(false);
@@ -79,7 +79,7 @@ const BreakoutMenu = () => {
             <Text display="grid">Join Breakout</Text>
           </Card>
         )}
-        {isBreakoutRoom &&
+        {(isBreakoutRoom || isOwner) &&
           breakoutSession?.rooms.length > 1 &&
           breakoutSession?.config.allow_user_switch_room && (
             <Card
@@ -95,7 +95,7 @@ const BreakoutMenu = () => {
               <Text display="grid">Change room</Text>
             </Card>
           )}
-        {isBreakoutRoom && isOwner && (
+        {(isBreakoutRoom || isOwner) && isOwner && (
           <Card
             elevation={1}
             border="muted"
@@ -109,21 +109,22 @@ const BreakoutMenu = () => {
             <Text display="grid">Manage Room</Text>
           </Card>
         )}
-        {isBreakoutRoom && breakoutSession?.config.allow_user_exit && (
-          <Card
-            elevation={1}
-            border="muted"
-            padding={10}
-            flexGrow={1}
-            width={150}
-            cursor="pointer"
-            onClick={returnToLobby}
-          >
-            <LogOutIcon size={24} marginY={10} />
-            <Text display="grid">Lobby</Text>
-          </Card>
-        )}
-        {isBreakoutRoom && isOwner && (
+        {(isBreakoutRoom || isOwner) &&
+          breakoutSession?.config.allow_user_exit && (
+            <Card
+              elevation={1}
+              border="muted"
+              padding={10}
+              flexGrow={1}
+              width={150}
+              cursor="pointer"
+              onClick={returnToLobby}
+            >
+              <LogOutIcon size={24} marginY={10} />
+              <Text display="grid">Lobby</Text>
+            </Card>
+          )}
+        {(isBreakoutRoom || isOwner) && isOwner && (
           <Card
             elevation={1}
             border="muted"
