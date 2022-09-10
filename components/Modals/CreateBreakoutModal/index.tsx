@@ -128,13 +128,14 @@ const BreakoutModal = () => {
         >
           <Pane flex={1}>
             <DragDropContext onDragEnd={handleOnDragEnd}>
-              <Pane display="flex">
-                <Pane flex={1} alignItems="center" display="flex">
+              <Pane display="flex" justifyContent="space-between">
+                <Pane display="flex" alignItems="center" gap={minorScale(1)}>
                   <Heading is="h3">Participants</Heading>
-                </Pane>
-                <Pane>
                   <Text>({rooms.unassignedParticipants.length} people)</Text>
                 </Pane>
+                <Button intent="danger" appearance="minimal" onClick={reset}>
+                  Reset
+                </Button>
               </Pane>
               <Droppable droppableId="unassigned" direction="horizontal">
                 {(provided, snapshot) => (
@@ -180,7 +181,7 @@ const BreakoutModal = () => {
                   </div>
                 )}
               </Droppable>
-              <div style={{ maxHeight: '30vh', overflow: 'auto' }}>
+              <div style={{ maxHeight: '35vh', overflow: 'auto' }}>
                 <Pane
                   display="grid"
                   gridTemplateColumns="repeat(2, 1fr)"
@@ -255,30 +256,33 @@ const BreakoutModal = () => {
                   )}
                 </Pane>
               </div>
-              <Pane display="flex" marginY={majorScale(1)}>
-                <Button onClick={handleAddRoom}>Add room</Button>
-                <Button onClick={reset} marginLeft={minorScale(1)}>
-                  Reset
-                </Button>
-              </Pane>
             </DragDropContext>
-            <Pane>
-              <Heading is="h3">Configurations</Heading>
-              <BreakoutConfigurations config={config} setConfig={setConfig} />
-            </Pane>
+            <Heading is="h3">Configurations</Heading>
+            <BreakoutConfigurations config={config} setConfig={setConfig} />
           </Pane>
-          <Pane display="flex" marginY={20} gap={minorScale(2)}>
-            <Button onClick={handleAssignEvenly} width="100%">
-              Assign participants evenly
-            </Button>
-            <Button
-              width="100%"
-              appearance="primary"
-              disabled={rooms.unassignedParticipants.length > 0}
-              onClick={() => createSession()}
-            >
-              Create Rooms
-            </Button>
+          <Pane>
+            <Pane display="flex" marginY={majorScale(1)} gap={majorScale(1)}>
+              <Button onClick={handleAddRoom} width="100%">
+                Add room
+              </Button>
+              <Button
+                onClick={handleAssignEvenly}
+                width="100%"
+                appearance="primary"
+              >
+                Assign participants evenly
+              </Button>
+            </Pane>
+            <Pane display="flex" gap={minorScale(2)}>
+              <Button
+                width="100%"
+                appearance="primary"
+                disabled={rooms.unassignedParticipants.length > 0}
+                onClick={() => createSession()}
+              >
+                Start breakout session
+              </Button>
+            </Pane>
           </Pane>
         </Pane>
       ) : (

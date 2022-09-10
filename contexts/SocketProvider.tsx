@@ -51,7 +51,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
           userId: localParticipant?.user_id,
           recordBreakoutRooms,
           prejoinUI: false,
-          startVideoOff: false,
+          startVideoOff: !localParticipant?.video,
           startAudioOff: true,
         }),
       };
@@ -61,6 +61,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       return token;
     },
     [
+      localParticipant?.video,
       localParticipant?.owner,
       localParticipant?.user_id,
       localParticipant?.user_name,
