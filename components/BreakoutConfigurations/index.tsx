@@ -1,8 +1,13 @@
-import React, {ChangeEvent, Dispatch, SetStateAction, useCallback} from 'react';
+import React, {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+} from 'react';
 import { Checkbox, Pane } from 'evergreen-ui';
 import { DailyBreakoutConfig } from '../../types/next';
-import {useBreakoutRoom} from "../../contexts/BreakoutRoomProvider";
-import {useDaily} from "@daily-co/daily-react-hooks";
+import { useBreakoutRoom } from '../../contexts/BreakoutRoomProvider';
+import { useDaily } from '@daily-co/daily-react-hooks';
 
 type Props = {
   config: DailyBreakoutConfig;
@@ -18,19 +23,24 @@ const BreakoutConfigurations = ({
   const daily = useDaily();
   const { autoAssign } = useBreakoutRoom();
 
-  const handleParticipantsConfigChange = useCallback((config: DailyBreakoutConfig) => {
-    if (!daily) return;
+  const handleParticipantsConfigChange = useCallback(
+    (config: DailyBreakoutConfig) => {
+      if (!daily) return;
 
-    if (config.max_participants && config.max_participants_count) {
-      const maxParticipants = config.max_participants_count as number;
-      const participants = daily.participants();
-      const totalParticipants = Object.keys(participants).length;
-      const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
-      autoAssign(maxNumberOfRooms);
-    }
-  }, [autoAssign, daily]);
+      if (config.max_participants && config.max_participants_count) {
+        const maxParticipants = config.max_participants_count as number;
+        const participants = daily.participants();
+        const totalParticipants = Object.keys(participants).length;
+        const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
+        autoAssign(maxNumberOfRooms);
+      }
+    },
+    [autoAssign, daily],
+  );
 
-  const handleMaxParticipantsCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleMaxParticipantsCountChange = (
+    e: ChangeEvent<HTMLInputElement>,
+  ) => {
     setConfig(config => {
       const newConfig = config;
       newConfig.max_participants_count = e.target.valueAsNumber;

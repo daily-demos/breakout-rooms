@@ -1,13 +1,15 @@
 import React, { useCallback } from 'react';
 import {
   Button,
-  Dialog,
   Heading,
   Pane,
   Text,
   EmptyState,
   LockIcon,
+  SideSheet,
   minorScale,
+  majorScale,
+  Paragraph,
 } from 'evergreen-ui';
 import {
   DragDropContext,
@@ -29,8 +31,15 @@ import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const BreakoutModal = () => {
   const { showBreakoutModal, setShowBreakoutModal, room } = useCall();
-  const { rooms, setRooms, config, setConfig, createSession, autoAssign, reset } =
-    useBreakoutRoom();
+  const {
+    rooms,
+    setRooms,
+    config,
+    setConfig,
+    createSession,
+    autoAssign,
+    reset,
+  } = useBreakoutRoom();
   const localParticipant = useLocalParticipant();
 
   // whenever we drag and drop the participants in the breakout room modal,
@@ -90,16 +99,34 @@ const BreakoutModal = () => {
   const handleAssignEvenly = () => autoAssign(rooms.assigned.length);
 
   return (
-    <Dialog
+    <SideSheet
       isShown={showBreakoutModal}
-      title="Create breakout session"
       onCloseComplete={() => setShowBreakoutModal(false)}
-      preventBodyScrolling
-      hasFooter={false}
+      width={500}
+      containerProps={{
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
     >
+      <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white">
+        <Pane padding={16} borderBottom="muted">
+          <Heading size={600}>Create breakout session</Heading>
+          <Paragraph size={400} color="muted">
+            Assign participants to breakout rooms and manage configurations
+          </Paragraph>
+        </Pane>
+      </Pane>
       {localParticipant?.owner ? (
-        <>
-          <div>
+        <Pane
+          background="tint1"
+          padding={16}
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          height="100%"
+        >
+          <Pane>
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Pane display="flex">
                 <Pane flex={1} alignItems="center" display="flex">
@@ -153,7 +180,7 @@ const BreakoutModal = () => {
                   </div>
                 )}
               </Droppable>
-              <div style={{ maxHeight: '20vh', overflow: 'auto' }}>
+              <div style={{ maxHeight: '30vh', overflow: 'auto' }}>
                 <Pane
                   display="grid"
                   gridTemplateColumns="repeat(2, 1fr)"
@@ -228,28 +255,32 @@ const BreakoutModal = () => {
                   )}
                 </Pane>
               </div>
-              <Button onClick={handleAddRoom}>Add room</Button>
-              <Button onClick={reset} marginLeft={minorScale(1)}>Reset</Button>
-              <Pane marginTop={20}>
-                <Heading is="h3">Configurations</Heading>
-                <BreakoutConfigurations config={config} setConfig={setConfig} />
+              <Pane display="flex" marginY={majorScale(1)}>
+                <Button onClick={handleAddRoom}>Add room</Button>
+                <Button onClick={reset} marginLeft={minorScale(1)}>
+                  Reset
+                </Button>
               </Pane>
             </DragDropContext>
-          </div>
-          <Pane display="flex" marginY={20}>
+          </Pane>
+          <Pane>
+            <Heading is="h3">Configurations</Heading>
+            <BreakoutConfigurations config={config} setConfig={setConfig} />
+          </Pane>
+          <Pane display="flex" marginY={20} gap={minorScale(2)}>
+            <Button onClick={handleAssignEvenly} width="100%">
+              Assign participants evenly
+            </Button>
             <Button
-              marginRight={10}
+              width="100%"
               appearance="primary"
               disabled={rooms.unassignedParticipants.length > 0}
               onClick={() => createSession()}
             >
               Create Rooms
             </Button>
-            <Button onClick={handleAssignEvenly}>
-              Assign participants evenly
-            </Button>
           </Pane>
-        </>
+        </Pane>
       ) : (
         <Pane width="auto" height="auto">
           <EmptyState
@@ -261,7 +292,7 @@ const BreakoutModal = () => {
           />
         </Pane>
       )}
-    </Dialog>
+    </SideSheet>
   );
 };
 

@@ -124,12 +124,7 @@ export const BreakoutContext = createContext<ContextValue>({
 });
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
-  const {
-    room,
-    setShowBreakoutModal,
-    isInRoom,
-    joinAs,
-  } = useCall();
+  const { room, setShowBreakoutModal, isInRoom, joinAs } = useCall();
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
     useState<DailyBreakoutSession | null>(null);
@@ -258,7 +253,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     if (!daily) return;
 
     const rooms = getRoomsInitialValues(room, new Date());
-    const participants = Object.values(daily.participants()).map(p => p.user_id);
+    const participants = Object.values(daily.participants()).map(
+      p => p.user_id,
+    );
     setRooms({ ...rooms, unassignedParticipants: participants });
   }, [daily, room]);
 
@@ -388,7 +385,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         return {
           assigned: newRooms,
           unassignedParticipants: [],
-        }
+        };
       });
     },
     [reset, room],

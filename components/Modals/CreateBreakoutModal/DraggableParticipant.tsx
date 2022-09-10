@@ -51,7 +51,11 @@ const DraggableParticipant = ({
     participantId as string,
     'user_name',
   );
-  const userName = usePresence ? participant?.userName : participantUserName !== '' ? participantUserName: participantId;
+  const userName = usePresence
+    ? participant?.userName
+    : participantUserName !== ''
+    ? participantUserName
+    : participantId;
   const usePortal: boolean = snapshot.isDragging;
 
   const child = (
