@@ -1,9 +1,7 @@
-import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import React, {ChangeEvent, Dispatch, SetStateAction, useCallback} from 'react';
 import { Checkbox, Pane } from 'evergreen-ui';
 import { DailyBreakoutConfig } from '../../types/next';
-import {getRoomsInitialValues} from "../../lib/room";
 import {useBreakoutRoom} from "../../contexts/BreakoutRoomProvider";
-import {useCall} from "../../contexts/CallProvider";
 import {useDaily} from "@daily-co/daily-react-hooks";
 
 type Props = {
@@ -18,21 +16,19 @@ const BreakoutConfigurations = ({
   manage = false,
 }: Props) => {
   const daily = useDaily();
-  const { room } = useCall();
-  const { setRooms, autoAssign } = useBreakoutRoom();
+  const { autoAssign } = useBreakoutRoom();
 
-  const handleParticipantsConfigChange = (config: DailyBreakoutConfig) => {
-    if (config.max_participants) {
+  const handleParticipantsConfigChange = useCallback((config: DailyBreakoutConfig) => {
+    if (!daily) return;
+
+    if (config.max_participants && config.max_participants_count) {
       const maxParticipants = config.max_participants_count as number;
-      const totalParticipants = daily?.participantCounts().present as number;
+      const participants = daily.participants();
+      const totalParticipants = Object.keys(participants).length;
       const maxNumberOfRooms = Math.ceil(totalParticipants / maxParticipants);
-      const rooms = getRoomsInitialValues(room, new Date(), maxNumberOfRooms);
-      setRooms(r => {
-        return { ...rooms, unassignedParticipants: r.unassignedParticipants };
-      });
-      autoAssign(rooms.assigned.length);
+      autoAssign(maxNumberOfRooms);
     }
-  }
+  }, [autoAssign, daily]);
 
   const handleMaxParticipantsCountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setConfig(config => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
   Dialog,
@@ -7,6 +7,7 @@ import {
   Text,
   EmptyState,
   LockIcon,
+  minorScale,
 } from 'evergreen-ui';
 import {
   DragDropContext,
@@ -28,7 +29,7 @@ import { useLocalParticipant } from '@daily-co/daily-react-hooks';
 
 const BreakoutModal = () => {
   const { showBreakoutModal, setShowBreakoutModal, room } = useCall();
-  const { rooms, setRooms, config, setConfig, createSession, autoAssign } =
+  const { rooms, setRooms, config, setConfig, createSession, autoAssign, reset } =
     useBreakoutRoom();
   const localParticipant = useLocalParticipant();
 
@@ -228,6 +229,7 @@ const BreakoutModal = () => {
                 </Pane>
               </div>
               <Button onClick={handleAddRoom}>Add room</Button>
+              <Button onClick={reset} marginLeft={minorScale(1)}>Reset</Button>
               <Pane marginTop={20}>
                 <Heading is="h3">Configurations</Heading>
                 <BreakoutConfigurations config={config} setConfig={setConfig} />

@@ -57,6 +57,7 @@ interface ContextValue {
   returnToLobby: () => void;
   sendToSocket: (event: string, data: any) => void;
   autoAssign: (totalRooms: number) => void;
+  reset: () => void;
 }
 
 export const BreakoutContext = createContext<ContextValue>({
@@ -119,6 +120,7 @@ export const BreakoutContext = createContext<ContextValue>({
   returnToLobby: () => {},
   sendToSocket: () => {},
   autoAssign: () => {},
+  reset: () => {},
 });
 
 export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
@@ -150,8 +152,6 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   const [returnedToLobby, setReturnedToLobby] = useState(false);
   const localParticipant = useLocalParticipant();
   const daily = useDaily();
-
-  const participants = Object.values(daily?.participants() ?? {});
 
   useEffect(() => {
     const rooms = getRoomsInitialValues(room, new Date());
@@ -253,6 +253,14 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   useDailyEvent('participant-joined', handleNewParticipantsState);
   useDailyEvent('participant-updated', handleNewParticipantsState);
   useDailyEvent('participant-left', handleNewParticipantsState);
+
+  const reset = useCallback(() => {
+    if (!daily) return;
+
+    const rooms = getRoomsInitialValues(room, new Date());
+    const participants = Object.values(daily.participants()).map(p => p.user_id);
+    setRooms({ ...rooms, unassignedParticipants: participants });
+  }, [daily, room]);
 
   const sendToSocket = useCallback(
     async (event: string, sessionObject: DailyBreakoutSession | null) => {
@@ -360,24 +368,30 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
 
   const autoAssign = useCallback(
     (totalRooms: number) => {
-      const rooms: DailyBreakoutRoom[] = [];
+      reset();
+      setRooms(rooms => {
+        const newRooms: DailyBreakoutRoom[] = [];
 
-      const shuffledParticipants = shuffle(participants);
-      const r = getSampleRooms(
-        shuffledParticipants,
-        Math.ceil(participants.length / totalRooms),
-      );
-      Array.from({ length: totalRooms }, (_, i) => {
-        rooms[i] = {
-          name: `Breakout room ${i + 1}`,
-          roomName: `${room}-${i + 1}`,
-          created: new Date(),
-          participantIds: (r?.[i] || []).map(p => p.user_id),
-        };
+        const shuffledParticipants = shuffle(rooms.unassignedParticipants);
+        const r = getSampleRooms(
+          shuffledParticipants,
+          Math.ceil(rooms.unassignedParticipants.length / totalRooms),
+        );
+        Array.from({ length: totalRooms }, (_, i) => {
+          newRooms[i] = {
+            name: `Breakout room ${i + 1}`,
+            roomName: `${room}-${i + 1}`,
+            created: new Date(),
+            participantIds: [...(r?.[i] || [])],
+          };
+        });
+        return {
+          assigned: newRooms,
+          unassignedParticipants: [],
+        }
       });
-      setRooms({ assigned: rooms, unassignedParticipants: [] });
     },
-    [participants, room],
+    [reset, room],
   );
 
   const returnToLobby = useCallback(() => {
@@ -440,6 +454,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         returnToLobby,
         sendToSocket,
         autoAssign,
+        reset,
       }}
     >
       {children}

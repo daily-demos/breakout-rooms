@@ -1,4 +1,4 @@
-export const getSampleRooms = (arr: any[], len: number) => {
+export const getSampleRooms = (arr: string[], len: number) => {
   let chunks = [],
     i = 0,
     n = arr.length;
