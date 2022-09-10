@@ -127,7 +127,6 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     setShowBreakoutModal,
     isInRoom,
     joinAs,
-    room: defaultRoom,
   } = useCall();
   const [isBreakoutRoom, setIsBreakoutRoom] = useState<boolean>(false);
   const [breakoutSession, setBreakoutSession] =
@@ -392,16 +391,16 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
         room.participantIds.includes(localParticipant?.user_id as string),
       );
       if (roomIdx > -1) {
-        const room = r[roomIdx];
-        if (room) {
-          room.participantIds = room.participantIds.filter(
+        const idxRoom = r[roomIdx];
+        if (idxRoom) {
+          idxRoom.participantIds = idxRoom.participantIds.filter(
             p => p !== localParticipant?.user_id,
           );
-          r[roomIdx] = room;
+          r[roomIdx] = idxRoom;
           const newBreakoutSession = breakoutSession as DailyBreakoutSession;
           newBreakoutSession.rooms = r;
           sendToSocket('DAILY_BREAKOUT_UPDATED', newBreakoutSession);
-          joinAs(defaultRoom, localParticipant?.owner, true);
+          joinAs(room, localParticipant?.owner, true);
         }
       }
     }
@@ -412,7 +411,7 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     localParticipant?.owner,
     sendToSocket,
     joinAs,
-    defaultRoom,
+    room,
   ]);
 
   return (

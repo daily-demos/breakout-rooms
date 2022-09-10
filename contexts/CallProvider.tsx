@@ -98,19 +98,6 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!roomName) return;
-
-    if (roomName.includes('-')) {
-      const splitRoomName = roomName.split('-')[0];
-      if (splitRoomName === room) return;
-      setRoom(splitRoomName as string);
-    } else {
-      if (room === roomName) return;
-      setRoom(roomName);
-    }
-  }, [room, roomName]);
-
   const handleJoinedMeeting = useCallback(async () => {
     const options = {
       method: 'POST',
@@ -165,6 +152,8 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
       owner: boolean = false,
       disablePrejoin: boolean = false,
     ) => {
+      if (!room) setRoom(name);
+
       setIsInRoom(true);
       const body: { [key: string]: string | boolean } = {
         roomName: name,
@@ -188,7 +177,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
 
       await joinCall(name, token);
     },
-    [callFrame, joinCall],
+    [callFrame, joinCall, room],
   );
 
   useEffect(() => {
