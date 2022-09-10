@@ -77,7 +77,7 @@ const ManageBreakoutRooms = () => {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <Pane zIndex={1} flexShrink={0} elevation={0} backgroundColor="white">
           <Pane padding={16} borderBottom="muted">
-            <Heading size={600}>Breakout Rooms</Heading>
+            <Heading size={600}>Manage breakout rooms</Heading>
             <Paragraph size={400} color="muted">
               Manage the breakout session configurations.
             </Paragraph>
@@ -86,8 +86,8 @@ const ManageBreakoutRooms = () => {
         <Pane flex="1" overflowY="scroll" background="tint1" padding={16}>
           {newBreakoutSession.rooms.map(
             (room: DailyBreakoutRoom, index: number) => (
-              <Pane key={index} marginBottom={20}>
-                <Card backgroundColor="white" elevation={0} padding={20}>
+              <Pane key={index} marginBottom={10}>
+                <Card backgroundColor="white" elevation={0} padding={16}>
                   <Heading>{room.name}</Heading>
                   <Droppable
                     droppableId={index.toString()}
@@ -126,15 +126,13 @@ const ManageBreakoutRooms = () => {
               </Pane>
             ),
           )}
-          <Pane marginTop={10}>
-            <Card backgroundColor="white" elevation={0} padding={20}>
-              <Heading is="h3">Configurations</Heading>
-              <BreakoutConfigurations
-                manage
-                config={config}
-                setConfig={setConfig}
-              />
-            </Card>
+          <Pane marginTop={20}>
+            <Heading is="h3">Configurations</Heading>
+            <BreakoutConfigurations
+              manage
+              config={config}
+              setConfig={setConfig}
+            />
           </Pane>
         </Pane>
         <Button

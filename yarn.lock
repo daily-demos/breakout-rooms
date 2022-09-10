@@ -279,10 +279,10 @@
     "@babel/helper-validator-identifier" "^7.18.6"
     to-fast-properties "^2.0.0"
 
-"@daily-co/daily-js@^0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.29.0.tgz#71a1f960dde6f1d7c54875d2b5b816a4a3ab673c"
-  integrity sha512-aVILEVQEvpNT3jJ4XWIUXQjs6f/wxTUCPCqqKomsB0nq9aouGGOqJ0NIXFvD3r5gi6eLPvNS/kv6b52VPwD9yA==
+"@daily-co/daily-js@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.30.0.tgz#ef64de04de7e26cfd79e43bb5c45844b566630ca"
+  integrity sha512-5OSek5owy/43RvXw8VUlQBFN6qj2ZvwZs0RmKTazrRZ13PiLwL70dlVdV9zILUoPZZVYGay3BTnOpG6zrLsoYw==
   dependencies:
     "@babel/runtime" "^7.12.5"
     bowser "^2.8.1"
@@ -290,10 +290,10 @@
     fast-equals "^1.6.3"
     lodash "^4.17.15"
 
-"@daily-co/daily-react-hooks@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@daily-co/daily-react-hooks/-/daily-react-hooks-0.3.0.tgz#163920e2a785099a4c1ccffff90c2834ac3cfc4c"
-  integrity sha512-erJba9cWcjwoiIRdeMa8Z02CREhF6DcWg6XbDYaaASoyElaULAstIwjXG2RPUa30P3jgFr5z0JjWMBIaA71Avw==
+"@daily-co/daily-react-hooks@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@daily-co/daily-react-hooks/-/daily-react-hooks-0.4.0.tgz#a772cd67b2b932d7c47fe61e44a3f82c0fad3d6e"
+  integrity sha512-sKo1TARZm7MfZfsOLllCr909HidSqE2DRb8w1i7sg7SOg8mM94TwucpAXcR5LxCZOiP5Kg3bu/MspIK2wNapQw==
   dependencies:
     fast-deep-equal "^3.1.3"
     lodash.throttle "^4.1.1"

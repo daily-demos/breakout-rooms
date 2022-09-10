@@ -126,7 +126,7 @@ const BreakoutModal = () => {
           justifyContent="space-between"
           height="100%"
         >
-          <Pane>
+          <Pane flex={1}>
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Pane display="flex">
                 <Pane flex={1} alignItems="center" display="flex">
@@ -262,10 +262,10 @@ const BreakoutModal = () => {
                 </Button>
               </Pane>
             </DragDropContext>
-          </Pane>
-          <Pane>
-            <Heading is="h3">Configurations</Heading>
-            <BreakoutConfigurations config={config} setConfig={setConfig} />
+            <Pane>
+              <Heading is="h3">Configurations</Heading>
+              <BreakoutConfigurations config={config} setConfig={setConfig} />
+            </Pane>
           </Pane>
           <Pane display="flex" marginY={20} gap={minorScale(2)}>
             <Button onClick={handleAssignEvenly} width="100%">
