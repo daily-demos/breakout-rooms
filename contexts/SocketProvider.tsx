@@ -71,6 +71,11 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const joinRoom = useCallback(
     async (roomName: string, isBreakoutRoom: boolean) => {
+      // @ts-ignore
+      const urlProperties = daily?.properties.url.split('/');
+      const urlRoomName = urlProperties[urlProperties.length - 1];
+      if (roomName === urlRoomName) return;
+
       const token = await createToken(
         isBreakoutRoom
           ? breakoutSession?.config?.record_breakout_sessions
@@ -79,7 +84,12 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       );
       await joinCall(roomName, token, isBreakoutRoom);
     },
-    [breakoutSession?.config?.record_breakout_sessions, createToken, joinCall],
+    [
+      breakoutSession?.config?.record_breakout_sessions,
+      createToken,
+      daily?.properties,
+      joinCall,
+    ],
   );
 
   const handleBreakoutSessionStarted = useCallback(

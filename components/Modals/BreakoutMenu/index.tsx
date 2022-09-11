@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
   LogOutIcon,
   SettingsIcon,
-  SmallCrossIcon,
   LogInIcon,
   Dialog,
   Card,
@@ -10,6 +9,7 @@ import {
   Text,
   EmptyState,
   LockIcon,
+  CrossIcon,
 } from 'evergreen-ui';
 import { useBreakoutRoom } from '../../../contexts/BreakoutRoomProvider';
 import { useCall } from '../../../contexts/CallProvider';
@@ -76,7 +76,7 @@ const BreakoutMenu = () => {
             onClick={handleJoinRoom}
           >
             <LogInIcon size={24} marginY={10} />
-            <Text display="grid">Join Breakout</Text>
+            <Text display="grid">Join room</Text>
           </Card>
         )}
         {isBreakoutRoom &&
@@ -106,7 +106,7 @@ const BreakoutMenu = () => {
             onClick={handleManage}
           >
             <SettingsIcon size={24} marginY={10} />
-            <Text display="grid">Manage Room</Text>
+            <Text display="grid">Manage</Text>
           </Card>
         )}
         {isBreakoutRoom && breakoutSession?.config.allow_user_exit && (
@@ -133,12 +133,12 @@ const BreakoutMenu = () => {
             cursor="pointer"
             onClick={endBreakoutSession}
           >
-            <SmallCrossIcon size={24} marginY={10} />
+            <CrossIcon size={24} marginY={10} />
             <Text display="grid">End session</Text>
           </Card>
         )}
       </Pane>
-      {!joinModalStatus && !isBreakoutRoom && (
+      {!joinModalStatus && !isBreakoutRoom && !isOwner && (
         <Pane width="auto" height="auto">
           <EmptyState
             title="Breakout session already started"

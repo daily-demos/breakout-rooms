@@ -286,7 +286,7 @@ const BreakoutModal = () => {
           </Pane>
         </Pane>
       ) : (
-        <Pane width="auto" height="auto">
+        <Pane background="tint1">
           <EmptyState
             title="You need to be a meeting owner to create breakout sessions"
             orientation="vertical"

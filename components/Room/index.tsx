@@ -70,7 +70,7 @@ const Room = () => {
         <CreateBreakoutModal />
       )}
       {joined && join && <JoinBreakoutModal />}
-      {breakoutSession && isBreakoutRoom && <ManageBreakoutRooms />}
+      {breakoutSession && <ManageBreakoutRooms />}
 
       <CornerDialog
         title="You are muted"

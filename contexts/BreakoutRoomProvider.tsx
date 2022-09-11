@@ -283,6 +283,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     if (!isBreakoutRoom) {
       if (!returnedToLobby) setJoin(breakoutSession.config.auto_join);
       return breakoutSession.config.auto_join;
+    } else {
+      setJoin(false);
+      return false;
     }
   }, [daily, breakoutSession, returnedToLobby, isBreakoutRoom, isInRoom]);
 
