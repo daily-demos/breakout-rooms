@@ -79,7 +79,7 @@ const BreakoutMenu = () => {
             <Text display="grid">Join Breakout</Text>
           </Card>
         )}
-        {(isBreakoutRoom || isOwner) &&
+        {isBreakoutRoom &&
           breakoutSession?.rooms.length > 1 &&
           breakoutSession?.config.allow_user_switch_room && (
             <Card
@@ -109,21 +109,20 @@ const BreakoutMenu = () => {
             <Text display="grid">Manage Room</Text>
           </Card>
         )}
-        {(isBreakoutRoom || isOwner) &&
-          breakoutSession?.config.allow_user_exit && (
-            <Card
-              elevation={1}
-              border="muted"
-              padding={10}
-              flexGrow={1}
-              width={150}
-              cursor="pointer"
-              onClick={returnToLobby}
-            >
-              <LogOutIcon size={24} marginY={10} />
-              <Text display="grid">Lobby</Text>
-            </Card>
-          )}
+        {isBreakoutRoom && breakoutSession?.config.allow_user_exit && (
+          <Card
+            elevation={1}
+            border="muted"
+            padding={10}
+            flexGrow={1}
+            width={150}
+            cursor="pointer"
+            onClick={returnToLobby}
+          >
+            <LogOutIcon size={24} marginY={10} />
+            <Text display="grid">Lobby</Text>
+          </Card>
+        )}
         {(isBreakoutRoom || isOwner) && isOwner && (
           <Card
             elevation={1}
