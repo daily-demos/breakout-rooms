@@ -83,18 +83,18 @@ const BreakoutModal = () => {
     [rooms, sourceValue, setRooms],
   );
 
-  const handleAddRoom = () => {
-    const assigned = rooms.assigned;
-    assigned.push({
-      name: `Breakout Room ${assigned.length + 1}`,
-      roomName: `${room}-${assigned.length + 1}`,
-      created: new Date(),
-      participantIds: [],
-    });
+  const handleAddRoom = useCallback(() => {
     setRooms((rooms: DailyBreakoutProviderRooms) => {
+      const assigned = rooms.assigned;
+      assigned.push({
+        name: `Breakout Room ${assigned.length + 1}`,
+        roomName: `${room}-${assigned.length + 1}`,
+        created: new Date(),
+        participantIds: [],
+      });
       return { ...rooms, assigned };
     });
-  };
+  }, [room, setRooms]);
 
   const handleAssignEvenly = () => autoAssign(rooms.assigned.length);
 

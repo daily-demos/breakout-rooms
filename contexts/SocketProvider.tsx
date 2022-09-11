@@ -70,7 +70,11 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
   );
 
   const joinRoom = useCallback(
-    async (roomName: string, isBreakoutRoom: boolean) => {
+    async (
+      roomName: string,
+      breakoutSession: DailyBreakoutSession | null = null,
+      isBreakoutRoom: boolean,
+    ) => {
       // @ts-ignore
       const urlProperties = daily?.properties.url.split('/');
       const urlRoomName = urlProperties[urlProperties.length - 1];
@@ -78,18 +82,13 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
       const token = await createToken(
         isBreakoutRoom
-          ? breakoutSession?.config?.record_breakout_sessions
+          ? breakoutSession?.config?.record_breakout_sessions ?? false
           : false,
         roomName,
       );
       await joinCall(roomName, token, isBreakoutRoom);
     },
-    [
-      breakoutSession?.config?.record_breakout_sessions,
-      createToken,
-      daily?.properties,
-      joinCall,
-    ],
+    [createToken, daily?.properties, joinCall],
   );
 
   const handleBreakoutSessionStarted = useCallback(
@@ -106,7 +105,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
       setIsBreakoutRoom(true);
       setWarn(true);
-      await joinRoom(myBreakoutRoom?.roomName, true);
+      await joinRoom(myBreakoutRoom?.roomName, newBreakoutSession, true);
     },
     [
       joined,
@@ -124,7 +123,8 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
     async (data: BreakoutEventData) => {
       if (room !== data.room || !joined) return;
 
-      setBreakoutSession(data.sessionObject as DailyBreakoutSession);
+      const newBreakoutSession = data.sessionObject as DailyBreakoutSession;
+      setBreakoutSession(newBreakoutSession);
       const roomInfo = (await daily?.room()) as DailyRoomInfo;
       const myBreakoutRoom = getMyBreakoutRoom(
         data.sessionObject as DailyBreakoutSession,
@@ -133,7 +133,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
         myBreakoutRoom?.roomName &&
         myBreakoutRoom?.roomName !== roomInfo?.name
       ) {
-        await joinRoom(myBreakoutRoom?.roomName, true);
+        await joinRoom(myBreakoutRoom?.roomName, newBreakoutSession, true);
       }
       setIsBreakoutRoom(!!myBreakoutRoom?.roomName);
     },
@@ -153,7 +153,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       if (room !== data.room || !joined) return;
 
       setBreakoutSession(null);
-      await joinRoom(room, false);
+      await joinRoom(room, null, false);
       setIsBreakoutRoom(false);
     },
     [joined, joinRoom, room, setBreakoutSession, setIsBreakoutRoom],
