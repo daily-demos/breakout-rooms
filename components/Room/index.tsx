@@ -15,7 +15,7 @@ import { useDaily } from '@daily-co/daily-react-hooks';
 const Room = () => {
   const router = useRouter();
   const { room, owner, participant, robot } = router.query;
-  const { callRef, callFrame, joinAs, isInRoom } = useCall();
+  const { callRef, callFrame, joinAs, isInRoom, joined } = useCall();
   const { breakoutSession, join, isBreakoutRoom, warn, setWarn } =
     useBreakoutRoom();
 
@@ -69,7 +69,7 @@ const Room = () => {
       ) : (
         <CreateBreakoutModal />
       )}
-      {join && <JoinBreakoutModal />}
+      {joined && join && <JoinBreakoutModal />}
       {breakoutSession && isBreakoutRoom && <ManageBreakoutRooms />}
 
       <CornerDialog

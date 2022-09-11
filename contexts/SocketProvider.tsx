@@ -20,7 +20,7 @@ interface ContextValue {}
 export const SocketContext = createContext<ContextValue>({});
 
 export const SocketProvider = ({ children }: SocketProviderType) => {
-  const { room, joinCall, setShowBreakoutModal } = useCall();
+  const { room, joinCall, setShowBreakoutModal, joined } = useCall();
   const daily = useDaily();
   const {
     breakoutSession,
@@ -84,7 +84,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const handleBreakoutSessionStarted = useCallback(
     async (data: BreakoutEventData) => {
-      if (room !== data.room) return;
+      if (room !== data.room || !joined) return;
 
       const newBreakoutSession: DailyBreakoutSession =
         data.sessionObject as DailyBreakoutSession;
@@ -99,6 +99,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       await joinRoom(myBreakoutRoom?.roomName, true);
     },
     [
+      joined,
       getMyBreakoutRoom,
       joinRoom,
       room,
@@ -111,7 +112,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const handleBreakoutSessionUpdated = useCallback(
     async (data: BreakoutEventData) => {
-      if (room !== data.room) return;
+      if (room !== data.room || !joined) return;
 
       setBreakoutSession(data.sessionObject as DailyBreakoutSession);
       const roomInfo = (await daily?.room()) as DailyRoomInfo;
@@ -127,6 +128,7 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
       setIsBreakoutRoom(!!myBreakoutRoom?.roomName);
     },
     [
+      joined,
       room,
       setBreakoutSession,
       daily,
@@ -138,33 +140,33 @@ export const SocketProvider = ({ children }: SocketProviderType) => {
 
   const handleBreakoutSessionEnded = useCallback(
     async (data: BreakoutEventData) => {
-      if (room !== data.room) return;
+      if (room !== data.room || !joined) return;
 
       setBreakoutSession(null);
       await joinRoom(room, false);
       setIsBreakoutRoom(false);
     },
-    [joinRoom, room, setBreakoutSession, setIsBreakoutRoom],
+    [joined, joinRoom, room, setBreakoutSession, setIsBreakoutRoom],
   );
 
   const handleBreakoutSessionRequest = useCallback(
     (data: BreakoutEventData) => {
-      if (room !== data.room) return;
+      if (room !== data.room || !joined) return;
 
       if (breakoutSession && daily) {
         sendToSocket('DAILY_BREAKOUT_SYNC', breakoutSession);
       }
     },
-    [breakoutSession, daily, room, sendToSocket],
+    [joined, breakoutSession, daily, room, sendToSocket],
   );
 
   const handleBreakoutSessionSync = useCallback(
     (data: BreakoutEventData) => {
-      if (room !== data.room) return;
+      if (room !== data.room || !joined) return;
 
       setBreakoutSession(data.sessionObject as DailyBreakoutSession);
     },
-    [room, setBreakoutSession],
+    [joined, room, setBreakoutSession],
   );
 
   useEffect(() => {

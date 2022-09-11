@@ -19,8 +19,8 @@ const JoinBreakoutModal = () => {
   const localParticipant = useLocalParticipant();
 
   const handleClick = async (roomName: string) => {
-    setShow(false);
     assignRoomToNewParticipant(localParticipant as DailyParticipant, roomName);
+    setShow(false);
   };
 
   return (

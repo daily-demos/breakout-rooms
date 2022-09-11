@@ -60,6 +60,7 @@ interface ContextValue {
   showBreakoutModal: boolean;
   isInRoom: boolean;
   presence: any;
+  joined: boolean;
 }
 
 export const CallContext = createContext<ContextValue>({
@@ -74,6 +75,7 @@ export const CallContext = createContext<ContextValue>({
   showBreakoutModal: false,
   isInRoom: false,
   presence: {},
+  joined: false,
 });
 
 export const CallProvider = ({ children, roomName }: CallProviderType) => {
@@ -83,6 +85,8 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   const [room, setRoom] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isInRoom, setIsInRoom] = useState<boolean>(false);
+
+  const [joined, setJoined] = useState(false);
 
   const [presence, setPresence] = useState<any>({});
 
@@ -99,6 +103,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
   }, []);
 
   const handleJoinedMeeting = useCallback(async () => {
+    setJoined(true);
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -200,6 +205,7 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
           isOwner,
           isInRoom,
           presence,
+          joined,
         }}
       >
         {children}
