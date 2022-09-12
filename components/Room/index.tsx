@@ -16,7 +16,7 @@ const Room = () => {
   const router = useRouter();
   const { room, owner, participant, robot } = router.query;
   const { callRef, callFrame, joinAs, isInRoom, joined } = useCall();
-  const { breakoutSession, join, isBreakoutRoom, warn, setWarn } =
+  const { breakoutSession, join, warn, setWarn } =
     useBreakoutRoom();
 
   const showingCall = useMemo(
@@ -60,7 +60,7 @@ const Room = () => {
         className="room"
         style={{
           width: '100vw',
-          height: isBreakoutRoom ? 'calc(100vh - 35px)' : '100vh',
+          height: breakoutSession ? 'calc(100vh - 35px)' : '100vh',
         }}
       />
 

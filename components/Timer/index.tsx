@@ -4,7 +4,7 @@ import { Text } from 'evergreen-ui';
 
 const Timer = () => {
   const [secs, setSecs] = useState<string | null>('--:--');
-  const { breakoutSession, endSession } = useBreakoutRoom();
+  const { breakoutSession } = useBreakoutRoom();
 
   // If room has an expiry time, we'll calculate how many seconds until expiry
   useEffect(() => {
@@ -15,7 +15,6 @@ const Timer = () => {
       let timeLeft =
         (breakoutSession.config.exp as unknown as number) - timeNow;
       if (timeLeft < 0 && breakoutSession.config.exp) {
-        endSession();
         return setSecs(null);
       }
       setSecs(
@@ -24,7 +23,7 @@ const Timer = () => {
     }, 1000);
 
     return () => clearInterval(i);
-  }, [breakoutSession.config.exp, endSession]);
+  }, [breakoutSession.config.exp]);
 
   if (!secs) {
     return null;

@@ -281,13 +281,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     if (!daily || !breakoutSession || !isInRoom) return false;
 
     if (!isBreakoutRoom) {
-      if (!returnedToLobby) setJoin(breakoutSession.config.auto_join);
       return breakoutSession.config.auto_join;
-    } else {
-      setJoin(false);
-      return false;
     }
-  }, [daily, breakoutSession, returnedToLobby, isBreakoutRoom, isInRoom]);
+  }, [daily, breakoutSession, isBreakoutRoom, isInRoom]);
 
   const createSession = useCallback(() => {
     const r = rooms.assigned.filter(room => room.participantIds.length > 0);
@@ -360,10 +356,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
     [breakoutSession, sendToSocket],
   );
 
-  const endSession = useCallback(
-    () => {
-      sendToSocket('DAILY_BREAKOUT_CONCLUDED', null)
-    }, [sendToSocket]);
+  const endSession = useCallback(() => {
+    sendToSocket('DAILY_BREAKOUT_CONCLUDED', null);
+  }, [sendToSocket]);
 
   const autoAssign = useCallback(
     (totalRooms: number) => {
