@@ -361,9 +361,9 @@ export const BreakoutProvider = ({ children }: BreakoutRoomProviderType) => {
   );
 
   const endSession = useCallback(
-    () => sendToSocket('DAILY_BREAKOUT_CONCLUDED', null),
-    [sendToSocket],
-  );
+    () => {
+      sendToSocket('DAILY_BREAKOUT_CONCLUDED', null)
+    }, [sendToSocket]);
 
   const autoAssign = useCallback(
     (totalRooms: number) => {

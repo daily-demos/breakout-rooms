@@ -170,6 +170,8 @@ export const CallProvider = ({ children, roomName }: CallProviderType) => {
         const localUser = await callFrame.participants().local;
         body.username = localUser.user_name;
         body.userId = localUser.user_id;
+        body.startVideoOff = !localUser.video;
+        body.startAudioOff = !localUser.audio;
       }
 
       const options = {

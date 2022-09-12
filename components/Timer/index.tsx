@@ -14,7 +14,7 @@ const Timer = () => {
       const timeNow = Math.round(new Date().getTime() / 1000);
       let timeLeft =
         (breakoutSession.config.exp as unknown as number) - timeNow;
-      if (timeLeft < 0) {
+      if (timeLeft < 0 && breakoutSession.config.exp) {
         endSession();
         return setSecs(null);
       }

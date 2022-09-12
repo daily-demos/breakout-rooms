@@ -6,6 +6,7 @@ import {
   Card,
   Paragraph,
   Button,
+  Text,
 } from 'evergreen-ui';
 import {
   DragDropContext,
@@ -98,8 +99,27 @@ const ManageBreakoutRooms = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         // @ts-ignore
-                        style={getListStyle(snapshot.isDraggingOver)}
+                        style={getListStyle(
+                          snapshot.isDraggingOver,
+                          room?.participantIds?.length,
+                        )}
                       >
+                        {room?.participantIds?.length < 1 && (
+                          <Pane
+                            width="100%"
+                            height="100%"
+                            display="flex"
+                            textAlign="center"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            {snapshot.isDraggingOver ? (
+                              <Text color="muted">Drop to add to room</Text>
+                            ) : (
+                              <Text color="muted">Drag people here</Text>
+                            )}
+                          </Pane>
+                        )}
                         {room?.participantIds?.map(
                           (userId: string, index: number) => (
                             <Draggable
